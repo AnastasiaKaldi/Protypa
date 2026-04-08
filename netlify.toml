@@ -8,3 +8,7 @@
 # Node version for the build container
 [build.environment]
   NODE_VERSION = "20"
+  # NEXT_PUBLIC_* env vars are intentionally inlined into the browser bundle
+  # (that's the whole point of the prefix). Tell Netlify's secret scanner not
+  # to flag them. The actual secret — SUPABASE_SERVICE_ROLE_KEY — stays scanned.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY"
