@@ -165,11 +165,7 @@ function Hero() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4">
-        <div className="text-xs font-bold tracking-[0.22em] uppercase text-slate-500">
-          {el.contact.eyebrow}
-        </div>
-
-        <h1 className="mt-6 leading-[0.9] tracking-tight text-ink text-[clamp(2.25rem,6vw,5.5rem)] font-extrabold">
+        <h1 className="leading-[0.9] tracking-tight text-ink text-[clamp(2.25rem,6vw,5.5rem)] font-extrabold">
           <span className="block">Ας</span>
           <span className="block pl-[6vw] relative">
             <span className="font-display italic font-light">μιλήσουμε.</span>
