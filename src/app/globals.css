@@ -39,6 +39,12 @@ a {
   color: inherit;
 }
 
+/* Prevent long Greek words from breaking mobile layouts */
+h1, h2, h3, h4, p, span, li, td, th {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
 /* Editorial display utility — used for big serif headlines */
 .font-display {
   font-family: var(--font-display), ui-serif, Georgia, serif;

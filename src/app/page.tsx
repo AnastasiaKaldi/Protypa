@@ -22,8 +22,8 @@ function Hero() {
       {/* Layered background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-paper" />
-        <div className="absolute -top-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-violet-300/30 blur-3xl" />
-        <div className="absolute top-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-orange-300/30 blur-3xl" />
+        <div className="hidden sm:block absolute -top-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-violet-300/30 blur-3xl" />
+        <div className="hidden sm:block absolute top-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-orange-300/30 blur-3xl" />
         <div
           className="absolute inset-0 opacity-[0.05]"
           style={{
@@ -39,7 +39,7 @@ function Hero() {
           {/* Copy column */}
           <div className="lg:col-span-7">
             {/* Editorial headline mixing serif + sans */}
-            <h1 className="text-[clamp(2.75rem,7vw,5.75rem)] leading-[0.95] tracking-tight font-extrabold text-ink">
+            <h1 className="text-[clamp(1.75rem,5.5vw,5.75rem)] leading-[0.95] tracking-tight font-extrabold text-ink">
               <span className="block font-display italic font-light">
                 {el.home.heroPre}
               </span>
@@ -117,16 +117,13 @@ function Hero() {
               </Link>
             </div>
 
-            <p className="mt-6 text-xs text-slate-500 font-medium">
-              ✨ {el.home.heroNote}
-            </p>
           </div>
 
-          {/* Visual column — tilted preview card */}
-          <div className="lg:col-span-5 relative">
+          {/* Visual column — tilted preview card (hidden on small mobile) */}
+          <div className="hidden md:block lg:col-span-5 relative">
             <div className="relative max-w-md mx-auto lg:max-w-none">
               {/* Rotating circular seal — top left */}
-              <div className="absolute -top-10 -left-10 z-20 w-28 h-28 md:w-32 md:h-32 grid place-items-center drop-shadow-xl">
+              <div className="hidden sm:grid absolute -top-10 -left-10 z-20 w-28 h-28 md:w-32 md:h-32 place-items-center drop-shadow-xl">
                 <div className="absolute inset-0 rounded-full bg-amber-300" />
                 <svg
                   className="absolute inset-0 w-full h-full animate-spin-slow text-ink"
@@ -157,7 +154,7 @@ function Hero() {
 
               {/* Polaroid-style grade card — bottom right */}
               <div
-                className="absolute -bottom-10 -right-6 z-20 bg-paper p-3 pb-6 rounded-md shadow-2xl rotate-[6deg] animate-float-slow"
+                className="hidden sm:block absolute -bottom-10 -right-6 z-20 bg-paper p-3 pb-6 rounded-md shadow-2xl rotate-[6deg] animate-float-slow"
                 style={{ ["--rot" as string]: "6deg" }}
               >
                 {/* Tape */}
@@ -329,18 +326,18 @@ function Bento() {
         </div>
 
         {/* Bento grid: mixed sizes */}
-        <div className="grid grid-cols-6 gap-4 md:gap-5 auto-rows-[minmax(180px,auto)]">
+        <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 md:gap-5 sm:auto-rows-[minmax(180px,auto)]">
           {/* Big featured card */}
-          <div className="col-span-6 md:col-span-4 row-span-2 relative rounded-3xl bg-gradient-to-br from-violet-600 via-fuchsia-600 to-orange-500 text-white p-8 md:p-10 overflow-hidden noise group">
+          <div className="sm:col-span-6 md:col-span-4 md:row-span-2 relative rounded-3xl bg-gradient-to-br from-violet-600 via-fuchsia-600 to-orange-500 text-white p-6 sm:p-8 md:p-10 overflow-hidden noise group">
             <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/15 blur-3xl" />
-            <div className="absolute bottom-0 right-0 text-[20rem] leading-none -mb-24 -mr-12 opacity-10 select-none">
+            <div className="absolute bottom-0 right-0 text-[10rem] md:text-[20rem] leading-none -mb-12 -mr-6 md:-mb-24 md:-mr-12 opacity-10 select-none">
               ✓
             </div>
             <div className="relative">
               <div className="text-xs font-bold tracking-[0.2em] uppercase opacity-80">
                 Διόρθωση
               </div>
-              <h3 className="mt-4 font-display text-4xl md:text-5xl leading-[0.95] font-light">
+              <h3 className="mt-4 font-display text-2xl sm:text-4xl md:text-5xl leading-[0.95] font-light">
                 Διορθώστε ένα γραπτό σε{" "}
                 <span className="italic">δευτερόλεπτα.</span>
               </h3>
@@ -474,8 +471,8 @@ function HowItWorks() {
 
   return (
     <section className="relative py-28 bg-ink text-white overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-violet-600/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-orange-500/20 blur-3xl" />
+      <div className="hidden sm:block pointer-events-none absolute -top-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-violet-600/20 blur-3xl" />
+      <div className="hidden sm:block pointer-events-none absolute -bottom-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-orange-500/20 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-4">
         <div className="max-w-3xl mb-16">
@@ -492,7 +489,7 @@ function HowItWorks() {
         <div className="grid md:grid-cols-2 gap-x-12 gap-y-14">
           {steps.map((s) => (
             <div key={s.n} className="group flex gap-6">
-              <div className="font-display text-7xl md:text-8xl font-light leading-none text-amber-300/30 group-hover:text-amber-300 transition-colors duration-500 tabular-nums">
+              <div className="font-display text-5xl sm:text-7xl md:text-8xl font-light leading-none text-amber-300/30 group-hover:text-amber-300 transition-colors duration-500 tabular-nums">
                 {s.n}
               </div>
               <div className="pt-3">
@@ -520,7 +517,7 @@ function Manifesto() {
         <div className="text-xs font-bold tracking-[0.2em] uppercase text-slate-500">
           {el.home.manifestoEyebrow}
         </div>
-        <blockquote className="mt-6 font-display text-3xl md:text-5xl leading-[1.15] font-light text-ink">
+        <blockquote className="mt-6 font-display text-xl sm:text-3xl md:text-5xl leading-[1.15] font-light text-ink">
           <span className="text-amber-400 text-6xl leading-none align-top mr-1">
             “
           </span>

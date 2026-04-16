@@ -19,8 +19,8 @@ function Hero() {
     <section className="relative pt-20 pb-12 md:pt-28 md:pb-16">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-paper" />
-        <div className="absolute -top-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-emerald-200/40 blur-3xl" />
-        <div className="absolute top-20 -left-40 w-[36rem] h-[36rem] rounded-full bg-amber-200/30 blur-3xl" />
+        <div className="hidden sm:block absolute -top-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-emerald-200/40 blur-3xl" />
+        <div className="hidden sm:block absolute top-20 -left-40 w-[36rem] h-[36rem] rounded-full bg-amber-200/30 blur-3xl" />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -73,7 +73,7 @@ function Story() {
               <div className="text-xs font-bold tracking-[0.22em] uppercase text-slate-500">
                 {el.about.storyEyebrow}
               </div>
-              <div className="mt-8 font-display text-[10rem] leading-[0.8] italic font-light text-amber-400/90 select-none">
+              <div className="mt-8 font-display text-[5rem] sm:text-[8rem] md:text-[10rem] leading-[0.8] italic font-light text-amber-400/90 select-none">
                 01
               </div>
             </div>
@@ -105,8 +105,8 @@ function Story() {
 function Mission() {
   return (
     <section className="relative bg-ink text-paper py-28 overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-amber-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-emerald-600/10 blur-3xl" />
+      <div className="hidden sm:block pointer-events-none absolute -top-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-amber-500/10 blur-3xl" />
+      <div className="hidden sm:block pointer-events-none absolute -bottom-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-emerald-600/10 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-4">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
@@ -116,7 +116,7 @@ function Mission() {
               <div className="text-xs font-bold tracking-[0.22em] uppercase text-amber-300">
                 {el.about.missionEyebrow}
               </div>
-              <div className="mt-8 font-display text-[10rem] leading-[0.8] italic font-light text-amber-300/30 select-none">
+              <div className="mt-8 font-display text-[5rem] sm:text-[8rem] md:text-[10rem] leading-[0.8] italic font-light text-amber-300/30 select-none">
                 02
               </div>
             </div>
@@ -169,7 +169,7 @@ function Cta() {
         <div className="grid md:grid-cols-12 gap-10 items-center">
           {/* Left — big italic glyph */}
           <div className="md:col-span-4">
-            <div className="font-display text-[14rem] md:text-[18rem] leading-[0.8] italic font-light text-ink">
+            <div className="font-display text-[6rem] sm:text-[10rem] md:text-[18rem] leading-[0.8] italic font-light text-ink">
               ✦
             </div>
           </div>

@@ -204,7 +204,7 @@ function FaqItem({
         <span className="font-display text-base tabular-nums text-slate-400 group-open:text-amber-500 transition-colors flex-shrink-0 mt-1">
           {String(number).padStart(2, "0")}
         </span>
-        <span className="flex-1 font-display text-2xl md:text-3xl font-light leading-tight text-ink group-hover:italic transition-all">
+        <span className="flex-1 font-display text-lg sm:text-2xl md:text-3xl font-light leading-tight text-ink group-hover:italic transition-all">
           {question}
         </span>
         <span className="flex-shrink-0 w-9 h-9 rounded-full border-2 border-ink text-ink grid place-items-center text-xl group-open:bg-ink group-open:text-paper group-open:rotate-45 transition-all">
@@ -255,14 +255,14 @@ function NoResults({ query }: { query: string }) {
 function NotFoundCta() {
   return (
     <section className="relative bg-ink text-paper py-28 overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-amber-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-rose-500/10 blur-3xl" />
+      <div className="hidden sm:block pointer-events-none absolute -top-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-amber-500/10 blur-3xl" />
+      <div className="hidden sm:block pointer-events-none absolute -bottom-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-rose-500/10 blur-3xl" />
 
       <div className="relative mx-auto max-w-6xl px-4">
         <div className="grid md:grid-cols-12 gap-10 items-center">
           {/* Big italic ? mark */}
           <div className="md:col-span-4">
-            <div className="font-display text-[14rem] md:text-[18rem] leading-[0.8] italic font-light text-amber-300/90">
+            <div className="font-display text-[6rem] sm:text-[10rem] md:text-[18rem] leading-[0.8] italic font-light text-amber-300/90">
               ?
             </div>
           </div>

@@ -81,8 +81,8 @@ function Hero() {
     <section className="relative pt-20 pb-16 md:pt-28 md:pb-20">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-paper" />
-        <div className="absolute -top-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-amber-200/40 blur-3xl" />
-        <div className="absolute top-20 -left-40 w-[36rem] h-[36rem] rounded-full bg-emerald-200/30 blur-3xl" />
+        <div className="hidden sm:block absolute -top-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-amber-200/40 blur-3xl" />
+        <div className="hidden sm:block absolute top-20 -left-40 w-[36rem] h-[36rem] rounded-full bg-emerald-200/30 blur-3xl" />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -101,7 +101,7 @@ function Hero() {
         {/* Big asymmetric headline that mixes serif italic + sans bold */}
         <h1 className="mt-6 leading-[0.9] tracking-tight text-ink font-extrabold text-[clamp(1.75rem,4.5vw,4rem)]">
           <span className="block">{el.packages.titleA}</span>
-          <span className="block pl-[10vw]">
+          <span className="block pl-[3vw] sm:pl-[6vw] md:pl-[10vw]">
             <span className="font-display italic font-light">
               {el.packages.titleB}
             </span>
@@ -328,8 +328,8 @@ function Compare({ packages }: { packages: Package[] }) {
 
   return (
     <section className="relative py-28 bg-ink text-paper overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-amber-500/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-violet-600/15 blur-3xl" />
+      <div className="hidden sm:block pointer-events-none absolute -top-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-amber-500/10 blur-3xl" />
+      <div className="hidden sm:block pointer-events-none absolute -bottom-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-violet-600/15 blur-3xl" />
 
       <div className="relative mx-auto max-w-6xl px-4">
         <div className="max-w-2xl mb-12">
@@ -420,7 +420,7 @@ function Guarantee() {
         <div className="grid md:grid-cols-12 gap-10 items-center">
           {/* Big number / mark */}
           <div className="md:col-span-4">
-            <div className="font-display text-[12rem] md:text-[16rem] leading-[0.8] font-light text-ink">
+            <div className="font-display text-[6rem] sm:text-[10rem] md:text-[16rem] leading-[0.8] font-light text-ink">
               ✦
             </div>
           </div>

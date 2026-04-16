@@ -152,8 +152,8 @@ function Hero() {
     <section className="relative pt-20 pb-12 md:pt-28 md:pb-16">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-paper" />
-        <div className="absolute -top-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-rose-200/40 blur-3xl" />
-        <div className="absolute top-20 -left-40 w-[36rem] h-[36rem] rounded-full bg-amber-200/30 blur-3xl" />
+        <div className="hidden sm:block absolute -top-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-rose-200/40 blur-3xl" />
+        <div className="hidden sm:block absolute top-20 -left-40 w-[36rem] h-[36rem] rounded-full bg-amber-200/30 blur-3xl" />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -211,7 +211,7 @@ function InfoRow({
         <div className="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-500">
           {label}
         </div>
-        <div className="mt-2 font-display text-2xl md:text-3xl font-light text-ink leading-tight group-hover:italic transition-all">
+        <div className="mt-2 font-display text-lg sm:text-2xl md:text-3xl font-light text-ink leading-tight break-words group-hover:italic transition-all">
           {value}
         </div>
         <div className="mt-1 text-sm text-slate-500">{note}</div>

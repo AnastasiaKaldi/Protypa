@@ -16,8 +16,8 @@ function Hero() {
       {/* Background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-paper" />
-        <div className="absolute -top-40 -left-40 w-[42rem] h-[42rem] rounded-full bg-amber-200/40 blur-3xl" />
-        <div className="absolute top-20 -right-40 w-[36rem] h-[36rem] rounded-full bg-rose-200/30 blur-3xl" />
+        <div className="hidden sm:block absolute -top-40 -left-40 w-[42rem] h-[42rem] rounded-full bg-amber-200/40 blur-3xl" />
+        <div className="hidden sm:block absolute top-20 -right-40 w-[36rem] h-[36rem] rounded-full bg-rose-200/30 blur-3xl" />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{

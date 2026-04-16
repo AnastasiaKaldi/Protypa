@@ -2,6 +2,7 @@ import Link from "next/link";
 import { el } from "@/lib/i18n/el";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SignOutButton } from "./SignOutButton";
+import { MobileNav } from "./MobileNav";
 
 export async function Header() {
   const supabase = await createSupabaseServerClient();
@@ -33,7 +34,7 @@ export async function Header() {
             <>
               <Link
                 href="/account"
-                className="px-4 py-2 rounded-full hover:bg-slate-100 font-medium transition-colors"
+                className="hidden md:inline-flex px-4 py-2 rounded-full hover:bg-slate-100 font-medium transition-colors"
               >
                 {el.nav.account}
               </Link>
@@ -43,13 +44,13 @@ export async function Header() {
             <>
               <Link
                 href="/signin"
-                className="hidden sm:inline-flex px-4 py-2 rounded-full hover:bg-slate-100 font-medium transition-colors"
+                className="hidden md:inline-flex px-4 py-2 rounded-full hover:bg-slate-100 font-medium transition-colors"
               >
                 {el.nav.signin}
               </Link>
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-300 text-ink font-semibold shadow-md shadow-amber-500/30 hover:bg-amber-400 hover:-translate-y-0.5 transition-all"
+                className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-300 text-ink font-semibold shadow-md shadow-amber-500/30 hover:bg-amber-400 hover:-translate-y-0.5 transition-all"
               >
                 {el.nav.signup}
                 <svg
@@ -66,6 +67,7 @@ export async function Header() {
               </Link>
             </>
           )}
+          <MobileNav />
         </div>
       </div>
     </header>
