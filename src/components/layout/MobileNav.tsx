@@ -10,7 +10,7 @@ export function MobileNav() {
     <div className="md:hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="p-2 text-ink cursor-pointer"
+        className="p-2 text-paper/70 hover:text-paper cursor-pointer transition-colors"
         aria-label="Menu"
       >
         {open ? (
@@ -25,21 +25,22 @@ export function MobileNav() {
       </button>
 
       {open && (
-        <div className="absolute top-16 left-0 right-0 bg-paper border-b border-slate-200 shadow-xl z-40 px-4 py-6">
+        <div className="absolute top-14 md:top-16 left-0 right-0 bg-brand-dark border-b border-white/10 shadow-2xl z-40 px-4 py-6">
           <nav className="flex flex-col gap-1">
             <MobileLink href="/" onClick={() => setOpen(false)}>{el.nav.home}</MobileLink>
-            <MobileLink href="/paketa" onClick={() => setOpen(false)}>{el.nav.packages}</MobileLink>
-            <MobileLink href="/sxetika" onClick={() => setOpen(false)}>{el.nav.about}</MobileLink>
-            <MobileLink href="/faq" onClick={() => setOpen(false)}>{el.nav.faq}</MobileLink>
-            <MobileLink href="/epikoinonia" onClick={() => setOpen(false)}>{el.nav.contact}</MobileLink>
-            <div className="mt-3 pt-3 border-t border-slate-200 flex flex-col gap-1">
+            <MobileLink href="/paketa" onClick={() => setOpen(false)}>ΠΑΚΕΤΑ</MobileLink>
+            <MobileLink href="/signup" onClick={() => setOpen(false)}>ΓΙΑ ΜΑΘΗΤΕΣ</MobileLink>
+            <MobileLink href="/paketa" onClick={() => setOpen(false)}>ΓΙΑ ΦΡΟΝΤΙΣΤΕΣ</MobileLink>
+            <MobileLink href="/faq" onClick={() => setOpen(false)}>FAQ</MobileLink>
+            <MobileLink href="/epikoinonia" onClick={() => setOpen(false)}>ΕΠΙΚΟΙΝΩΝΙΑ</MobileLink>
+            <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-2">
               <MobileLink href="/signin" onClick={() => setOpen(false)}>{el.nav.signin}</MobileLink>
               <Link
                 href="/signup"
                 onClick={() => setOpen(false)}
-                className="mt-2 flex items-center justify-center gap-1.5 px-4 py-3 rounded-full bg-amber-300 text-ink font-semibold"
+                className="flex items-center justify-center px-4 py-3 rounded-md bg-accent text-ink font-black uppercase tracking-widest text-xs"
               >
-                {el.nav.signup}
+                APPLY
               </Link>
             </div>
           </nav>
@@ -62,7 +63,7 @@ function MobileLink({
     <Link
       href={href}
       onClick={onClick}
-      className="px-3 py-3 rounded-xl text-ink font-medium hover:bg-slate-100 transition-colors"
+      className="px-3 py-3 rounded-xl text-paper/70 hover:text-paper font-bold uppercase tracking-wider text-sm transition-colors"
     >
       {children}
     </Link>

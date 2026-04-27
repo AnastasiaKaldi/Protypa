@@ -6,7 +6,7 @@ import { el } from "@/lib/i18n/el";
 export function BuyButton({
   packageId,
   signedIn,
-  buttonClass = "bg-ink text-white hover:bg-slate-800",
+  buttonClass = "bg-accent-purple text-white hover:bg-[#6500b0]",
 }: {
   packageId: string;
   signedIn: boolean;

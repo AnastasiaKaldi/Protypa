@@ -9,32 +9,31 @@ export async function Header() {
   const user = supabase ? (await supabase.auth.getUser()).data.user : null;
 
   return (
-    <header className="sticky top-0 z-30 backdrop-blur-xl bg-paper/75 border-b border-slate-200/70">
-      <div className="mx-auto max-w-7xl flex items-center justify-between px-4 h-16">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <span className="relative inline-block w-9 h-9 rounded-xl bg-ink text-white grid place-items-center font-display italic text-base shadow-md group-hover:scale-105 transition-transform">
-            π
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-paper" />
-          </span>
-          <span className="font-display text-xl tracking-tight text-ink leading-none">
-            {el.brand.name}
+    <header className="sticky top-0 z-30 bg-brand border-b border-white/10">
+      <div className="mx-auto max-w-7xl flex items-center justify-between px-4 sm:px-6 h-14 md:h-16">
+        {/* Logo */}
+        <Link href="/" className="group flex items-center gap-0">
+          <span className="font-display text-lg md:text-xl text-paper tracking-wider group-hover:text-accent transition-colors">
+            PROTUPA.GR
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1 text-sm">
-          <NavLink href="/">{el.nav.home}</NavLink>
-          <NavLink href="/paketa">{el.nav.packages}</NavLink>
-          <NavLink href="/sxetika">{el.nav.about}</NavLink>
-          <NavLink href="/faq">{el.nav.faq}</NavLink>
-          <NavLink href="/epikoinonia">{el.nav.contact}</NavLink>
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-1">
+          <NavLink href="/paketa">ΠΑΚΕΤΑ</NavLink>
+          <NavLink href="/signup">ΓΙΑ ΜΑΘΗΤΕΣ</NavLink>
+          <NavLink href="/paketa">ΓΙΑ ΦΡΟΝΤΙΣΤΕΣ</NavLink>
+          <NavLink href="/faq">FAQ</NavLink>
+          <NavLink href="/epikoinonia">ΕΠΙΚΟΙΝΩΝΙΑ</NavLink>
         </nav>
 
-        <div className="flex items-center gap-2 text-sm">
+        {/* Right side */}
+        <div className="flex items-center gap-2">
           {user ? (
             <>
               <Link
                 href="/account"
-                className="hidden md:inline-flex px-4 py-2 rounded-full hover:bg-slate-100 font-medium transition-colors"
+                className="hidden md:inline-flex px-4 py-2 text-paper/70 hover:text-paper font-bold uppercase tracking-wider text-xs transition-colors"
               >
                 {el.nav.account}
               </Link>
@@ -44,26 +43,15 @@ export async function Header() {
             <>
               <Link
                 href="/signin"
-                className="hidden md:inline-flex px-4 py-2 rounded-full hover:bg-slate-100 font-medium transition-colors"
+                className="hidden md:inline-flex px-4 py-2 text-paper/70 hover:text-paper font-bold uppercase tracking-wider text-xs transition-colors"
               >
                 {el.nav.signin}
               </Link>
               <Link
                 href="/signup"
-                className="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-300 text-ink font-semibold shadow-md shadow-amber-500/30 hover:bg-amber-400 hover:-translate-y-0.5 transition-all"
+                className="inline-flex items-center px-4 py-2 rounded-md bg-accent text-ink font-black uppercase tracking-widest text-xs hover:bg-accent/90 hover:-translate-y-0.5 transition-all"
               >
-                {el.nav.signup}
-                <svg
-                  className="w-3.5 h-3.5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12h14M13 5l7 7-7 7" />
-                </svg>
+                APPLY
               </Link>
             </>
           )}
@@ -84,7 +72,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="px-3 py-2 rounded-full text-slate-600 hover:text-ink hover:bg-slate-100/80 font-medium transition-colors"
+      className="px-3 py-2 text-paper/80 hover:text-paper font-bold uppercase tracking-wider text-xs transition-colors"
     >
       {children}
     </Link>

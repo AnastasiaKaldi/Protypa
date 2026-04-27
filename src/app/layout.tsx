@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans, Fraunces } from "next/font/google";
+import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -8,16 +8,8 @@ import { el } from "@/lib/i18n/el";
 const notoSans = Noto_Sans({
   variable: "--font-sans-greek",
   subsets: ["latin", "greek", "greek-ext"],
+  weight: ["400", "700", "900"],
   display: "swap",
-});
-
-// Editorial display serif. Used for big headlines to break the monotony of
-// pure sans-serif "AI template" look.
-const fraunces = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin"],
-  display: "swap",
-  axes: ["opsz", "SOFT"],
 });
 
 export const metadata: Metadata = {
@@ -33,7 +25,7 @@ export default function RootLayout({
   return (
     <html
       lang="el"
-      className={`${notoSans.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${notoSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Header />

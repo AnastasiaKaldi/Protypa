@@ -8,46 +8,28 @@ export default function ContactPage() {
   const [submitting, setSubmitting] = useState(false);
 
   return (
-    <div className="overflow-hidden">
+    <div>
       <Hero />
 
-      <section className="relative pt-12 md:pt-16 pb-28">
-        <div className="mx-auto max-w-7xl px-4">
+      <section className="relative bg-ink pt-16 pb-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
-            {/* Left — info, magazine TOC style */}
+
+            {/* Left — contact info */}
             <aside className="lg:col-span-5">
-              <div className="text-xs font-bold tracking-[0.22em] uppercase text-slate-500">
+              <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-muted mb-6">
                 Πού να μας βρείτε
               </div>
 
-              <ul className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
-                <InfoRow
-                  numeral="01"
-                  label="Email"
-                  value={el.contact.infoEmailValue}
-                  note={el.contact.infoEmailNote}
-                  href={`mailto:${el.contact.infoEmailValue}`}
-                />
-                <InfoRow
-                  numeral="02"
-                  label="Ώρες"
-                  value={el.contact.infoHoursValue}
-                  note={el.contact.infoHoursNote}
-                />
-                <InfoRow
-                  numeral="03"
-                  label="Τοποθεσία"
-                  value={el.contact.infoLocationValue}
-                  note={el.contact.infoLocationNote}
-                />
+              <ul className="divide-y divide-white/10 border-y border-white/10">
+                <InfoRow numeral="01" label="Email" value={el.contact.infoEmailValue} note={el.contact.infoEmailNote} href={`mailto:${el.contact.infoEmailValue}`} />
+                <InfoRow numeral="02" label="Ώρες" value={el.contact.infoHoursValue} note={el.contact.infoHoursNote} />
+                <InfoRow numeral="03" label="Τοποθεσία" value={el.contact.infoLocationValue} note={el.contact.infoLocationNote} />
               </ul>
 
-              <p className="mt-10 text-sm text-slate-500 leading-relaxed max-w-sm">
+              <p className="mt-10 text-sm text-muted leading-relaxed max-w-sm">
                 Πριν επικοινωνήσετε, ίσως βρείτε την απάντηση στις{" "}
-                <Link
-                  href="/faq"
-                  className="text-ink underline decoration-amber-400 decoration-4 underline-offset-4 hover:decoration-amber-500"
-                >
+                <Link href="/faq" className="text-brand hover:text-accent font-bold transition-colors">
                   συχνές ερωτήσεις
                 </Link>
                 .
@@ -56,7 +38,7 @@ export default function ContactPage() {
 
             {/* Right — form */}
             <div className="lg:col-span-7">
-              <div className="text-xs font-bold tracking-[0.22em] uppercase text-slate-500">
+              <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-muted mb-8">
                 ↓ Στείλτε μήνυμα
               </div>
 
@@ -64,11 +46,9 @@ export default function ContactPage() {
                 <SuccessState onReset={() => setSent(false)} />
               ) : (
                 <form
-                  className="mt-8 space-y-8"
+                  className="space-y-8"
                   onSubmit={async (e) => {
                     e.preventDefault();
-                    // MVP: front-end only. Wire up to Resend / Formspree /
-                    // a Supabase contact_messages table before launch.
                     setSubmitting(true);
                     await new Promise((r) => setTimeout(r, 600));
                     setSubmitting(false);
@@ -76,44 +56,17 @@ export default function ContactPage() {
                   }}
                 >
                   <div className="grid sm:grid-cols-2 gap-8">
-                    <Field
-                      label={el.contact.name}
-                      name="name"
-                      placeholder={el.contact.namePlaceholder}
-                      required
-                    />
-                    <Field
-                      label={el.contact.email}
-                      name="email"
-                      type="email"
-                      placeholder={el.contact.emailPlaceholder}
-                      required
-                    />
+                    <Field label={el.contact.name} name="name" placeholder={el.contact.namePlaceholder} required />
+                    <Field label={el.contact.email} name="email" type="email" placeholder={el.contact.emailPlaceholder} required />
                   </div>
-
-                  <Field
-                    label={el.contact.school}
-                    name="school"
-                    placeholder={el.contact.schoolPlaceholder}
-                  />
-
-                  <SelectField
-                    label={el.contact.subject}
-                    name="subject"
-                    placeholder={el.contact.subjectPlaceholder}
-                    options={el.contact.subjectOptions}
-                  />
-
-                  <TextareaField
-                    label={el.contact.message}
-                    name="message"
-                    placeholder={el.contact.messagePlaceholder}
-                  />
+                  <Field label={el.contact.school} name="school" placeholder={el.contact.schoolPlaceholder} />
+                  <SelectField label={el.contact.subject} name="subject" placeholder={el.contact.subjectPlaceholder} options={el.contact.subjectOptions} />
+                  <TextareaField label={el.contact.message} name="message" placeholder={el.contact.messagePlaceholder} />
 
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="group inline-flex items-center gap-2 px-7 py-4 rounded-full bg-ink text-white font-semibold shadow-xl shadow-slate-900/20 hover:-translate-y-0.5 hover:shadow-2xl active:translate-y-0 transition-all disabled:opacity-60 disabled:hover:translate-y-0 cursor-pointer"
+                    className="group inline-flex items-center gap-2 px-7 py-4 rounded-full bg-accent-purple text-white font-black uppercase tracking-wider text-sm shadow-xl shadow-accent-purple/20 hover:bg-[#6500b0] hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer"
                   >
                     {submitting ? (
                       <>
@@ -122,12 +75,8 @@ export default function ContactPage() {
                       </>
                     ) : (
                       <>
-                        <span className="w-7 h-7 rounded-full bg-amber-300 text-ink grid place-items-center">
-                          <svg
-                            className="w-3 h-3 ml-0.5"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                          >
+                        <span className="w-6 h-6 rounded-full bg-white/15 grid place-items-center group-hover:scale-110 transition-transform">
+                          <svg className="w-2.5 h-2.5 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
                             <polygon points="6 4 20 12 6 20 6 4" />
                           </svg>
                         </span>
@@ -149,37 +98,15 @@ export default function ContactPage() {
 
 function Hero() {
   return (
-    <section className="relative pt-20 pb-12 md:pt-28 md:pb-16">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-paper" />
-        <div className="hidden sm:block absolute -top-40 -right-40 w-[42rem] h-[42rem] rounded-full bg-rose-200/40 blur-3xl" />
-        <div className="hidden sm:block absolute top-20 -left-40 w-[36rem] h-[36rem] rounded-full bg-amber-200/30 blur-3xl" />
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, #0a0a0a 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
-          }}
-        />
-      </div>
-
-      <div className="mx-auto max-w-7xl px-4">
-        <h1 className="leading-[0.9] tracking-tight text-ink text-[clamp(2.25rem,6vw,5.5rem)] font-extrabold">
-          <span className="block">Ας</span>
-          <span className="block pl-[6vw] relative">
-            <span className="font-display italic font-light">μιλήσουμε.</span>
-            {/* Decorative speech bubble glyph */}
-            <span
-              className="absolute -top-8 right-0 md:right-12 font-display text-[6rem] md:text-[9rem] leading-none italic font-light text-amber-400/80 select-none pointer-events-none"
-              aria-hidden
-            >
-              “
-            </span>
-          </span>
+    <section className="relative bg-brand pt-16 pb-20 md:pt-24 md:pb-28 clip-x">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/50 mb-4">
+          {el.contact.eyebrow}
+        </div>
+        <h1 className="font-display text-[clamp(2.5rem,7vw,6rem)] leading-none text-ink">
+          {el.contact.title}
         </h1>
-
-        <p className="mt-10 max-w-xl text-lg md:text-xl text-slate-600 leading-relaxed">
+        <p className="mt-6 text-base md:text-lg text-paper max-w-md leading-relaxed">
           {el.contact.subtitle}
         </p>
       </div>
@@ -189,35 +116,25 @@ function Hero() {
 
 /* ─── INFO ROW ─────────────────────────────────────────────────────────── */
 
-function InfoRow({
-  numeral,
-  label,
-  value,
-  note,
-  href,
-}: {
-  numeral: string;
-  label: string;
-  value: string;
-  note: string;
-  href?: string;
+function InfoRow({ numeral, label, value, note, href }: {
+  numeral: string; label: string; value: string; note: string; href?: string;
 }) {
   const inner = (
     <div className="group flex items-baseline gap-5 py-6">
-      <span className="font-display text-2xl tabular-nums font-light text-slate-400 group-hover:text-amber-500 transition-colors flex-shrink-0">
+      <span className="font-display text-2xl tabular-nums text-muted group-hover:text-brand transition-colors flex-shrink-0">
         {numeral}
       </span>
       <div className="flex-1 min-w-0">
-        <div className="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-500">
+        <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted">
           {label}
         </div>
-        <div className="mt-2 font-display text-lg sm:text-2xl md:text-3xl font-light text-ink leading-tight break-words group-hover:italic transition-all">
+        <div className="mt-2 font-display text-lg sm:text-2xl leading-tight text-paper">
           {value}
         </div>
-        <div className="mt-1 text-sm text-slate-500">{note}</div>
+        <div className="mt-1 text-xs text-muted">{note}</div>
       </div>
       {href && (
-        <span className="font-display text-2xl text-slate-300 group-hover:text-amber-500 group-hover:translate-x-1 transition-all flex-shrink-0">
+        <span className="font-display text-2xl text-muted group-hover:text-brand group-hover:translate-x-1 transition-all flex-shrink-0">
           →
         </span>
       )}
@@ -225,35 +142,19 @@ function InfoRow({
   );
   return (
     <li>
-      {href ? (
-        <a href={href} className="block">
-          {inner}
-        </a>
-      ) : (
-        inner
-      )}
+      {href ? <a href={href} className="block">{inner}</a> : inner}
     </li>
   );
 }
 
 /* ─── FORM FIELDS ──────────────────────────────────────────────────────── */
 
-function Field({
-  label,
-  name,
-  placeholder,
-  type = "text",
-  required = false,
-}: {
-  label: string;
-  name: string;
-  placeholder?: string;
-  type?: string;
-  required?: boolean;
+function Field({ label, name, placeholder, type = "text", required = false }: {
+  label: string; name: string; placeholder?: string; type?: string; required?: boolean;
 }) {
   return (
     <label className="block group">
-      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-500">
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted">
         {label}
       </span>
       <input
@@ -261,59 +162,41 @@ function Field({
         name={name}
         type={type}
         placeholder={placeholder}
-        className="mt-2 w-full bg-transparent border-0 border-b-2 border-slate-200 px-0 py-3 text-lg md:text-xl font-display text-ink placeholder:text-slate-300 placeholder:italic focus:outline-none focus:border-ink transition-colors"
+        className="mt-2 w-full bg-transparent border-0 border-b-2 border-white/15 px-0 py-3 text-lg font-display text-paper placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
       />
     </label>
   );
 }
 
-function SelectField({
-  label,
-  name,
-  placeholder,
-  options,
-}: {
-  label: string;
-  name: string;
-  placeholder: string;
-  options: readonly string[];
+function SelectField({ label, name, placeholder, options }: {
+  label: string; name: string; placeholder: string; options: readonly string[];
 }) {
   return (
     <label className="block group">
-      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-500">
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted">
         {label}
       </span>
       <select
         required
         name={name}
         defaultValue=""
-        className="mt-2 w-full bg-transparent border-0 border-b-2 border-slate-200 px-0 py-3 text-lg md:text-xl font-display text-ink focus:outline-none focus:border-ink transition-colors cursor-pointer"
+        className="mt-2 w-full bg-ink border-0 border-b-2 border-white/15 px-0 py-3 text-lg font-display text-paper focus:outline-none focus:border-brand transition-colors cursor-pointer"
       >
-        <option value="" disabled>
-          {placeholder}
-        </option>
+        <option value="" disabled className="text-muted">{placeholder}</option>
         {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
+          <option key={opt} value={opt} className="bg-ink text-paper">{opt}</option>
         ))}
       </select>
     </label>
   );
 }
 
-function TextareaField({
-  label,
-  name,
-  placeholder,
-}: {
-  label: string;
-  name: string;
-  placeholder?: string;
+function TextareaField({ label, name, placeholder }: {
+  label: string; name: string; placeholder?: string;
 }) {
   return (
     <label className="block">
-      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-500">
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted">
         {label}
       </span>
       <textarea
@@ -321,7 +204,7 @@ function TextareaField({
         name={name}
         rows={5}
         placeholder={placeholder}
-        className="mt-2 w-full bg-transparent border-0 border-b-2 border-slate-200 px-0 py-3 text-lg md:text-xl font-display text-ink placeholder:text-slate-300 placeholder:italic focus:outline-none focus:border-ink transition-colors resize-none"
+        className="mt-2 w-full bg-transparent border-0 border-b-2 border-white/15 px-0 py-3 text-lg font-display text-paper placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
       />
     </label>
   );
@@ -331,19 +214,13 @@ function TextareaField({
 
 function SuccessState({ onReset }: { onReset: () => void }) {
   return (
-    <div className="mt-8">
-      <div className="font-display text-7xl font-light italic text-amber-500">
-        Ευχαριστούμε.
-      </div>
-      <h2 className="mt-6 font-display text-3xl text-ink">
-        {el.contact.sentTitle}
-      </h2>
-      <p className="mt-3 text-slate-600 max-w-md leading-relaxed">
-        {el.contact.sentBody}
-      </p>
+    <div>
+      <div className="font-display text-6xl text-accent">Ευχαριστούμε.</div>
+      <h2 className="mt-6 font-display text-3xl text-paper">{el.contact.sentTitle}</h2>
+      <p className="mt-3 text-muted max-w-md leading-relaxed text-sm">{el.contact.sentBody}</p>
       <button
         onClick={onReset}
-        className="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-ink text-ink font-semibold hover:bg-ink hover:text-paper transition-colors cursor-pointer"
+        className="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-accent-purple text-accent-purple font-bold uppercase tracking-wider text-sm hover:bg-accent-purple hover:text-white transition-all cursor-pointer"
       >
         {el.contact.sentAction}
       </button>
@@ -351,25 +228,11 @@ function SuccessState({ onReset }: { onReset: () => void }) {
   );
 }
 
-/* ─── ICONS ────────────────────────────────────────────────────────────── */
-
 function SpinnerIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none">
-      <circle
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="3"
-        opacity="0.25"
-      />
-      <path
-        d="M12 2a10 10 0 0 1 10 10"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
     </svg>
   );
 }

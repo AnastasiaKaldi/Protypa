@@ -191,7 +191,7 @@ function Cta() {
             <div className="mt-10 flex items-center gap-3 flex-wrap">
               <Link
                 href="/paketa"
-                className="group inline-flex items-center gap-2 px-7 py-4 rounded-full bg-ink text-white font-semibold shadow-xl shadow-slate-900/20 hover:bg-slate-800 hover:-translate-y-0.5 transition-all"
+                className="group inline-flex items-center gap-2 px-7 py-4 rounded-full bg-accent-purple text-white font-semibold shadow-xl shadow-accent-purple/30 hover:bg-[#6500b0] hover:-translate-y-0.5 transition-all"
               >
                 {el.about.ctaPackages}
                 <svg
