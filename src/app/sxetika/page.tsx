@@ -104,7 +104,7 @@ function Story() {
 
 function Mission() {
   return (
-    <section className="relative bg-ink text-paper py-28 overflow-hidden">
+    <section className="relative bg-ink text-paper py-16 md:py-28 overflow-hidden">
       <div className="hidden sm:block pointer-events-none absolute -top-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-amber-500/10 blur-3xl" />
       <div className="hidden sm:block pointer-events-none absolute -bottom-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-emerald-600/10 blur-3xl" />
 

@@ -10,11 +10,9 @@ export function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link href="/" className="inline-block group">
-              <span className="font-display text-xl text-paper tracking-wider group-hover:text-brand transition-colors">
-                PROTUPA.GR
-              </span>
+              <img src="/Logos/mainLogo.png" alt="PROTUPA.GR" className="h-8 w-auto group-hover:opacity-80 transition-opacity" />
             </Link>
-            <p className="mt-4 text-sm text-paper/40 max-w-sm leading-relaxed">
+            <p className="mt-4 text-sm text-paper max-w-sm leading-relaxed">
               {el.brand.tagline}. Πραγματικά θέματα, έξυπνη διόρθωση και
               αναλυτικά στατιστικά για κάθε μαθητή.
             </p>
@@ -22,7 +20,7 @@ export function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-paper/30 mb-4">
+            <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-paper mb-4">
               Χρήσιμοι σύνδεσμοι
             </h4>
             <ul className="space-y-2.5 text-sm">
@@ -33,7 +31,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-paper/30">
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-paper">
           <div>
             © {year} {el.brand.name}. {el.footer.rights}
           </div>
@@ -58,7 +56,7 @@ function FooterLink({
   return (
     <Link
       href={href}
-      className="text-paper/40 hover:text-paper hover:translate-x-0.5 inline-block transition-all"
+      className="text-paper hover:text-brand hover:translate-x-0.5 inline-block transition-all"
     >
       {children}
     </Link>

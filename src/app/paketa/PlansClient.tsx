@@ -25,7 +25,7 @@ export function PlansClient({
   const pkgBySlug = Object.fromEntries(packages.map((p) => [p.slug, p]));
 
   return (
-    <section className="bg-ink py-20 md:py-28">
+    <section className="bg-white py-14 md:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* School-type tabs */}
         <div className="mb-12">
@@ -40,16 +40,16 @@ export function PlansClient({
                 className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   activeTab === i
                     ? "bg-brand text-ink"
-                    : "bg-white/5 text-paper/60 hover:bg-white/10 hover:text-paper"
+                    : "bg-ink/5 text-ink/50 hover:bg-ink/10 hover:text-ink"
                 }`}
               >
                 {type}
               </button>
             ))}
           </div>
-          <p className="mt-4 text-sm text-paper/40">
+          <p className="mt-4 text-sm text-ink/40">
             Για φροντιστήρια προετοιμασίας εξετάσεων{" "}
-            <span className="text-paper/70 font-bold">{SCHOOL_TYPES[activeTab]}</span>
+            <span className="text-ink/70 font-bold">{SCHOOL_TYPES[activeTab]}</span>
           </p>
         </div>
 

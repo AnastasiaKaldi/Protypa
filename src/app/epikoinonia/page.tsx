@@ -11,25 +11,27 @@ export default function ContactPage() {
     <div>
       <Hero />
 
-      <section className="relative bg-ink pt-16 pb-28">
+      <section className="relative bg-white pt-12 pb-16 md:pt-16 md:pb-28 overflow-hidden">
+        {/* Sprite decorations */}
+        <img src="/TransparentAssets/Asset 21.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-4 w-20 md:w-28 opacity-15 rotate-12 hidden sm:block" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
 
             {/* Left — contact info */}
             <aside className="lg:col-span-5">
-              <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-muted mb-6">
+              <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/40 mb-6">
                 Πού να μας βρείτε
               </div>
 
-              <ul className="divide-y divide-white/10 border-y border-white/10">
+              <ul className="divide-y divide-ink/10 border-y border-ink/10">
                 <InfoRow numeral="01" label="Email" value={el.contact.infoEmailValue} note={el.contact.infoEmailNote} href={`mailto:${el.contact.infoEmailValue}`} />
                 <InfoRow numeral="02" label="Ώρες" value={el.contact.infoHoursValue} note={el.contact.infoHoursNote} />
                 <InfoRow numeral="03" label="Τοποθεσία" value={el.contact.infoLocationValue} note={el.contact.infoLocationNote} />
               </ul>
 
-              <p className="mt-10 text-sm text-muted leading-relaxed max-w-sm">
+              <p className="mt-10 text-sm text-ink/50 leading-relaxed max-w-sm">
                 Πριν επικοινωνήσετε, ίσως βρείτε την απάντηση στις{" "}
-                <Link href="/faq" className="text-brand hover:text-accent font-bold transition-colors">
+                <Link href="/faq" className="text-brand hover:text-accent-purple font-bold transition-colors">
                   συχνές ερωτήσεις
                 </Link>
                 .
@@ -38,7 +40,7 @@ export default function ContactPage() {
 
             {/* Right — form */}
             <div className="lg:col-span-7">
-              <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-muted mb-8">
+              <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/40 mb-8">
                 ↓ Στείλτε μήνυμα
               </div>
 
@@ -98,9 +100,14 @@ export default function ContactPage() {
 
 function Hero() {
   return (
-    <section className="relative bg-brand pt-16 pb-20 md:pt-24 md:pb-28 clip-x">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/50 mb-4">
+    <section
+      className="relative pt-16 pb-20 md:pt-24 md:pb-28 clip-x overflow-hidden"
+      style={{ backgroundImage: "url('/contactus.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
+    >
+      {/* Dark overlay so text stays readable */}
+      <div className="absolute inset-0 bg-brand/70" />
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/70 mb-4">
           {el.contact.eyebrow}
         </div>
         <h1 className="font-display text-[clamp(2.5rem,7vw,6rem)] leading-none text-ink">
@@ -121,20 +128,20 @@ function InfoRow({ numeral, label, value, note, href }: {
 }) {
   const inner = (
     <div className="group flex items-baseline gap-5 py-6">
-      <span className="font-display text-2xl tabular-nums text-muted group-hover:text-brand transition-colors flex-shrink-0">
+      <span className="font-display text-2xl tabular-nums text-ink/30 group-hover:text-brand transition-colors flex-shrink-0">
         {numeral}
       </span>
       <div className="flex-1 min-w-0">
-        <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted">
+        <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">
           {label}
         </div>
-        <div className="mt-2 font-display text-lg sm:text-2xl leading-tight text-paper">
+        <div className="mt-2 font-display text-base sm:text-2xl leading-tight text-ink break-all">
           {value}
         </div>
-        <div className="mt-1 text-xs text-muted">{note}</div>
+        <div className="mt-1 text-xs text-ink/40">{note}</div>
       </div>
       {href && (
-        <span className="font-display text-2xl text-muted group-hover:text-brand group-hover:translate-x-1 transition-all flex-shrink-0">
+        <span className="font-display text-2xl text-ink/30 group-hover:text-brand group-hover:translate-x-1 transition-all flex-shrink-0">
           →
         </span>
       )}
@@ -154,7 +161,7 @@ function Field({ label, name, placeholder, type = "text", required = false }: {
 }) {
   return (
     <label className="block group">
-      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted">
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">
         {label}
       </span>
       <input
@@ -162,7 +169,7 @@ function Field({ label, name, placeholder, type = "text", required = false }: {
         name={name}
         type={type}
         placeholder={placeholder}
-        className="mt-2 w-full bg-transparent border-0 border-b-2 border-white/15 px-0 py-3 text-lg font-display text-paper placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+        className="mt-2 w-full bg-transparent border-0 border-b-2 border-ink/20 px-0 py-3 text-lg font-display text-ink placeholder:text-ink/30 focus:outline-none focus:border-brand transition-colors"
       />
     </label>
   );
@@ -173,18 +180,18 @@ function SelectField({ label, name, placeholder, options }: {
 }) {
   return (
     <label className="block group">
-      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted">
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">
         {label}
       </span>
       <select
         required
         name={name}
         defaultValue=""
-        className="mt-2 w-full bg-ink border-0 border-b-2 border-white/15 px-0 py-3 text-lg font-display text-paper focus:outline-none focus:border-brand transition-colors cursor-pointer"
+        className="mt-2 w-full bg-white border-0 border-b-2 border-ink/20 px-0 py-3 text-lg font-display text-ink focus:outline-none focus:border-brand transition-colors cursor-pointer"
       >
-        <option value="" disabled className="text-muted">{placeholder}</option>
+        <option value="" disabled className="text-ink/30">{placeholder}</option>
         {options.map((opt) => (
-          <option key={opt} value={opt} className="bg-ink text-paper">{opt}</option>
+          <option key={opt} value={opt} className="bg-white text-ink">{opt}</option>
         ))}
       </select>
     </label>
@@ -196,7 +203,7 @@ function TextareaField({ label, name, placeholder }: {
 }) {
   return (
     <label className="block">
-      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted">
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">
         {label}
       </span>
       <textarea
@@ -204,7 +211,7 @@ function TextareaField({ label, name, placeholder }: {
         name={name}
         rows={5}
         placeholder={placeholder}
-        className="mt-2 w-full bg-transparent border-0 border-b-2 border-white/15 px-0 py-3 text-lg font-display text-paper placeholder:text-muted focus:outline-none focus:border-brand transition-colors resize-none"
+        className="mt-2 w-full bg-transparent border-0 border-b-2 border-ink/20 px-0 py-3 text-lg font-display text-ink placeholder:text-ink/30 focus:outline-none focus:border-brand transition-colors resize-none"
       />
     </label>
   );
@@ -215,9 +222,9 @@ function TextareaField({ label, name, placeholder }: {
 function SuccessState({ onReset }: { onReset: () => void }) {
   return (
     <div>
-      <div className="font-display text-6xl text-accent">Ευχαριστούμε.</div>
-      <h2 className="mt-6 font-display text-3xl text-paper">{el.contact.sentTitle}</h2>
-      <p className="mt-3 text-muted max-w-md leading-relaxed text-sm">{el.contact.sentBody}</p>
+      <div className="font-display text-6xl text-brand">Ευχαριστούμε.</div>
+      <h2 className="mt-6 font-display text-3xl text-ink">{el.contact.sentTitle}</h2>
+      <p className="mt-3 text-ink/50 max-w-md leading-relaxed text-sm">{el.contact.sentBody}</p>
       <button
         onClick={onReset}
         className="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-accent-purple text-accent-purple font-bold uppercase tracking-wider text-sm hover:bg-accent-purple hover:text-white transition-all cursor-pointer"

@@ -12,17 +12,13 @@ export async function Header() {
     <header className="sticky top-0 z-30 bg-brand border-b border-white/10">
       <div className="mx-auto max-w-7xl flex items-center justify-between px-4 sm:px-6 h-14 md:h-16">
         {/* Logo */}
-        <Link href="/" className="group flex items-center gap-0">
-          <span className="font-display text-lg md:text-xl text-paper tracking-wider group-hover:text-accent transition-colors">
-            PROTUPA.GR
-          </span>
+        <Link href="/" className="group flex items-center">
+          <img src="/Logos/mainLogo.png" alt="PROTUPA.GR" className="h-7 md:h-8 w-auto group-hover:opacity-80 transition-opacity" />
         </Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
           <NavLink href="/paketa">ΠΑΚΕΤΑ</NavLink>
-          <NavLink href="/signup">ΓΙΑ ΜΑΘΗΤΕΣ</NavLink>
-          <NavLink href="/paketa">ΓΙΑ ΦΡΟΝΤΙΣΤΕΣ</NavLink>
           <NavLink href="/faq">FAQ</NavLink>
           <NavLink href="/epikoinonia">ΕΠΙΚΟΙΝΩΝΙΑ</NavLink>
         </nav>
@@ -33,7 +29,8 @@ export async function Header() {
             <>
               <Link
                 href="/account"
-                className="hidden md:inline-flex px-4 py-2 text-paper/70 hover:text-paper font-bold uppercase tracking-wider text-xs transition-colors"
+                className="hidden md:inline-flex px-4 py-2 font-bold uppercase tracking-wider text-xs transition-opacity hover:opacity-70"
+                style={{ color: "#ffffff" }}
               >
                 {el.nav.account}
               </Link>
@@ -43,13 +40,15 @@ export async function Header() {
             <>
               <Link
                 href="/signin"
-                className="hidden md:inline-flex px-4 py-2 text-paper/70 hover:text-paper font-bold uppercase tracking-wider text-xs transition-colors"
+                className="hidden md:inline-flex px-4 py-2 font-bold uppercase tracking-wider text-xs transition-opacity hover:opacity-70"
+                style={{ color: "#ffffff" }}
               >
                 {el.nav.signin}
               </Link>
               <Link
                 href="/signup"
-                className="inline-flex items-center px-4 py-2 rounded-md bg-accent text-ink font-black uppercase tracking-widest text-xs hover:bg-accent/90 hover:-translate-y-0.5 transition-all"
+                className="inline-flex items-center px-4 py-2 rounded-md bg-accent font-black uppercase tracking-widest text-xs hover:bg-accent/90 hover:-translate-y-0.5 transition-all"
+                style={{ color: "#000000" }}
               >
                 APPLY
               </Link>
@@ -72,7 +71,8 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="px-3 py-2 text-paper/80 hover:text-paper font-bold uppercase tracking-wider text-xs transition-colors"
+      className="px-3 py-2 font-bold uppercase tracking-wider text-xs transition-opacity hover:opacity-70"
+      style={{ color: "#ffffff" }}
     >
       {children}
     </Link>

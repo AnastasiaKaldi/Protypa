@@ -10,7 +10,8 @@ export function MobileNav() {
     <div className="md:hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="p-2 text-paper/70 hover:text-paper cursor-pointer transition-colors"
+        className="p-2 cursor-pointer transition-opacity hover:opacity-70"
+        style={{ color: "#ffffff" }}
         aria-label="Menu"
       >
         {open ? (
@@ -29,8 +30,6 @@ export function MobileNav() {
           <nav className="flex flex-col gap-1">
             <MobileLink href="/" onClick={() => setOpen(false)}>{el.nav.home}</MobileLink>
             <MobileLink href="/paketa" onClick={() => setOpen(false)}>ΠΑΚΕΤΑ</MobileLink>
-            <MobileLink href="/signup" onClick={() => setOpen(false)}>ΓΙΑ ΜΑΘΗΤΕΣ</MobileLink>
-            <MobileLink href="/paketa" onClick={() => setOpen(false)}>ΓΙΑ ΦΡΟΝΤΙΣΤΕΣ</MobileLink>
             <MobileLink href="/faq" onClick={() => setOpen(false)}>FAQ</MobileLink>
             <MobileLink href="/epikoinonia" onClick={() => setOpen(false)}>ΕΠΙΚΟΙΝΩΝΙΑ</MobileLink>
             <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-2">
@@ -38,7 +37,8 @@ export function MobileNav() {
               <Link
                 href="/signup"
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-center px-4 py-3 rounded-md bg-accent text-ink font-black uppercase tracking-widest text-xs"
+                className="flex items-center justify-center px-4 py-3 rounded-md bg-accent font-black uppercase tracking-widest text-xs"
+                style={{ color: "#000000" }}
               >
                 APPLY
               </Link>
@@ -63,7 +63,8 @@ function MobileLink({
     <Link
       href={href}
       onClick={onClick}
-      className="px-3 py-3 rounded-xl text-paper/70 hover:text-paper font-bold uppercase tracking-wider text-sm transition-colors"
+      className="px-3 py-3 rounded-xl font-bold uppercase tracking-wider text-sm transition-opacity hover:opacity-70"
+      style={{ color: "#ffffff" }}
     >
       {children}
     </Link>
