@@ -81,7 +81,7 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full px-4 py-2.5 rounded-md bg-brand text-white font-medium hover:bg-brand-dark disabled:opacity-50 cursor-pointer"
+          className="w-full px-4 py-2.5 rounded-md bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] font-medium hover:bg-[#056ef5]/5 disabled:opacity-50 cursor-pointer"
         >
           {loading ? el.common.loading : el.auth.signupButton}
         </button>

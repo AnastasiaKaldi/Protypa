@@ -54,7 +54,7 @@ export default async function AccountDashboard({
           <div className="mt-4">
             <Link
               href="/paketa"
-              className="px-4 py-2 rounded-md bg-brand text-white inline-block hover:bg-brand-dark"
+              className="px-4 py-2 rounded-md bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] inline-block hover:bg-[#056ef5]/5"
             >
               {el.nav.packages}
             </Link>

@@ -11,6 +11,8 @@ const SCHOOL_TYPES = [
   "Πρότυπα Λύκεια",
   "Ωνάσεια Γυμνάσια",
   "Ωνάσεια Λύκεια",
+  "Εκκλησιαστικά Γυμνάσια",
+  "Εκκλησιαστικά Λύκεια",
 ] as const;
 
 
@@ -39,8 +41,8 @@ export function PlansClient({
                 onClick={() => setActiveTab(i)}
                 className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   activeTab === i
-                    ? "bg-brand text-ink"
-                    : "bg-ink/5 text-ink/50 hover:bg-ink/10 hover:text-ink"
+                    ? "bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5]"
+                    : "text-ink/50 border border-ink/15 hover:border-[#056ef5] hover:text-[#056ef5]"
                 }`}
               >
                 {type}
@@ -70,7 +72,7 @@ export function PlansClient({
                 {/* Popular badge */}
                 {pkg.popular && (
                   <div className="absolute top-7 left-7">
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-ink text-paper text-[11px] font-black uppercase tracking-wider">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#7c00d0] text-paper text-[11px] font-black uppercase tracking-wider">
                       ★ {el.packages.mostPopular}
                     </span>
                   </div>

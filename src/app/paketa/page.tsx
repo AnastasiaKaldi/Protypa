@@ -34,11 +34,15 @@ export default async function PackagesPage() {
 
 function Hero() {
   return (
-    <section className="relative bg-brand pt-16 pb-20 md:pt-24 md:pb-28 clip-x overflow-hidden">
+    <section
+      className="relative pt-16 pb-20 md:pt-24 md:pb-28 clip-x overflow-hidden"
+      style={{ backgroundImage: "url(/Packages.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}
+    >
+      <div className="absolute inset-0 bg-brand/80" />
       {/* Sprite decorations */}
-      <img src="/TransparentAssets/Asset 18.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-4 right-6 w-32 md:w-52 opacity-30 rotate-6 hidden sm:block" />
-      <img src="/TransparentAssets/Asset 22.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-6 right-[45%] w-16 md:w-24 opacity-20 -rotate-12 hidden lg:block" />
-<div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <img src="/TransparentAssets/Asset 18.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-4 right-6 w-32 md:w-52 opacity-75 rotate-6 hidden sm:block" />
+      <img src="/TransparentAssets/Asset 22.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-6 right-[45%] w-16 md:w-24 opacity-65 -rotate-12 hidden lg:block" />
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-paper mb-4">
           {el.packages.eyebrow}
         </div>
@@ -71,11 +75,11 @@ function Compare({ packages }: { packages: Package[] }) {
   }
 
   return (
-    <section className="relative py-16 md:py-28 bg-ink overflow-hidden">
+    <section className="relative py-16 md:py-28 bg-[#7c00d0] overflow-hidden">
       <div className="hidden sm:block pointer-events-none absolute -top-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-brand/15 blur-3xl" />
       <div className="hidden sm:block pointer-events-none absolute -bottom-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-accent-purple/15 blur-3xl" />
       {/* Sprite decorations */}
-      <img src="/TransparentAssets/Asset 19.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-10 right-10 w-28 md:w-40 opacity-20 -rotate-6 hidden sm:block" />
+      <img src="/TransparentAssets/Asset 19.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-10 right-10 w-28 md:w-40 opacity-65 -rotate-6 hidden sm:block" />
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
         <div className="max-w-2xl mb-12">
@@ -94,8 +98,8 @@ function Compare({ packages }: { packages: Package[] }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="text-left font-bold text-muted uppercase tracking-wider text-[10px] px-3 py-4 md:px-6 md:py-5 min-w-[120px]">
-                  Χαρακτηριστικό
+                <th className="text-left font-display text-sm md:text-lg text-paper px-3 py-4 md:px-6 md:py-5 min-w-[120px]">
+                  Χαρακτιριστικα
                 </th>
                 {PACKAGES.map((pkg) => (
                   <th key={pkg.slug} className="text-center px-3 py-4 md:px-6 md:py-5 font-display text-sm md:text-lg text-paper min-w-[90px]">
@@ -107,7 +111,7 @@ function Compare({ packages }: { packages: Package[] }) {
             <tbody>
               {allFeatures.map((label, i) => (
                 <tr key={label} className={i % 2 === 0 ? "bg-white/[0.02]" : "bg-transparent"}>
-                  <td className="px-3 py-3 md:px-6 md:py-4 text-paper/70 text-xs md:text-sm">{label}</td>
+                  <td className="px-3 py-3 md:px-6 md:py-4 text-paper text-xs md:text-sm">{label}</td>
                   {PACKAGES.map((pkg) => {
                     const included = (pkg.features as readonly string[]).includes(label);
                     return (
@@ -127,7 +131,7 @@ function Compare({ packages }: { packages: Package[] }) {
                 </tr>
               ))}
               <tr className="border-t border-white/10">
-                <td className="px-3 py-4 md:px-6 md:py-5 text-muted font-bold uppercase tracking-wider text-[10px]">Τιμή</td>
+                <td className="px-3 py-4 md:px-6 md:py-5 text-paper font-display text-sm md:text-lg">Τιμή</td>
                 {PACKAGES.map((pkg) => {
                   const dbPkg = pkgBySlug[pkg.slug];
                   return (
@@ -149,38 +153,35 @@ function Compare({ packages }: { packages: Package[] }) {
 
 function Guarantee() {
   return (
-    <section className="relative py-16 md:py-28 bg-white clip-x overflow-hidden">
+    <section className="relative py-16 md:py-28 bg-[#7c00d0] clip-x overflow-hidden">
       {/* Sprite decorations */}
-      <img src="/TransparentAssets/Asset 20.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-6 right-8 w-32 md:w-48 opacity-30 rotate-12 hidden sm:block" />
+      <img src="/TransparentAssets/Asset 20.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-6 right-8 w-32 md:w-48 opacity-75 rotate-12 hidden sm:block" />
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <div className="grid md:grid-cols-12 gap-10 items-center">
-          <div className="md:col-span-4">
-            <div className="font-display text-[6rem] sm:text-[10rem] md:text-[14rem] leading-none text-ink/10 select-none">
-              ✦
-            </div>
+          <div className="md:col-span-4 flex items-center justify-center">
+            <img src="/TransparentAssets/Asset 14.png" alt="" aria-hidden="true" className="w-48 md:w-72 opacity-80" />
           </div>
 
           <div className="md:col-span-8">
-            <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/40 mb-3">
+            <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white mb-3">
               Καμία δέσμευση
             </div>
-            <h2 className="font-display text-3xl md:text-6xl leading-none text-ink">
+            <h2 className="font-display text-3xl md:text-6xl leading-none text-white">
               {el.packages.guaranteeTitle}
             </h2>
-            <p className="mt-6 text-base text-ink/60 max-w-xl leading-relaxed">
+            <p className="mt-6 text-base text-white max-w-xl leading-relaxed">
               {el.packages.guaranteeBody}
             </p>
             <Link
               href="/demo"
-              className="group inline-flex items-center gap-2 mt-8 px-7 py-4 rounded-full bg-accent-purple font-black uppercase tracking-wider text-sm hover:bg-[#6500b0] hover:-translate-y-0.5 transition-all"
-              style={{ color: "#ffffff" }}
+              className="group inline-flex items-center gap-2 mt-8 px-7 py-4 rounded-full bg-[#056ef5] !text-white border-2 border-[#056ef5] font-black uppercase tracking-wider text-sm hover:bg-[#0451b8] hover:-translate-y-0.5 transition-all"
             >
               <span className="w-6 h-6 rounded-full bg-white/20 grid place-items-center group-hover:scale-110 transition-transform">
                 <svg className="w-2.5 h-2.5 ml-0.5" viewBox="0 0 24 24" fill="white">
                   <polygon points="6 4 20 12 6 20 6 4" />
                 </svg>
               </span>
-              <span style={{ color: "#ffffff" }}>{el.packages.guaranteeCta}</span>
+              {el.packages.guaranteeCta}
             </Link>
           </div>
         </div>
@@ -193,19 +194,19 @@ function Guarantee() {
 
 function Faqs() {
   return (
-    <section className="relative py-16 md:py-28 bg-white">
+    <section className="relative py-16 md:py-28 bg-[#056ef5] text-paper">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <div className="grid md:grid-cols-12 gap-12">
           <div className="md:col-span-4">
-            <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand mb-3">
+            <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-paper mb-3">
               FAQ
             </div>
-            <h2 className="font-display text-4xl md:text-5xl leading-none text-ink">
+            <h2 className="font-display text-4xl md:text-5xl leading-none text-paper">
               {el.packages.faqTitle}
             </h2>
             <Link
               href="/faq"
-              className="inline-flex items-center gap-1.5 mt-6 text-sm font-bold text-brand hover:text-accent-purple transition-colors uppercase tracking-wider"
+              className="inline-flex items-center gap-1.5 mt-6 text-sm font-bold !text-[#ffffff] hover:!text-[#c8ff00] transition-colors uppercase tracking-wider"
             >
               {el.packages.faqMore} →
             </Link>
@@ -215,17 +216,17 @@ function Faqs() {
             {el.packages.faqs.map((item, i) => (
               <details
                 key={i}
-                className="group rounded-2xl border border-ink/10 bg-ink/[0.03] p-6 hover:border-ink/20 transition-colors [&_summary::-webkit-details-marker]:hidden"
+                className="group rounded-2xl border border-white/20 bg-white/10 p-6 hover:border-white/40 transition-colors [&_summary::-webkit-details-marker]:hidden"
               >
                 <summary className="flex items-center justify-between gap-4 cursor-pointer">
-                  <span className="font-display text-lg md:text-xl text-ink">
+                  <span className="font-display text-lg md:text-xl text-paper">
                     {item.q}
                   </span>
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full border border-ink/15 text-ink/40 grid place-items-center text-xl group-open:bg-accent group-open:text-ink group-open:border-accent group-open:rotate-45 transition-all">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full border border-white/50 text-paper grid place-items-center text-xl group-open:bg-[#c8ff00] group-open:text-ink group-open:border-[#c8ff00] group-open:rotate-45 transition-all">
                     +
                   </span>
                 </summary>
-                <p className="mt-4 text-ink/50 leading-relaxed text-sm">
+                <p className="mt-4 text-paper leading-relaxed text-sm">
                   {item.a}
                 </p>
               </details>

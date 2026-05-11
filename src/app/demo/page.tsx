@@ -85,7 +85,7 @@ export default function DemoPage() {
         <p className="mt-3 text-muted max-w-xl mx-auto">{el.demo.upsellBody}</p>
         <Link
           href="/paketa"
-          className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-500 via-violet-600 to-fuchsia-600 text-white font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+          className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-full bg-[#FDFFFC] text-[#7c00d0] border-2 border-[#7c00d0] font-semibold hover:bg-[#7c00d0]/5 hover:-translate-y-0.5 transition-all"
         >
           {el.demo.upsellCta}
           <svg

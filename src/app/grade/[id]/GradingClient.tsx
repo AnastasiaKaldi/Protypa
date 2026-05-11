@@ -143,8 +143,8 @@ export function GradingClient({
                             className={
                               "px-4 py-2 rounded-md border text-sm font-medium cursor-pointer " +
                               (selected
-                                ? "bg-brand text-white border-brand"
-                                : "bg-white border-border hover:bg-brand-light")
+                                ? "bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5]"
+                                : "bg-[#FDFFFC] border border-ink/15 hover:border-[#056ef5] hover:text-[#056ef5]")
                             }
                           >
                             {c}
@@ -165,7 +165,7 @@ export function GradingClient({
               <button
                 onClick={submit}
                 disabled={submitting}
-                className="mt-6 w-full px-4 py-2.5 rounded-md bg-brand text-white font-medium hover:bg-brand-dark disabled:opacity-50 cursor-pointer"
+                className="mt-6 w-full px-4 py-2.5 rounded-md bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] font-medium hover:bg-[#056ef5]/5 disabled:opacity-50 cursor-pointer"
               >
                 {submitting ? el.common.loading : el.grading.submit}
               </button>
@@ -228,7 +228,7 @@ function ResultsView({
 
       <button
         onClick={onReset}
-        className="mt-6 w-full px-4 py-2.5 rounded-md border border-brand text-brand font-medium hover:bg-brand-light cursor-pointer"
+        className="mt-6 w-full px-4 py-2.5 rounded-md bg-[#FDFFFC] text-[#7c00d0] border-2 border-[#7c00d0] font-medium hover:bg-[#7c00d0]/5 cursor-pointer"
       >
         {el.grading.reset}
       </button>

@@ -38,7 +38,7 @@ export default async function PapersPage() {
               </div>
               <Link
                 href={`/grade/${paper.id}`}
-                className="px-4 py-2 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-dark"
+                className="px-4 py-2 rounded-md bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] text-sm font-medium hover:bg-[#056ef5]/5"
               >
                 {el.account.grade}
               </Link>

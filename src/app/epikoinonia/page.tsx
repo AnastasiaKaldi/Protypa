@@ -13,7 +13,7 @@ export default function ContactPage() {
 
       <section className="relative bg-white pt-12 pb-16 md:pt-16 md:pb-28 overflow-hidden">
         {/* Sprite decorations */}
-        <img src="/TransparentAssets/Asset 21.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-4 w-20 md:w-28 opacity-15 rotate-12 hidden sm:block" />
+        <img src="/TransparentAssets/Asset 21.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-4 w-20 md:w-28 opacity-65 rotate-12 hidden sm:block" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
 
@@ -68,7 +68,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="group inline-flex items-center gap-2 px-7 py-4 rounded-full bg-accent-purple text-white font-black uppercase tracking-wider text-sm shadow-xl shadow-accent-purple/20 hover:bg-[#6500b0] hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer"
+                    className="group inline-flex items-center gap-2 px-7 py-4 rounded-full bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] font-black uppercase tracking-wider text-sm hover:bg-[#056ef5]/5 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:hover:translate-y-0 cursor-pointer"
                   >
                     {submitting ? (
                       <>
@@ -107,14 +107,12 @@ function Hero() {
       {/* Dark overlay so text stays readable */}
       <div className="absolute inset-0 bg-brand/70" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/70 mb-4">
-          {el.contact.eyebrow}
-        </div>
-        <h1 className="font-display text-[clamp(2.5rem,7vw,6rem)] leading-none text-ink">
-          {el.contact.title}
+        <h1 className="font-display text-[clamp(1.8rem,4vw,3.5rem)] leading-tight text-paper">
+          Επικοινωνήστε{" "}
+          <span className="text-[#c8ff00]">μαζί μας</span>
         </h1>
-        <p className="mt-6 text-base md:text-lg text-paper max-w-md leading-relaxed">
-          {el.contact.subtitle}
+        <p className="mt-4 max-w-md text-base text-paper/80 leading-relaxed">
+          Κάθε ερώτηση μετράει. Είμαστε εδώ για να σας ακούσουμε και να σας απαντήσουμε άμεσα.
         </p>
       </div>
     </section>
@@ -227,7 +225,7 @@ function SuccessState({ onReset }: { onReset: () => void }) {
       <p className="mt-3 text-ink/50 max-w-md leading-relaxed text-sm">{el.contact.sentBody}</p>
       <button
         onClick={onReset}
-        className="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-accent-purple text-accent-purple font-bold uppercase tracking-wider text-sm hover:bg-accent-purple hover:text-white transition-all cursor-pointer"
+        className="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#FDFFFC] text-[#7c00d0] border-2 border-[#7c00d0] font-bold uppercase tracking-wider text-sm hover:bg-[#7c00d0]/5 hover:-translate-y-0.5 transition-all cursor-pointer"
       >
         {el.contact.sentAction}
       </button>

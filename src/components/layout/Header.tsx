@@ -18,9 +18,12 @@ export async function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
-          <NavLink href="/paketa">ΠΑΚΕΤΑ</NavLink>
+          <NavLink href="/">{el.nav.home}</NavLink>
+          <NavLink href="/paketa">{el.nav.packages}</NavLink>
+          <NavLink href="/sxetika">{el.nav.about}</NavLink>
+          <NavLink href="/nea">{el.nav.news}</NavLink>
           <NavLink href="/faq">FAQ</NavLink>
-          <NavLink href="/epikoinonia">ΕΠΙΚΟΙΝΩΝΙΑ</NavLink>
+          <NavLink href="/epikoinonia">{el.nav.contact}</NavLink>
         </nav>
 
         {/* Right side */}
@@ -47,10 +50,9 @@ export async function Header() {
               </Link>
               <Link
                 href="/signup"
-                className="inline-flex items-center px-4 py-2 rounded-md bg-accent font-black uppercase tracking-widest text-xs hover:bg-accent/90 hover:-translate-y-0.5 transition-all"
-                style={{ color: "#000000" }}
+                className="inline-flex items-center px-4 py-2 rounded-md bg-[#FDFFFC] text-[#056ef5] border-2 border-[#c8ff00] font-black uppercase tracking-widest text-xs hover:bg-[#c8ff00]/10 hover:-translate-y-0.5 transition-all"
               >
-                APPLY
+                {el.nav.signup}
               </Link>
             </>
           )}

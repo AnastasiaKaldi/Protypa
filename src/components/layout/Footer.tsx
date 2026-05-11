@@ -4,7 +4,7 @@ import { el } from "@/lib/i18n/el";
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="bg-ink border-t border-white/10">
+    <footer className="bg-[#056ef5] border-t border-white/10">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-14">
         <div className="grid md:grid-cols-3 gap-10">
           {/* Brand */}
@@ -37,7 +37,7 @@ export function Footer() {
           </div>
           <div className="flex items-center gap-2">
             <span>Φτιάχτηκε με</span>
-            <span className="text-brand">♥</span>
+            <span className="text-[#c8ff00]">♥</span>
             <span>στην Ελλάδα</span>
           </div>
         </div>
@@ -56,7 +56,7 @@ function FooterLink({
   return (
     <Link
       href={href}
-      className="text-paper hover:text-brand hover:translate-x-0.5 inline-block transition-all"
+      className="!text-white hover:!text-[#c8ff00] hover:translate-x-0.5 inline-block transition-all"
     >
       {children}
     </Link>

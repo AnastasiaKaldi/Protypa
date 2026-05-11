@@ -6,9 +6,9 @@ export default function HomePage() {
     <div>
       <Hero />
       <Features />
+      <MidCta />
       <HowItWorks />
       <Manifesto />
-      <FinalCta />
     </div>
   );
 }
@@ -17,54 +17,48 @@ export default function HomePage() {
 
 function Hero() {
   return (
-    <section className="relative bg-brand pt-10 pb-20 md:pt-14 md:pb-28 clip-x overflow-hidden">
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+    <section
+      className="relative min-h-[90vh] flex items-center clip-x overflow-hidden"
+      style={{ backgroundImage: "url(/HeroPage.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}
+    >
+      {/* Blue brand overlay — preserves brand colour while letting image show through */}
+      <div className="absolute inset-0 bg-brand/80" />
+
+      <div className="relative z-10 w-full mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28">
         <div className="grid md:grid-cols-2 gap-10 items-center">
 
           {/* Left — content */}
           <div>
-            <h1 className="font-display text-[clamp(3rem,5.5vw,5.5rem)] leading-[0.9] text-ink">
+            <h1 className="font-display text-[clamp(3rem,5.5vw,5.5rem)] leading-[0.9] text-paper">
               {el.home.heroApplyTitle}
             </h1>
 
-            <div className="mt-8 md:mt-12">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="w-5 h-5 rounded-sm bg-accent-purple flex-shrink-0" />
-                <span className="font-display text-lg md:text-xl text-paper tracking-wide">
-                  ΠΑΚΕΤΑ ΔΙΑΓΩΝΙΣΜΑΤΩΝ
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 md:gap-4 max-w-md">
-                <Link href="/paketa" className="group aspect-square rounded-2xl bg-ink p-4 md:p-6 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-200">
-                  <span className="font-display text-[10px] md:text-xs text-paper tracking-wider">ΜΑΘΗΜΑΤΙΚΑ</span>
-                  <span className="text-paper text-2xl md:text-4xl font-black leading-none">%<span className="inline-block w-2 h-2 rounded-full bg-paper ml-0.5 mb-1 align-middle" /></span>
-                </Link>
-                <Link href="/paketa" className="group aspect-square rounded-2xl bg-accent-purple p-4 md:p-6 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-200">
-                  <span className="font-display text-[10px] md:text-xs text-paper tracking-wider">ΓΛΩΣΣΑ</span>
-                  <span className="text-paper text-2xl md:text-4xl font-black leading-none">𝕀𝕀</span>
-                </Link>
-                <Link href="/paketa" className="group aspect-square rounded-2xl bg-accent p-4 md:p-6 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-200">
-                  <span className="font-display text-[10px] md:text-xs text-ink tracking-wider">ΠΑΛΙΑ ΘΕΜΑΤΑ</span>
-                  <span className="text-ink text-2xl md:text-4xl font-black leading-none">✳</span>
-                </Link>
-              </div>
+            <div className="mt-10 md:mt-14 flex flex-col items-start gap-4 max-w-sm">
+              <Link
+                href="/paketa"
+                className="group w-full inline-flex items-center justify-center gap-2 px-10 py-5 rounded-full bg-[#FDFFFC] text-[#7c00d0] border-2 border-[#7c00d0] font-black uppercase tracking-wider hover:bg-[#7c00d0]/5 hover:-translate-y-0.5 transition-all text-base md:text-lg"
+              >
+                Εξερευνιστε τα πακετα
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M13 5l7 7-7 7" />
+                </svg>
+              </Link>
+              <Link
+                href="/demo"
+                className="w-full inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] font-bold uppercase tracking-wider hover:bg-[#056ef5]/5 hover:-translate-y-0.5 transition-all text-sm"
+              >
+                Δοκιμαστε το demo
+              </Link>
             </div>
-
           </div>
 
           {/* Right — sprite cluster */}
           <div className="relative hidden md:block h-[480px]">
-            {/* Large central sprite */}
-            <img src="/TransparentAssets/Asset 23.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 opacity-90" />
-            {/* Top-right */}
-            <img src="/TransparentAssets/Asset 19.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-4 right-4 w-36 opacity-85 rotate-12" />
-            {/* Bottom-left */}
-            <img src="/TransparentAssets/Asset 21.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-12 left-0 w-32 opacity-85 -rotate-6" />
-            {/* Top-left accent */}
-            <img src="/TransparentAssets/Asset 18.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 left-8 w-24 opacity-75 -rotate-12" />
-            {/* Bottom-right accent */}
-            <img src="/TransparentAssets/Asset 7.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-4 right-8 w-28 opacity-80 rotate-6" />
+            <img src="/TransparentAssets/Asset 23.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 opacity-100" />
+            <img src="/TransparentAssets/Asset 19.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-4 right-4 w-36 opacity-100 rotate-12" />
+            <img src="/TransparentAssets/Asset 21.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-12 left-0 w-32 opacity-100 -rotate-6" />
+            <img src="/TransparentAssets/Asset 18.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 left-8 w-24 opacity-100 -rotate-12" />
+            <img src="/TransparentAssets/Asset 7.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-4 right-8 w-28 opacity-100 rotate-6" />
           </div>
 
         </div>
@@ -80,8 +74,8 @@ function Features() {
   return (
     <section className="relative bg-white py-16 md:py-28 overflow-hidden">
       {/* Sprite decorations */}
-      <img src="/TransparentAssets/Asset 8.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-4 w-24 md:w-36 opacity-20 rotate-12" />
-      <img src="/TransparentAssets/Asset 9.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-10 left-6 w-20 md:w-32 opacity-20 -rotate-6" />
+      <img src="/TransparentAssets/Asset 8.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-4 w-24 md:w-36 opacity-70 rotate-12" />
+      <img src="/TransparentAssets/Asset 9.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-10 left-6 w-20 md:w-32 opacity-70 -rotate-6" />
 <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="max-w-3xl mb-14">
           <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand mb-3">
@@ -98,7 +92,7 @@ function Features() {
 
         {/* You / We intro */}
         <div className="flex flex-col sm:flex-row gap-0 mb-8 rounded-3xl overflow-hidden">
-          <div className="flex-1 bg-ink px-8 py-7 flex items-center gap-4">
+          <div className="flex-1 bg-[#056ef5] px-8 py-7 flex items-center gap-4">
             <span className="font-display text-4xl text-paper/20 flex-shrink-0">→</span>
             <div>
               <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-paper/40 mb-1">Εσείς</div>
@@ -210,6 +204,56 @@ function FeatureCard({
 
 /* ─── 3. HOW IT WORKS ──────────────────────────────────────────────────── */
 
+/* ─── 2.5 MID CTA ──────────────────────────────────────────────────────── */
+
+function MidCta() {
+  return (
+    <section className="relative bg-[#7c00d0] clip-x overflow-hidden">
+      {/* Sprite decorations */}
+      <img src="/TransparentAssets/Asset 7.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-0 right-8 w-40 md:w-64 opacity-80 rotate-6 hidden sm:block" />
+      <img src="/TransparentAssets/Asset 18.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-6 right-[30%] w-20 md:w-28 opacity-60 -rotate-12 hidden lg:block" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-32">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+
+          {/* Left — title */}
+          <div>
+            <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-paper/60 mb-4">
+              Ξεκινήστε σήμερα
+            </div>
+            <h2 className="font-display text-[clamp(2.8rem,6vw,5.5rem)] leading-[0.9] text-paper">
+              Ξεκινηστε και καντε τη Διαφορα
+            </h2>
+          </div>
+
+          {/* Right — buttons */}
+          <div className="flex flex-col items-start gap-4 md:pl-8">
+            <Link
+              href="/demo"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-10 py-5 rounded-full bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] font-black uppercase tracking-wider hover:bg-[#056ef5]/5 hover:-translate-y-0.5 transition-all text-base md:text-lg"
+            >
+              Δοκιμαστε το Demo
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M13 5l7 7-7 7" />
+              </svg>
+            </Link>
+            <Link
+              href="/paketa"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#FDFFFC] text-[#7c00d0] border-2 border-[#7c00d0] font-bold uppercase tracking-wider hover:bg-[#7c00d0]/5 hover:-translate-y-0.5 transition-all text-sm"
+            >
+              Δειτε τα Πακετα
+            </Link>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+/* ─── 3. HOW IT WORKS ──────────────────────────────────────────────────── */
+
 function HowItWorks() {
   const steps = [
     {
@@ -243,8 +287,8 @@ function HowItWorks() {
     <section className="relative py-16 md:py-28 bg-brand overflow-hidden">
       <div className="hidden sm:block pointer-events-none absolute -top-40 right-0 w-[30rem] h-[30rem] rounded-full bg-white/10 blur-3xl" />
       {/* Sprite decorations */}
-      <img src="/TransparentAssets/Asset 10.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-10 right-8 w-28 md:w-44 opacity-30 -rotate-6 hidden sm:block" />
-      <img src="/TransparentAssets/Asset 11.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-4 w-24 md:w-36 opacity-25 rotate-12 hidden sm:block" />
+      <img src="/TransparentAssets/Asset 10.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-10 right-8 w-28 md:w-44 opacity-75 -rotate-6 hidden sm:block" />
+      <img src="/TransparentAssets/Asset 11.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-4 w-24 md:w-36 opacity-70 rotate-12 hidden sm:block" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="max-w-3xl mb-16">
@@ -286,7 +330,7 @@ function Manifesto() {
       <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-brand/20 blur-3xl" />
       {/* Sprite decorations */}
-      <img src="/TransparentAssets/Asset 13.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-6 right-6 w-28 md:w-40 opacity-25 rotate-6 hidden sm:block" />
+      <img src="/TransparentAssets/Asset 13.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-6 right-6 w-28 md:w-40 opacity-70 rotate-6 hidden sm:block" />
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6 text-center">
         <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-accent mb-6">
           {el.home.manifestoEyebrow}
@@ -304,57 +348,3 @@ function Manifesto() {
   );
 }
 
-/* ─── 5. FINAL CTA ─────────────────────────────────────────────────────── */
-
-function FinalCta() {
-  return (
-    <section className="relative bg-ink overflow-hidden">
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[40rem] h-[40rem] rounded-full bg-brand/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[40rem] h-[40rem] rounded-full bg-accent-purple/20 blur-3xl" />
-      <img src="/TransparentAssets/Asset 14.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-0 right-12 w-40 md:w-60 opacity-20 hidden sm:block" />
-
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-36">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand mb-4">
-              Ξεκινήστε σήμερα
-            </div>
-            <h2 className="font-display text-4xl md:text-7xl leading-none text-paper">
-              Έτοιμοι να
-              <br />
-              <span className="text-brand">κάνετε</span>
-              <br />
-              την διαφορά;
-            </h2>
-          </div>
-
-          <div>
-            <p className="text-base md:text-lg text-paper/60 max-w-md leading-relaxed">
-              Δοκιμάστε δωρεάν το demo ή ξεκινήστε με ένα πακέτο σήμερα. Χωρίς συνδρομή, χωρίς δεσμεύσεις.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/paketa"
-                className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-brand text-ink font-black uppercase tracking-wider hover:bg-brand/90 hover:-translate-y-0.5 transition-all text-sm"
-              >
-                Δες τα πακέτα
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M13 5l7 7-7 7" />
-                </svg>
-              </Link>
-              <Link
-                href="/demo"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-accent text-ink font-bold uppercase tracking-wider hover:bg-accent/90 hover:-translate-y-0.5 transition-all text-sm"
-              >
-                Παίξε με το demo
-              </Link>
-            </div>
-            <p className="mt-6 text-xs text-paper/30 uppercase tracking-wider">
-              Χωρίς πιστωτική κάρτα · Άμεση πρόσβαση
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}

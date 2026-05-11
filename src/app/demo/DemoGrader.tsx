@@ -148,7 +148,7 @@ function DemoResults({
 
       <button
         onClick={onReset}
-        className="mt-8 w-full px-6 py-3.5 rounded-full border-2 border-teal-500 text-teal-600 font-semibold hover:bg-teal-50 transition cursor-pointer"
+        className="mt-8 w-full px-6 py-3.5 rounded-full bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] font-semibold hover:bg-[#056ef5]/5 hover:-translate-y-0.5 transition-all cursor-pointer"
       >
         {el.grading.reset}
       </button>

@@ -31,7 +31,7 @@ export default async function GradePage({
         </h1>
         <Link
           href="/paketa"
-          className="inline-block mt-6 px-5 py-2.5 rounded-md bg-brand text-white font-medium hover:bg-brand-dark"
+          className="inline-block mt-6 px-5 py-2.5 rounded-md bg-[#FDFFFC] text-[#7c00d0] border-2 border-[#7c00d0] font-medium hover:bg-[#7c00d0]/5"
         >
           {el.grading.accessDeniedCta}
         </Link>
