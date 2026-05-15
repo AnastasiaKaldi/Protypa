@@ -366,7 +366,7 @@ export const el = {
       "Ευχαριστούμε που επικοινωνήσατε μαζί μας. Θα σας απαντήσουμε εντός 24 ωρών.",
     sentAction: "Στείλτε νέο μήνυμα",
     infoEmailTitle: "Email",
-    infoEmailValue: "info@protypapass.gr",
+    infoEmailValue: "info@protupa.gr",
     infoEmailNote: "Απάντηση εντός 24 ωρών",
     infoHoursTitle: "Ώρες λειτουργίας",
     infoHoursValue: "Δευτ. – Παρ.",

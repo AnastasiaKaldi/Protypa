@@ -5,6 +5,7 @@ export default function HomePage() {
   return (
     <div>
       <Hero />
+      <Ticker />
       <Features />
       <MidCta />
       <HowItWorks />
@@ -68,141 +69,182 @@ function Hero() {
 }
 
 
-/* ─── 2. FEATURES ──────────────────────────────────────────────────────── */
+/* ─── TICKER ───────────────────────────────────────────────────────────── */
 
-function Features() {
+const TICKER_ITEMS = [
+  { text: "Πρότυπα Σχολεία", color: "#056ef5" },
+  { text: "◆", color: "#c8ff00" },
+  { text: "Ωνάσεια Σχολεία", color: "#7c00d0" },
+  { text: "◆", color: "#c8ff00" },
+  { text: "Εκκλησιαστικά Σχολεία", color: "#056ef5" },
+  { text: "◆", color: "#c8ff00" },
+  { text: "Ανάλυση Λαθών", color: "#7c00d0" },
+  { text: "◆", color: "#c8ff00" },
+  { text: "Στατιστική Πορεία", color: "#056ef5" },
+  { text: "◆", color: "#c8ff00" },
+  { text: "Εξατομικευμένη Διδασκαλία", color: "#7c00d0" },
+  { text: "◆", color: "#c8ff00" },
+];
+
+function Ticker() {
+  const doubled = [...TICKER_ITEMS, ...TICKER_ITEMS];
   return (
-    <section className="relative bg-white py-16 md:py-28 overflow-hidden">
-      {/* Sprite decorations */}
-      <img src="/TransparentAssets/Asset 8.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-4 w-24 md:w-36 opacity-70 rotate-12" />
-      <img src="/TransparentAssets/Asset 9.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-10 left-6 w-20 md:w-32 opacity-70 -rotate-6" />
-<div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="max-w-3xl mb-14">
-          <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand mb-3">
-            Τι προσφέρουμε
-          </div>
-          <h2 className="font-display text-4xl md:text-6xl text-ink leading-none">
-            Το απόλυτο εργαλείο{" "}
-            <span className="text-brand">στοχευμένης διδασκαλίας.</span>
-          </h2>
-          <p className="mt-6 text-sm md:text-base text-ink/60 max-w-2xl leading-relaxed">
-            Το καλύτερο εκπαιδευτικό εργαλείο για το φροντιστήριο που προετοιμάζει μαθητές για τα Πρότυπα, Ωνάσεια και Εκκλησιαστικά Σχολεία.
-          </p>
-        </div>
-
-        {/* You / We intro */}
-        <div className="flex flex-col sm:flex-row gap-0 mb-8 rounded-3xl overflow-hidden">
-          <div className="flex-1 bg-[#056ef5] px-8 py-7 flex items-center gap-4">
-            <span className="font-display text-4xl text-paper/20 flex-shrink-0">→</span>
-            <div>
-              <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-paper/40 mb-1">Εσείς</div>
-              <p className="font-display text-xl md:text-2xl text-paper leading-tight">Καταχωρείτε τις απαντήσεις</p>
-            </div>
-          </div>
-          <div className="flex-1 bg-brand px-8 py-7 flex items-center gap-4">
-            <span className="font-display text-4xl text-ink/20 flex-shrink-0">→</span>
-            <div>
-              <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/50 mb-1">Εμείς</div>
-              <p className="font-display text-xl md:text-2xl text-ink leading-tight">Αναλύουμε τα πάντα</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 md:gap-5 sm:auto-rows-[minmax(180px,auto)]">
-          {/* Big featured card */}
-          <div className="sm:col-span-6 md:col-span-4 md:row-span-2 relative rounded-3xl bg-accent-purple p-8 md:p-10 overflow-hidden group">
-            <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-brand/10 blur-3xl" />
-            <div className="absolute bottom-0 right-0 font-display text-[10rem] md:text-[16rem] leading-none -mb-8 -mr-4 md:-mb-16 md:-mr-8 opacity-10 select-none text-ink">
-              ⚠
-            </div>
-            <div className="relative">
-              <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-paper/50">
-                Συστηματική αδυναμία
-              </div>
-              <h3 className="mt-4 font-display text-2xl sm:text-4xl md:text-5xl leading-none text-paper">
-                Εντοπίζουμε ποια λάθη{" "}
-                <span className="text-brand">επαναλαμβάνονται.</span>
-              </h3>
-              <p className="mt-6 max-w-md text-paper/70 leading-relaxed text-sm md:text-base">
-                Δεν αρκεί να ξέρεις τι έκανε λάθος ένας μαθητής μια φορά. Εντοπίζουμε τα λάθη που επιστρέφουν ξανά και ξανά — αυτά είναι που πρέπει να αντιμετωπιστούν πρώτα.
-              </p>
-            </div>
-          </div>
-
-          <FeatureCard
-            span="col-span-6 sm:col-span-3 md:col-span-2"
-            bg="bg-[#2a2a2a]"
-            accent="text-accent"
-            label="Ομαδοποίηση"
-            title="Παρόμοια λάθη, ίδια ομάδα"
-            body="Ομαδοποιούμε τους μαθητές που εμφανίζουν παρόμοια λάθη — ώστε να διδάξετε τους σωστούς στόχους στη σωστή ομάδα."
-          />
-          <FeatureCard
-            span="col-span-6 sm:col-span-3 md:col-span-2"
-            bg="bg-accent-purple"
-            accent="text-accent"
-            label="Δυσκολία ερωτήσεων"
-            title="Ποιες ερωτήσεις «καίνε»"
-            body="Αναλύουμε τη δυσκολία κάθε ερώτησης. Ποιες έχουν υψηλό ποσοστό λάθους από πολλούς μαθητές."
-          />
-          <FeatureCard
-            span="col-span-6 md:col-span-2"
-            bg="bg-[#2a2a2a]"
-            accent="text-brand"
-            label="Τύπος λάθους"
-            title="Εννοιολογικό, απροσεξίας ή στρατηγικής"
-            body="Στοχεύουμε στο «γιατί» έγινε το λάθος — γιατί η θεραπεία είναι διαφορετική για κάθε τύπο."
-          />
-          <FeatureCard
-            span="col-span-6 md:col-span-4"
-            bg="bg-accent"
-            accent="text-ink"
-            bodyColor="text-ink"
-            label="Μαθησιακό profile"
-            title="Το πιο αντικειμενικό προφίλ κάθε μαθητή"
-            body="Συντάσσουμε το πιο αντικειμενικό μαθησιακό profile κάθε μαθητή σας — με δεδομένα, όχι εντυπώσεις."
-          />
-        </div>
+    <div className="relative bg-[#1b1b1b] overflow-hidden py-4 border-y border-white/5">
+      <style>{`
+        @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .ticker-track { animation: ticker 32s linear infinite; }
+      `}</style>
+      <div className="ticker-track flex whitespace-nowrap">
+        {doubled.map((item, i) => (
+          <span
+            key={i}
+            className="font-display text-base md:text-lg mx-5 flex-shrink-0"
+            style={{ color: item.color }}
+          >
+            {item.text}
+          </span>
+        ))}
       </div>
-    </section>
-  );
-}
-
-function FeatureCard({
-  span,
-  bg,
-  accent,
-  label,
-  title,
-  body,
-  bodyColor = "text-paper",
-}: {
-  span: string;
-  bg: string;
-  accent: string;
-  label: string;
-  title: string;
-  body: string;
-  bodyColor?: string;
-}) {
-  return (
-    <div
-      className={`${span} relative rounded-3xl ${bg} p-7 md:p-8 overflow-hidden hover:-translate-y-1 transition-transform duration-300`}
-    >
-      <div className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accent} opacity-70`}>
-        {label}
-      </div>
-      <h3 className={`mt-3 font-display text-2xl md:text-3xl leading-tight ${accent}`}>
-        {title}
-      </h3>
-      <p className={`mt-3 text-sm leading-relaxed opacity-70 ${bodyColor}`}>
-        {body}
-      </p>
     </div>
   );
 }
 
-/* ─── 3. HOW IT WORKS ──────────────────────────────────────────────────── */
+/* ─── 2. FEATURES ──────────────────────────────────────────────────────── */
+
+function Features() {
+  return (
+    <>
+      {/* Intro + Τι πουλάμε */}
+      <section className="relative bg-white py-16 md:py-24 overflow-hidden">
+        <img src="/TransparentAssets/Asset 8.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-4 w-24 md:w-36 opacity-70 rotate-12 hidden sm:block" />
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="max-w-3xl mb-14">
+            <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand mb-3">
+              Τι προσφέρουμε
+            </div>
+            <h2 className="font-display text-4xl md:text-6xl text-ink leading-none">
+              Το εργαλείο που{" "}
+              <span className="text-brand">κάνει τη διαφορά.</span>
+            </h2>
+            <p className="mt-6 text-sm md:text-base text-ink/70 max-w-2xl leading-relaxed">
+              Οι εξετάσεις για τα Πρότυπα, Ωνάσεια και Εκκλησιαστικά Σχολεία είναι μια διαδικασία κατάταξης. Στόχος να γράψουν οι μαθητές μας καλύτερα από τους άλλους υποψηφίους. Άρα πρέπει να έχετε εικόνα του πού βρίσκεται ο κάθε μαθητής σας σε σχέση με τους υπόλοιπους συμμετέχοντες.
+            </p>
+          </div>
+
+          {/* Τι πουλάμε */}
+          <div className="mb-10">
+            <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/40 mb-6">Τι πουλάμε</div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {[
+                { num: "01", title: "Θέματα Προσομοιώσεων", body: "Διαγωνίσματα προσομοιώσεων για μια ολόκληρη εκπαιδευτική χρονιά προετοιμασίας." },
+                { num: "02", title: "Προγραμματισμός Ύλης", body: "Τι πρέπει να διδάξετε και πότε — δομημένα σε βάθος έτους." },
+                { num: "03", title: "Προγραμματισμός Διαγωνισμάτων", body: "Πλήρης προγραμματισμός διαγωνισμάτων σε βάθος έτους." },
+              ].map((item) => (
+                <div key={item.num} className="rounded-3xl border border-ink/10 p-7 hover:border-[#056ef5]/30 hover:shadow-md transition-all">
+                  <span className="font-display text-3xl text-[#056ef5]/20">{item.num}</span>
+                  <h3 className="mt-3 font-display text-xl md:text-2xl text-ink leading-tight">{item.title}</h3>
+                  <p className="mt-3 text-sm text-ink/60 leading-relaxed">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Εσείς / Εμείς */}
+          <div className="flex flex-col sm:flex-row gap-0 mb-8 rounded-3xl overflow-hidden">
+            <div className="flex-1 bg-[#056ef5] px-8 py-7 flex items-center gap-4">
+              <span className="font-display text-4xl text-paper/20 flex-shrink-0">→</span>
+              <div>
+                <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-paper/50 mb-1">Εσείς</div>
+                <p className="font-display text-xl md:text-2xl text-paper leading-tight">Καταχωρείτε τις απαντήσεις των μαθητών</p>
+              </div>
+            </div>
+            <div className="flex-1 bg-[#c8ff00] px-8 py-7 flex items-center gap-4">
+              <span className="font-display text-4xl text-ink/20 flex-shrink-0">→</span>
+              <div>
+                <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/50 mb-1">Εμείς</div>
+                <p className="font-display text-xl md:text-2xl text-ink leading-tight">Αναλύουμε τα πάντα για εσάς</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bento grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 md:gap-5 sm:auto-rows-[minmax(180px,auto)]">
+
+            {/* Big card — Φροντιστήριο */}
+            <Link href="/sxetika" className="sm:col-span-6 md:col-span-4 md:row-span-2 relative rounded-3xl bg-accent-purple p-8 md:p-10 overflow-hidden group hover:-translate-y-1 transition-transform duration-300 block cursor-pointer">
+              <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-brand/10 blur-3xl" />
+              <img src="/TransparentAssets/Asset 9.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-4 right-4 w-28 md:w-40 opacity-30 rotate-6" />
+              <div className="relative">
+                <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-paper/50">Στο Φροντιστήριο</div>
+                <h3 className="mt-4 font-display text-2xl sm:text-4xl md:text-5xl leading-none text-paper">
+                  Περισσότερες εγγραφές.{" "}
+                  <span className="text-[#c8ff00]">Λιγότερες διαγραφές.</span>
+                </h3>
+                <p className="mt-6 max-w-md text-paper/80 leading-relaxed text-sm md:text-base">
+                  Διαφοροποιηθείτε από τον ανταγωνισμό με δεδομένα που χτίζουν εμπιστοσύνη στους γονείς. Καλύτερα αποτελέσματα, θετικές συστάσεις και μελλοντικοί μαθητές.
+                </p>
+              </div>
+            </Link>
+
+            {/* Διδάσκοντα — Τύπος λάθους */}
+            <BentoCard
+              span="col-span-6 sm:col-span-3 md:col-span-2"
+              bg="bg-[#056ef5]"
+              accentText="text-[#c8ff00]"
+              label="Στον Διδάσκοντα"
+              title="Ανάλυση Τύπου Λάθους"
+              body="Όχι μόνο πόσα λάθη κάνει ο μαθητής — αλλά και γιατί: απροσεξία, κατανόηση ή τεχνική."
+            />
+
+            {/* Διδάσκοντα — Κρυμμένες αδυναμίες */}
+            <BentoCard
+              span="col-span-6 sm:col-span-3 md:col-span-2"
+              bg="bg-[#2a2a2a]"
+              accentText="text-[#c8ff00]"
+              label="Στον Διδάσκοντα"
+              title="Αναδεικνύει κρυμμένες αδυναμίες"
+              body="Δείκτης ανθεκτικότητας, σταθμισμένης επίδοσης και βαρύτητας λάθους — για σχεδιασμό παρέμβασης."
+            />
+
+            {/* Γονείς — Σύγκριση */}
+            <BentoCard
+              span="col-span-6 md:col-span-2"
+              bg="bg-[#2a2a2a]"
+              accentText="text-brand"
+              label="Στους Γονείς"
+              title="Σύγκριση με τα πραγματικά αποτελέσματα"
+              body="Σύγκριση με τους βαθμούς όλων των συμμετεχόντων και με τα περσινά αποτελέσματα των εξετάσεων."
+            />
+
+            {/* Γονείς — Εμπιστοσύνη */}
+            <BentoCard
+              span="col-span-6 md:col-span-4"
+              bg="bg-[#c8ff00]"
+              accentText="text-ink"
+              bodyColor="text-ink"
+              label="Στους Γονείς"
+              title="Εμπιστοσύνη μέσω διαφάνειας"
+              body="Ποιοτική ανάλυση γραπτού για κάθε προσομοίωση. Εξατομικευμένη διδασκαλία, μέτρηση βελτίωσης και πραγματική εικόνα προόδου."
+            />
+          </div>
+        </div>
+      </section>
+
+    </>
+  );
+}
+
+function BentoCard({ span, bg, accentText, label, title, body, bodyColor = "text-paper" }: {
+  span: string; bg: string; accentText: string; label: string; title: string; body: string; bodyColor?: string;
+}) {
+  return (
+    <Link href="/sxetika" className={`${span} relative rounded-3xl ${bg} p-7 md:p-8 overflow-hidden hover:-translate-y-1 transition-transform duration-300 block cursor-pointer`}>
+      <div className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentText} opacity-70`}>{label}</div>
+      <h3 className={`mt-3 font-display text-2xl md:text-3xl leading-tight ${accentText}`}>{title}</h3>
+      <p className={`mt-3 text-sm leading-relaxed opacity-70 ${bodyColor}`}>{body}</p>
+    </Link>
+  );
+}
 
 /* ─── 2.5 MID CTA ──────────────────────────────────────────────────────── */
 
@@ -221,7 +263,7 @@ function MidCta() {
             <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-paper/60 mb-4">
               Ξεκινήστε σήμερα
             </div>
-            <h2 className="font-display text-[clamp(2.8rem,6vw,5.5rem)] leading-[0.9] text-paper">
+            <h2 className="font-display text-[clamp(2rem,4vw,3.5rem)] leading-[0.9] text-paper">
               Ξεκινηστε και καντε τη Διαφορα
             </h2>
           </div>
@@ -332,15 +374,15 @@ function Manifesto() {
       {/* Sprite decorations */}
       <img src="/TransparentAssets/Asset 13.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-6 right-6 w-28 md:w-40 opacity-70 rotate-6 hidden sm:block" />
       <div className="relative mx-auto max-w-4xl px-4 sm:px-6 text-center">
-        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-accent mb-6">
+        <div className="text-sm md:text-base font-bold tracking-[0.25em] uppercase text-accent mb-6">
           {el.home.manifestoEyebrow}
         </div>
-        <blockquote className="font-display text-xl sm:text-2xl md:text-3xl leading-tight text-paper">
-          <span className="text-accent text-7xl leading-none align-top mr-2">&ldquo;</span>
+        <blockquote className="font-display text-base sm:text-lg md:text-xl leading-tight text-paper">
+          <span className="block text-accent text-5xl leading-none mb-3 text-left">&ldquo;</span>
           {el.home.manifestoQuote}
-          <span className="text-accent text-7xl leading-none align-top ml-2">&rdquo;</span>
+          <span className="block text-accent text-5xl leading-none mt-3 text-right">&rdquo;</span>
         </blockquote>
-        <div className="mt-8 text-xs font-bold text-paper/50 uppercase tracking-wider">
+        <div className="mt-8 text-sm md:text-base font-bold text-paper/50 uppercase tracking-wider">
           {el.home.manifestoBy}
         </div>
       </div>
