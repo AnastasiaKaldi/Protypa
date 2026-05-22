@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Simulation, SchoolSimulation, StudentSimulationGrade, Student } from "@/lib/types";
+import type { Simulation, SchoolSimulation, StudentSimulationGrade, Student, SimulationQuestionTag } from "@/lib/types";
 
 interface Props {
   simulation: Simulation;
