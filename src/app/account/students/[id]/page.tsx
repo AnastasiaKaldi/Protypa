@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Student, StudentSimulationGrade, Simulation, SimulationQuestionTag } from "@/lib/types";
 
-type PeerGrade = { student_id: string; simulation_id: string; score: number; school_simulation_id: string };
+type PeerGrade = { student_id: string; simulation_id: string; score: number; school_simulation_id: string; wrong_questions?: number[] | null };
+type Subject = "all" | "greek" | "math";
 
 const PREVIEW_IDS = new Set(["s1", "s2", "s3", "s4", "s5", "s6"]);
 
@@ -119,8 +120,15 @@ function buildPreviewData(id: string): {
   return { student, grades, allGrades, tagMap };
 }
 
-export default async function StudentProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function StudentProfilePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ subject?: string }>;
+}) {
   const { id } = await params;
+  const sp = await searchParams;
   const supabase = await createSupabaseServerClient();
   if (!supabase) return null;
 
@@ -168,11 +176,47 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
 
     const schoolSimIds = grades.map((g) => g.school_simulation_id);
     const { data: allGradesRaw } = schoolSimIds.length
-      ? await supabase.from("student_simulation_grades").select("student_id, simulation_id, score, school_simulation_id").in("school_simulation_id", schoolSimIds)
+      ? await supabase.from("student_simulation_grades").select("student_id, simulation_id, score, school_simulation_id, wrong_questions").in("school_simulation_id", schoolSimIds)
       : { data: [] };
     allGrades = (allGradesRaw ?? []) as PeerGrade[];
   }
 
+  // ── Subject filtering ──────────────────────────────────────────────────
+  // Default: if the student only does one subject, lock the view to it.
+  // Otherwise default to "all" but let the user toggle via ?subject=...
+  const defaultSubject: Subject = student.subjects.length === 1
+    ? (student.subjects[0] as "greek" | "math")
+    : "all";
+  const requested = sp.subject;
+  const subject: Subject = requested === "greek" || requested === "math" || requested === "all"
+    ? requested
+    : defaultSubject;
+  const showSubjectToggle = student.subjects.length > 1;
+
+  function inSubject(qNum: number, sim: Simulation, s: Subject) {
+    if (s === "all") return true;
+    if (s === "greek") return qNum <= sim.greek_questions;
+    return qNum > sim.greek_questions;
+  }
+  function subjectScore(wrongQs: number[], sim: Simulation, s: Subject): number {
+    if (s === "all") {
+      const tot = sim.greek_questions + sim.math_questions;
+      return Math.round((1 - wrongQs.length / tot) * 100);
+    }
+    const tot = s === "greek" ? sim.greek_questions : sim.math_questions;
+    if (!tot) return 0;
+    const wrongInSubject = wrongQs.filter((q) => inSubject(q, sim, s)).length;
+    return Math.round(((tot - wrongInSubject) / tot) * 100);
+  }
+
+  // Project grades through the subject filter (recompute score + filter wrong_questions)
+  const sGrades = grades.map((g) => ({
+    ...g,
+    score: subjectScore(g.wrong_questions ?? [], g.simulations, subject),
+    wrong_questions: (g.wrong_questions ?? []).filter((q) => inSubject(q, g.simulations, subject)),
+  }));
+
+  // Category aggregation — only count questions in the active subject
   const categoryStats: Record<string, { wrong: number; total: number; subject: "greek" | "math" }> = {};
   for (const grade of grades) {
     const sim = grade.simulations;
@@ -180,37 +224,45 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
     const total = sim.greek_questions + sim.math_questions;
     const simTagMap = tagMap.get(grade.simulation_id);
     for (let q = 1; q <= total; q++) {
+      if (!inSubject(q, sim, subject)) continue;
       const isGreek = q <= sim.greek_questions;
       const cat = simTagMap?.get(q) ?? (isGreek ? "Ν. Γλώσσα" : "Μαθηματικά");
       if (!categoryStats[cat]) categoryStats[cat] = { wrong: 0, total: 0, subject: isGreek ? "greek" : "math" };
       categoryStats[cat].total++;
-      if (grade.wrong_questions.includes(q)) categoryStats[cat].wrong++;
+      if ((grade.wrong_questions ?? []).includes(q)) categoryStats[cat].wrong++;
     }
   }
 
-  const avgScore = grades.length ? Math.round(grades.reduce((s, g) => s + g.score, 0) / grades.length) : null;
-  const bestScore = grades.length ? Math.max(...grades.map((g) => g.score)) : null;
-  const worstScore = grades.length ? Math.min(...grades.map((g) => g.score)) : null;
-  const totalQuestions = grades.reduce((s, g) => s + (g.simulations?.greek_questions ?? 0) + (g.simulations?.math_questions ?? 0), 0);
-  const totalWrong = grades.reduce((s, g) => s + g.wrong_questions.length, 0);
+  const avgScore = sGrades.length ? Math.round(sGrades.reduce((s, g) => s + g.score, 0) / sGrades.length) : null;
+  const bestScore = sGrades.length ? Math.max(...sGrades.map((g) => g.score)) : null;
+  const worstScore = sGrades.length ? Math.min(...sGrades.map((g) => g.score)) : null;
+  const totalQuestions = sGrades.reduce((s, g) => {
+    const sim = g.simulations;
+    if (!sim) return s;
+    return s + (subject === "all" ? sim.greek_questions + sim.math_questions : subject === "greek" ? sim.greek_questions : sim.math_questions);
+  }, 0);
+  const totalWrong = sGrades.reduce((s, g) => s + g.wrong_questions.length, 0);
 
-  // Trend: last - first
-  const trend = grades.length > 1 ? grades[grades.length - 1].score - grades[0].score : 0;
+  const trend = sGrades.length > 1 ? sGrades[sGrades.length - 1].score - sGrades[0].score : 0;
 
-  // Class avg for comparison
+  // Class avg per sim — recomputed for the current subject from peer wrong_questions
   const classAvgs = new Map<string, number>();
-  for (const ssId of new Set(grades.map((g) => g.school_simulation_id))) {
-    const peers = allGrades.filter((g) => g.school_simulation_id === ssId);
-    if (peers.length) {
-      classAvgs.set(ssId, peers.reduce((a, p) => a + p.score, 0) / peers.length);
-    }
+  for (const grade of sGrades) {
+    const peers = allGrades.filter((p) => p.school_simulation_id === grade.school_simulation_id);
+    if (!peers.length) continue;
+    const peerScores = peers.map((p) =>
+      subject === "all"
+        ? p.score
+        : subjectScore(p.wrong_questions ?? [], grade.simulations, subject)
+    );
+    classAvgs.set(grade.school_simulation_id, peerScores.reduce((a, b) => a + b, 0) / peerScores.length);
   }
-  const studentAvgVsClass = grades.length
+  const studentAvgVsClass = sGrades.length && classAvgs.size
     ? Math.round(avgScore! - (Array.from(classAvgs.values()).reduce((a, b) => a + b, 0) / classAvgs.size))
     : 0;
 
   const categoryList = Object.entries(categoryStats)
-    .map(([cat, { wrong, total, subject }]) => ({ cat, wrong, total, rate: total ? wrong / total : 0, subject }))
+    .map(([cat, { wrong, total, subject: catSubject }]) => ({ cat, wrong, total, rate: total ? wrong / total : 0, subject: catSubject }))
     .sort((a, b) => b.rate - a.rate);
 
   const initials = `${student.first_name[0] ?? ""}${student.last_name[0] ?? ""}`.toUpperCase();
@@ -253,15 +305,24 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
         </div>
       </div>
 
+      {/* Subject toggle — only for dual-subject students */}
+      {showSubjectToggle && (
+        <div className="flex border border-ink/15 rounded-md w-fit">
+          <SubjectTab href={`/account/students/${student.id}?subject=all`}   active={subject === "all"}   label="Όλα" />
+          <SubjectTab href={`/account/students/${student.id}?subject=greek`} active={subject === "greek"} label="Γλώσσα" />
+          <SubjectTab href={`/account/students/${student.id}?subject=math`}  active={subject === "math"}  label="Μαθηματικά" />
+        </div>
+      )}
+
       {/* KPI strip — dividers */}
       <div className="border-y border-ink/10 divide-x divide-ink/10 grid grid-cols-2 md:grid-cols-4">
-        <ProfileKPI label="Μέσος βαθμός" value={avgScore} trend={trend} trendLabel={grades.length > 1 ? "από την αρχή" : null} />
+        <ProfileKPI label="Μέσος βαθμός" value={avgScore} trend={trend} trendLabel={sGrades.length > 1 ? "από την αρχή" : null} />
         <ProfileKPI label="Καλύτερος"     value={bestScore} />
         <ProfileKPI label="Χειρότερος"    value={worstScore} />
-        <ProfileKPI label="Διαγωνίσματα"  value={grades.length} sub={totalWrong > 0 ? `${totalWrong}/${totalQuestions} λάθος` : null} />
+        <ProfileKPI label="Διαγωνίσματα"  value={sGrades.length} sub={totalWrong > 0 ? `${totalWrong}/${totalQuestions} λάθος` : null} />
       </div>
 
-      {grades.length === 0 ? (
+      {sGrades.length === 0 ? (
         <div className="border border-ink/10 rounded-md px-4 py-10 text-center">
           <p className="text-sm text-ink/50">Δεν έχει καταχωρηθεί βαθμολόγηση για αυτόν τον μαθητή ακόμα.</p>
           <Link href="/account/grading" className="inline-block mt-3 text-xs font-bold text-[#056ef5] hover:text-[#0451b8]">
@@ -272,7 +333,7 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
         <>
           {/* Performance + Donut */}
           <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
-            <ProgressChart grades={grades} classAvgs={classAvgs} />
+            <ProgressChart grades={sGrades} classAvgs={classAvgs} />
             <CategoryDonut categories={categoryList} />
           </div>
 
@@ -306,23 +367,31 @@ export default async function StudentProfilePage({ params }: { params: Promise<{
           <section>
             <div className="flex items-baseline justify-between mb-3">
               <h2 className="text-[11px] font-semibold tracking-wider uppercase text-ink/55">Ιστορικό διαγωνισμάτων</h2>
-              <span className="text-[11px] text-ink/45">{grades.length} καταχωρήσεις</span>
+              <span className="text-[11px] text-ink/45">{sGrades.length} καταχωρήσεις</span>
             </div>
             <div className="space-y-3">
-              {[...grades].reverse().map((grade) => {
+              {[...sGrades].reverse().map((grade) => {
                 const sim = grade.simulations;
                 if (!sim) return null;
-                const total = sim.greek_questions + sim.math_questions;
+                const total = subject === "all" ? sim.greek_questions + sim.math_questions
+                            : subject === "greek" ? sim.greek_questions
+                            : sim.math_questions;
                 const wrong = grade.wrong_questions.length;
                 const correct = total - wrong;
 
+                // Peer scores recomputed in the current subject
                 const peers = allGrades.filter((g) => g.school_simulation_id === grade.school_simulation_id);
-                const rank = peers.filter((g) => g.score > grade.score).length + 1;
-                const totalPeers = peers.length;
+                const peerSubjectScores = peers.map((p) =>
+                  subject === "all"
+                    ? p.score
+                    : subjectScore(p.wrong_questions ?? [], sim, subject)
+                );
+                const rank = peerSubjectScores.filter((s) => s > grade.score).length + 1;
+                const totalPeers = peerSubjectScores.length;
                 const percentile = totalPeers > 1
                   ? Math.round(((totalPeers - rank) / (totalPeers - 1)) * 100)
                   : 100;
-                const classAvg = peers.length ? Math.round(peers.reduce((a, p) => a + p.score, 0) / peers.length) : 0;
+                const classAvg = peerSubjectScores.length ? Math.round(peerSubjectScores.reduce((a, b) => a + b, 0) / peerSubjectScores.length) : 0;
                 const diffFromAvg = grade.score - classAvg;
 
                 const wrongCats = (() => {
@@ -418,6 +487,17 @@ function pickColor(seed: string): string {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+
+function SubjectTab({ href, active, label }: { href: string; active: boolean; label: string }) {
+  return (
+    <Link href={href}
+      className={`px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer not-first:border-l border-ink/15 ${
+        active ? "bg-ink text-white" : "text-ink/55 hover:text-ink"
+      }`}>
+      {label}
+    </Link>
+  );
 }
 
 function ProfileKPI({ label, value, trend, trendLabel, sub }: {
