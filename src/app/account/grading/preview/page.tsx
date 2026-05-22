@@ -13,6 +13,8 @@ const MOCK_SIM: Simulation = {
   greek_questions: 20,
   math_questions: 20,
   is_published: true,
+  material_url: null,
+  questions_url: null,
   created_at: "2024-10-01T00:00:00Z",
 };
 

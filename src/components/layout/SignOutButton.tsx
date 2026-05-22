@@ -3,7 +3,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { el } from "@/lib/i18n/el";
 
-export function SignOutButton() {
+export function SignOutButton({ className }: { className?: string }) {
   const router = useRouter();
   return (
     <button
@@ -13,7 +13,7 @@ export function SignOutButton() {
         router.push("/");
         router.refresh();
       }}
-      className="px-4 py-2 rounded-full hover:bg-slate-100 font-medium transition-colors cursor-pointer"
+      className={className ?? "px-4 py-2 rounded-full hover:bg-slate-100 font-medium transition-colors cursor-pointer"}
     >
       {el.nav.signout}
     </button>
