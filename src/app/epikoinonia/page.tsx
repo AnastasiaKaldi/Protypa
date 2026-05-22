@@ -11,7 +11,7 @@ export default function ContactPage() {
     <div>
       <Hero />
 
-      <section className="relative bg-white pt-12 pb-16 md:pt-16 md:pb-28 overflow-hidden">
+      <section className="relative bg-white pt-10 pb-12 md:pt-14 md:pb-20 overflow-hidden">
         {/* Sprite decorations */}
         <img src="/TransparentAssets/Asset 21.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-4 w-20 md:w-28 opacity-65 rotate-12 hidden sm:block" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -101,7 +101,7 @@ export default function ContactPage() {
 function Hero() {
   return (
     <section
-      className="relative pt-16 pb-20 md:pt-24 md:pb-28 clip-x overflow-hidden"
+      className="relative pt-12 pb-14 md:pt-18 md:pb-20 clip-x overflow-hidden"
       style={{ backgroundImage: "url('/contactus.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
     >
       {/* Dark overlay so text stays readable */}

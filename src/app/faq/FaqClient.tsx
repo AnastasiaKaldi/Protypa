@@ -36,7 +36,7 @@ export function FaqClient() {
   const totalMatches = filtered.reduce((sum, c) => sum + c.items.length, 0);
 
   return (
-    <section className="relative bg-white pt-12 md:pt-24 pb-16 md:pb-24 overflow-hidden">
+    <section className="relative bg-white pt-10 md:pt-16 pb-12 md:pb-18 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
 
         {/* Search bar */}

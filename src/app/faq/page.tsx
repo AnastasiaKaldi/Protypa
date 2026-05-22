@@ -13,7 +13,7 @@ export default function FaqPage() {
 function Hero() {
   return (
     <section
-      className="relative pt-16 pb-20 md:pt-24 md:pb-28 clip-x overflow-hidden"
+      className="relative pt-12 pb-14 md:pt-18 md:pb-20 clip-x overflow-hidden"
       style={{ backgroundImage: "url(/faq.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}
     >
       <div className="absolute inset-0 bg-brand/80" />

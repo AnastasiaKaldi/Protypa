@@ -19,13 +19,13 @@ export default function HomePage() {
 function Hero() {
   return (
     <section
-      className="relative min-h-[90vh] flex items-center clip-x overflow-hidden"
+      className="relative min-h-[78vh] flex items-center clip-x overflow-hidden"
       style={{ backgroundImage: "url(/HeroPage.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}
     >
       {/* Blue brand overlay — preserves brand colour while letting image show through */}
       <div className="absolute inset-0 bg-brand/80" />
 
-      <div className="relative z-10 w-full mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28">
+      <div className="relative z-10 w-full mx-auto max-w-7xl px-4 sm:px-6 py-14 md:py-20">
         <div className="grid md:grid-cols-2 gap-10 items-center">
 
           {/* Left — content */}
@@ -115,10 +115,10 @@ function Features() {
   return (
     <>
       {/* Intro + Τι πουλάμε */}
-      <section className="relative bg-white py-16 md:py-24 overflow-hidden">
+      <section className="relative bg-white py-10 md:py-18 overflow-hidden">
         <img src="/TransparentAssets/Asset 8.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 right-4 w-24 md:w-36 opacity-70 rotate-12 hidden sm:block" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="max-w-3xl mb-14">
+          <div className="max-w-3xl mb-10">
             <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand mb-3">
               Τι προσφέρουμε
             </div>
@@ -255,7 +255,7 @@ function MidCta() {
       <img src="/TransparentAssets/Asset 7.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-0 right-8 w-40 md:w-64 opacity-80 rotate-6 hidden sm:block" />
       <img src="/TransparentAssets/Asset 18.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-6 right-[30%] w-20 md:w-28 opacity-60 -rotate-12 hidden lg:block" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-32">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 py-14 md:py-22">
         <div className="grid md:grid-cols-2 gap-12 items-center">
 
           {/* Left — title */}
@@ -326,14 +326,14 @@ function HowItWorks() {
   ];
 
   return (
-    <section className="relative py-16 md:py-28 bg-brand overflow-hidden">
+    <section className="relative py-10 md:py-20 bg-brand overflow-hidden">
       <div className="hidden sm:block pointer-events-none absolute -top-40 right-0 w-[30rem] h-[30rem] rounded-full bg-white/10 blur-3xl" />
       {/* Sprite decorations */}
       <img src="/TransparentAssets/Asset 10.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-10 right-8 w-28 md:w-44 opacity-75 -rotate-6 hidden sm:block" />
       <img src="/TransparentAssets/Asset 11.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 right-4 w-24 md:w-36 opacity-70 rotate-12 hidden sm:block" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="max-w-3xl mb-16">
+        <div className="max-w-3xl mb-10">
           <h2 className="font-display text-5xl md:text-7xl text-ink leading-none">
             Πώς λειτουργεί
           </h2>
@@ -368,7 +368,7 @@ function HowItWorks() {
 
 function Manifesto() {
   return (
-    <section className="relative py-16 md:py-28 bg-accent-purple overflow-hidden">
+    <section className="relative py-10 md:py-18 bg-accent-purple overflow-hidden">
       <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-white/5 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-brand/20 blur-3xl" />
       {/* Sprite decorations */}

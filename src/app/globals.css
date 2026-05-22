@@ -110,3 +110,21 @@ h1, h2, h3, h4, p, span, li, td, th {
 .animate-spin-slow {
   animation: spin-slow 18s linear infinite;
 }
+
+/* ── Portal utilities (kept minimal — Linear-inspired) ── */
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Subtle row hover used in tables / lists */
+.row-hover { transition: background-color 120ms ease; }
+.row-hover:hover { background-color: rgba(27, 27, 27, 0.025); }
+
+/* Account container card — desktop only */
+.account-card { padding: 0; }
+@media (min-width: 768px) {
+  .account-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px -12px rgba(0,0,0,0.22), 0 6px 16px -4px rgba(0,0,0,0.10);
+    padding: 40px;
+  }
+}

@@ -17,7 +17,7 @@ export default function AboutPage() {
 function Hero() {
   return (
     <section
-      className="relative pt-16 pb-20 md:pt-24 md:pb-28 clip-x overflow-hidden"
+      className="relative pt-12 pb-14 md:pt-18 md:pb-20 clip-x overflow-hidden"
       style={{ backgroundImage: "url(/about.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}
     >
       <div className="absolute inset-0 bg-[#7c00d0]/85" />
@@ -44,7 +44,7 @@ function Hero() {
 
 function Story() {
   return (
-    <section className="relative bg-white py-16 md:py-28 overflow-hidden">
+    <section className="relative bg-white py-10 md:py-20 overflow-hidden">
       <img src="/TransparentAssets/Asset 11.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-8 left-6 w-24 md:w-36 opacity-50 rotate-12 hidden sm:block" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
@@ -79,7 +79,7 @@ function Story() {
 
 function Values() {
   return (
-    <section className="relative bg-[#7c00d0] py-16 md:py-28 overflow-hidden">
+    <section className="relative bg-[#7c00d0] py-10 md:py-20 overflow-hidden">
       <div className="hidden sm:block pointer-events-none absolute -top-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-[#056ef5]/20 blur-3xl" />
       <img src="/TransparentAssets/Asset 12.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-10 right-8 w-28 md:w-44 opacity-60 -rotate-6 hidden sm:block" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
@@ -131,7 +131,7 @@ function Values() {
 
 function Cta() {
   return (
-    <section className="relative bg-[#056ef5] py-16 md:py-28 overflow-hidden">
+    <section className="relative bg-[#056ef5] py-10 md:py-20 overflow-hidden">
       <img src="/TransparentAssets/Asset 14.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-6 right-8 w-32 md:w-48 opacity-65 rotate-12 hidden sm:block" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="max-w-2xl">

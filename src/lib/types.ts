@@ -73,3 +73,101 @@ export interface GradingSession {
   type_breakdown: Record<string, { correct: number; total: number }>;
   created_at: string;
 }
+
+// ─── School portal ───────────────────────────────────────────────────────────
+
+export interface Profile {
+  id: string;
+  full_name: string | null;
+  school_name: string | null;
+  is_admin: boolean;
+  onboarding_complete: boolean;
+  created_at: string;
+}
+
+export interface School {
+  id: string;
+  legal_name: string | null;
+  trade_name: string | null;
+  address: string | null;
+  postal_code: string | null;
+  city: string | null;
+  region: string | null;
+  phone: string | null;
+  mobile: string | null;
+  school_email: string | null;
+  contact_person: string | null;
+  contact_email: string | null;
+  afm: string | null;
+  doy: string | null;
+  subjects: string[];
+  terms_accepted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Simulation {
+  id: string;
+  number: number;
+  title: string;
+  subject: "greek" | "math" | "bundle";
+  exam_date: string | null;
+  unlocks_at: string | null;
+  grading_closes_at: string | null;
+  greek_questions: number;
+  math_questions: number;
+  is_published: boolean;
+  material_url: string | null;
+  questions_url: string | null;
+  created_at: string;
+}
+
+export interface SchoolSimulation {
+  id: string;
+  school_id: string;
+  simulation_id: string;
+  student_count: number | null;
+  is_submitted: boolean;
+  submitted_at: string | null;
+}
+
+export interface SimulationGrade {
+  id: string;
+  school_simulation_id: string;
+  student_label: string;
+  wrong_questions: number[];
+  score: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Student {
+  id: string;
+  school_id: string;
+  first_name: string;
+  last_name: string;
+  class_year: string | null;
+  subjects: string[];
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SimulationQuestionTag {
+  id: string;
+  simulation_id: string;
+  question_number: number;
+  subject: "greek" | "math";
+  category: string;
+}
+
+export interface StudentSimulationGrade {
+  id: string;
+  student_id: string;
+  simulation_id: string;
+  school_simulation_id: string;
+  wrong_questions: number[];
+  score: number;
+  submitted_at: string;
+  updated_at: string;
+}

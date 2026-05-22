@@ -7,17 +7,18 @@ import { PlansClient } from "./PlansClient";
 import { PACKAGES } from "./packages-data";
 
 
+export const revalidate = 3600; // cache page for 1 hour — package prices rarely change
+
 export default async function PackagesPage() {
   const supabase = await createSupabaseServerClient();
-  const packages = supabase
-    ? (
-        await supabase
-          .from("packages")
-          .select("*")
-          .order("price_cents", { ascending: true })
-      ).data
-    : null;
-  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
+  const [packages, user] = await Promise.all([
+    supabase
+      ? supabase.from("packages").select("*").order("price_cents", { ascending: true }).then((r) => r.data)
+      : Promise.resolve(null),
+    supabase
+      ? supabase.auth.getUser().then((r) => r.data.user)
+      : Promise.resolve(null),
+  ]);
 
   return (
     <div>
@@ -35,7 +36,7 @@ export default async function PackagesPage() {
 function Hero() {
   return (
     <section
-      className="relative pt-16 pb-20 md:pt-24 md:pb-28 clip-x overflow-hidden"
+      className="relative pt-12 pb-14 md:pt-18 md:pb-20 clip-x overflow-hidden"
       style={{ backgroundImage: "url(/Packages.jpg)", backgroundSize: "cover", backgroundPosition: "center" }}
     >
       <div className="absolute inset-0 bg-brand/80" />
@@ -75,11 +76,24 @@ function Compare({ packages }: { packages: Package[] }) {
   }
 
   return (
-    <section className="relative py-16 md:py-28 bg-[#7c00d0] overflow-hidden">
-      <div className="hidden sm:block pointer-events-none absolute -top-40 -right-40 w-[36rem] h-[36rem] rounded-full bg-brand/15 blur-3xl" />
-      <div className="hidden sm:block pointer-events-none absolute -bottom-40 -left-40 w-[36rem] h-[36rem] rounded-full bg-accent-purple/15 blur-3xl" />
-      {/* Sprite decorations */}
-      <img src="/TransparentAssets/Asset 19.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-10 right-10 w-28 md:w-40 opacity-65 -rotate-6 hidden sm:block" />
+    <section className="relative py-10 md:py-20 bg-[#0a0a0f] overflow-hidden">
+      {/* Faint dot grid for texture */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        style={{
+          backgroundImage: "radial-gradient(rgba(255,255,255,0.6) 1px, transparent 1px)",
+          backgroundSize: "22px 22px",
+        }}
+      />
+      {/* Ambient corner highlight */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: "radial-gradient(ellipse 60% 50% at 100% 0%, rgba(5,110,245,0.10), transparent 60%)",
+        }}
+      />
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
         <div className="max-w-2xl mb-12">
@@ -153,7 +167,7 @@ function Compare({ packages }: { packages: Package[] }) {
 
 function Guarantee() {
   return (
-    <section className="relative py-16 md:py-28 bg-[#7c00d0] clip-x overflow-hidden">
+    <section className="relative py-10 md:py-20 bg-[#7c00d0] clip-x overflow-hidden">
       {/* Sprite decorations */}
       <img src="/TransparentAssets/Asset 20.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-6 right-8 w-32 md:w-48 opacity-75 rotate-12 hidden sm:block" />
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
@@ -194,7 +208,7 @@ function Guarantee() {
 
 function Faqs() {
   return (
-    <section className="relative py-16 md:py-28 bg-[#056ef5] text-paper">
+    <section className="relative py-10 md:py-20 bg-[#056ef5] text-paper">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <div className="grid md:grid-cols-12 gap-12">
           <div className="md:col-span-4">
