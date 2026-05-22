@@ -247,15 +247,15 @@ export default function OnboardingPage() {
           {step === 4 && (
             <div className="space-y-6">
               <div className="h-64 overflow-y-auto rounded-2xl border border-ink/10 p-5 text-sm text-ink/70 leading-relaxed space-y-4 bg-[#fafaf8]">
-                <p className="font-bold text-ink">ΟΡΟΙ ΧΡΗΣΗΣ ΠΛΑΤΦΟΡΜΑΣ PROTYPA PASS</p>
+                <p className="font-bold text-ink">ΟΡΟΙ ΧΡΗΣΗΣ ΠΛΑΤΦΟΡΜΑΣ PROTYPA</p>
                 <p>Τελευταία ενημέρωση: {new Date().getFullYear()}</p>
                 <p>
-                  Η πρόσβαση στην πλατφόρμα Protypa Pass και η χρήση των υπηρεσιών της προϋποθέτει
+                  Η πρόσβαση στην πλατφόρμα Protypa και η χρήση των υπηρεσιών της προϋποθέτει
                   την ανεπιφύλακτη αποδοχή των παρόντων Όρων Χρήσης.
                 </p>
                 <p className="font-bold text-ink">1. Παροχή υπηρεσιών</p>
                 <p>
-                  Η Protypa Pass παρέχει πρόσβαση σε θέματα διαγωνισμάτων εξετάσεων Πρότυπων
+                  Η Protypa παρέχει πρόσβαση σε θέματα διαγωνισμάτων εξετάσεων Πρότυπων
                   και Πειραματικών Σχολών, στατιστικά στοιχεία, καθώς και εργαλεία καταχώρησης
                   και αξιολόγησης βαθμολογίας μαθητών για εγγεγραμμένα φροντιστήρια.
                 </p>
@@ -297,7 +297,7 @@ export default function OnboardingPage() {
                 <span className="text-sm text-ink/70 leading-relaxed">
                   Έχω διαβάσει και αποδέχομαι τους{" "}
                   <span className="text-[#056ef5] font-bold">Όρους Χρήσης</span> και την{" "}
-                  <span className="text-[#056ef5] font-bold">Πολιτική Απορρήτου</span> της Protypa Pass.
+                  <span className="text-[#056ef5] font-bold">Πολιτική Απορρήτου</span> της Protypa.
                 </span>
               </label>
 

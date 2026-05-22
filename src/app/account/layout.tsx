@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AccountNav } from "./AccountNav";
 
@@ -20,16 +21,15 @@ export default async function AccountLayout({ children }: { children: React.Reac
   }
 
   const { data: { user } } = await supabase.auth.getUser();
-  // DEV PREVIEW: remove redirect to browse unauthenticated
-  // if (!user) redirect("/signin?next=/account");
+  if (!user) redirect("/signin?next=/account");
 
-  const { data: profile } = user ? await supabase
+  const { data: profile } = await supabase
     .from("profiles")
     .select("full_name, is_admin, onboarding_complete")
     .eq("id", user.id)
-    .maybeSingle() : { data: null };
+    .maybeSingle();
 
-  const incomplete = user ? !profile?.onboarding_complete : false;
+  const incomplete = !profile?.onboarding_complete;
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] bg-white">

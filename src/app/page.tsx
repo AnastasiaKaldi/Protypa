@@ -72,24 +72,24 @@ function Hero() {
 /* ─── TICKER ───────────────────────────────────────────────────────────── */
 
 const TICKER_ITEMS = [
-  { text: "Πρότυπα Σχολεία", color: "#056ef5" },
+  { text: "Πρότυπα Σχολεία", color: "#ffffff" },
   { text: "◆", color: "#c8ff00" },
-  { text: "Ωνάσεια Σχολεία", color: "#7c00d0" },
+  { text: "Ωνάσεια Σχολεία", color: "#ffffff" },
   { text: "◆", color: "#c8ff00" },
-  { text: "Εκκλησιαστικά Σχολεία", color: "#056ef5" },
+  { text: "Εκκλησιαστικά Σχολεία", color: "#ffffff" },
   { text: "◆", color: "#c8ff00" },
-  { text: "Ανάλυση Λαθών", color: "#7c00d0" },
+  { text: "Ανάλυση Λαθών", color: "#ffffff" },
   { text: "◆", color: "#c8ff00" },
-  { text: "Στατιστική Πορεία", color: "#056ef5" },
+  { text: "Στατιστική Πορεία", color: "#ffffff" },
   { text: "◆", color: "#c8ff00" },
-  { text: "Εξατομικευμένη Διδασκαλία", color: "#7c00d0" },
+  { text: "Εξατομικευμένη Διδασκαλία", color: "#ffffff" },
   { text: "◆", color: "#c8ff00" },
 ];
 
 function Ticker() {
   const doubled = [...TICKER_ITEMS, ...TICKER_ITEMS];
   return (
-    <div className="relative bg-[#1b1b1b] overflow-hidden py-4 border-y border-white/5">
+    <div className="relative bg-[#056ef5] overflow-hidden py-4 border-y border-white/10">
       <style>{`
         @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         .ticker-track { animation: ticker 32s linear infinite; }
@@ -199,7 +199,7 @@ function Features() {
             {/* Διδάσκοντα — Κρυμμένες αδυναμίες */}
             <BentoCard
               span="col-span-6 sm:col-span-3 md:col-span-2"
-              bg="bg-[#2a2a2a]"
+              bg="bg-[#7c00d0]"
               accentText="text-[#c8ff00]"
               label="Στον Διδάσκοντα"
               title="Αναδεικνύει κρυμμένες αδυναμίες"
@@ -209,8 +209,8 @@ function Features() {
             {/* Γονείς — Σύγκριση */}
             <BentoCard
               span="col-span-6 md:col-span-2"
-              bg="bg-[#2a2a2a]"
-              accentText="text-brand"
+              bg="bg-[#056ef5]"
+              accentText="text-[#c8ff00]"
               label="Στους Γονείς"
               title="Σύγκριση με τα πραγματικά αποτελέσματα"
               body="Σύγκριση με τους βαθμούς όλων των συμμετεχόντων και με τα περσινά αποτελέσματα των εξετάσεων."
