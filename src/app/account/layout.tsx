@@ -64,7 +64,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
               {" "}— Χρειαζόμαστε τα στοιχεία του φροντιστηρίου σας για να μπορούν να εκδοθούν παραστατικά.
             </p>
             <Link href="/account/profile"
-              className="flex-shrink-0 text-xs font-black uppercase tracking-wider text-white border border-white/30 hover:border-white px-3 py-1.5 rounded-full transition-colors">
+              className="flex-shrink-0 text-xs font-black uppercase tracking-wider text-[#7c00d0] bg-white hover:bg-white/90 px-3 py-1.5 rounded-full transition-colors">
               Συμπλήρωση →
             </Link>
           </div>

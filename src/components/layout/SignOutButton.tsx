@@ -13,7 +13,7 @@ export function SignOutButton({ className }: { className?: string }) {
         router.push("/");
         router.refresh();
       }}
-      className={className ?? "px-4 py-2 rounded-full hover:bg-slate-100 font-medium transition-colors cursor-pointer"}
+      className={className ?? "px-4 py-2 rounded-full text-white hover:bg-white/10 font-medium transition-colors cursor-pointer"}
     >
       {el.nav.signout}
     </button>
