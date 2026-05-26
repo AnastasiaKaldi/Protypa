@@ -78,6 +78,20 @@ export default function ProfilePage() {
         <Section title="Στοιχεία Εταιρείας">
           <Field label="Επωνυμία" value={school.legal_name ?? ""} onChange={(v) => set("legal_name", v)} placeholder="π.χ. Βασιλειάδης & ΣΙΑ ΟΕ" />
           <Field label="Διακριτικός τίτλος" value={school.trade_name ?? ""} onChange={(v) => set("trade_name", v)} placeholder="π.χ. Φροντιστήριο Πεδίο" />
+          <div className="grid grid-cols-2 gap-5">
+            <Field label="ΑΦΜ" value={school.afm ?? ""} onChange={(v) => set("afm", v)} placeholder="π.χ. 152998856" />
+            <label className="block">
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">ΔΟΥ</span>
+              <select
+                value={school.doy ?? ""}
+                onChange={(e) => set("doy", e.target.value)}
+                className="mt-2 w-full bg-white border-0 border-b-2 border-ink/20 px-0 py-2.5 text-base font-display text-ink focus:outline-none focus:border-[#056ef5] transition-colors cursor-pointer"
+              >
+                <option value="">Επιλέξτε ΔΟΥ</option>
+                {DOY_LIST.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </label>
+          </div>
         </Section>
 
         {/* Address */}
@@ -97,24 +111,6 @@ export default function ProfilePage() {
           <Field label="Υπεύθυνος επικοινωνίας" value={school.contact_person ?? ""} onChange={(v) => set("contact_person", v)} placeholder="π.χ. Γραμματεία" />
           <Field label="Κινητό υπευθύνου" value={school.mobile ?? ""} onChange={(v) => set("mobile", v)} type="tel" placeholder="π.χ. 6944525252" />
           <Field label="Email υπευθύνου" value={school.contact_email ?? ""} onChange={(v) => set("contact_email", v)} type="email" placeholder="manager@frontistirio.gr" />
-        </Section>
-
-        {/* Tax */}
-        <Section title="Φορολογικά Στοιχεία">
-          <Field label="ΑΦΜ" value={school.afm ?? ""} onChange={(v) => set("afm", v)} placeholder="π.χ. 152998856" />
-          <div>
-            <label className="block">
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">ΔΟΥ</span>
-              <select
-                value={school.doy ?? ""}
-                onChange={(e) => set("doy", e.target.value)}
-                className="mt-2 w-full bg-white border-0 border-b-2 border-ink/20 px-0 py-2.5 text-base font-display text-ink focus:outline-none focus:border-[#056ef5] transition-colors cursor-pointer"
-              >
-                <option value="">Επιλέξτε ΔΟΥ</option>
-                {DOY_LIST.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </label>
-          </div>
         </Section>
 
         {/* Subjects */}
@@ -139,6 +135,28 @@ export default function ProfilePage() {
               );
             })}
           </div>
+        </Section>
+
+        {/* Marketing email opt-in */}
+        <Section title="Ενημερωτικά Emails">
+          <button type="button"
+            onClick={() => set("marketing_opt_in", !school.marketing_opt_in)}
+            className={`w-full flex items-start gap-4 p-4 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+              school.marketing_opt_in ? "border-[#056ef5] bg-[#056ef5]/5" : "border-ink/10 hover:border-ink/30"
+            }`}>
+            <span className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+              school.marketing_opt_in ? "bg-[#056ef5] border-[#056ef5]" : "border-ink/30"
+            }`}>
+              {school.marketing_opt_in && <span className="text-white text-xs font-black">✓</span>}
+            </span>
+            <div>
+              <div className="font-bold text-ink text-sm">Θέλω να λαμβάνω ενημερωτικά emails</div>
+              <p className="mt-1 text-xs text-ink/55 leading-relaxed">
+                Νέα θέματα διαγωνισμάτων, ανακοινώσεις και ενημερώσεις της πλατφόρμας — απευθείας στο email σας.
+                Μπορείτε να αλλάξετε αυτή τη ρύθμιση ανά πάσα στιγμή από εδώ.
+              </p>
+            </div>
+          </button>
         </Section>
 
         {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 p-3 rounded-xl">{error}</p>}
@@ -193,4 +211,5 @@ const PREVIEW_SCHOOL: Partial<School> = {
   afm: "152998856",
   doy: "ΗΡΑΚΛΕΙΟΥ",
   subjects: ["greek", "math"],
+  marketing_opt_in: true,
 };

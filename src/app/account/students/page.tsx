@@ -118,9 +118,9 @@ export default function StudentsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <div className="text-xs text-ink/45">Μαθητές</div>
-          <h1 className="font-display text-2xl text-ink mt-1">Κατάλογος μαθητών</h1>
-          <p className="text-sm text-ink/55 mt-1">Διαχείριση όλων των μαθητών του φροντιστηρίου.</p>
+          <div className="text-xs text-ink/45">Γονείς</div>
+          <h1 className="font-display text-2xl text-ink mt-1">Αναλυτικά στοιχεία μαθητών</h1>
+          <p className="text-sm text-ink/55 mt-1">Δεδομένα ανά μαθητή — μπορείτε να τα εκτυπώσετε και να τα μοιραστείτε με τους γονείς.</p>
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}

@@ -1,0 +1,75 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Post } from "@/lib/types";
+
+export const revalidate = 60;
+
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) notFound();
+
+  const now = new Date().toISOString();
+  const { data } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("slug", slug)
+    .not("publish_at", "is", null)
+    .lte("publish_at", now)
+    .maybeSingle();
+
+  if (!data) notFound();
+  const post = data as Post;
+
+  const date = post.publish_at
+    ? new Date(post.publish_at).toLocaleDateString("el-GR", { day: "numeric", month: "long", year: "numeric" })
+    : "";
+
+  return (
+    <div className="overflow-hidden bg-white">
+      <article className="mx-auto max-w-3xl px-4 sm:px-6 py-12 md:py-20">
+        <Link href="/nea" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink/45 hover:text-ink transition-colors mb-8">
+          ← Πίσω στα νέα
+        </Link>
+
+        <div className="flex items-center gap-3 mb-4">
+          {post.tag && (
+            <span className={`inline-flex px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${tagColors(post.tag).bg} ${tagColors(post.tag).text}`}>
+              {post.tag}
+            </span>
+          )}
+          <span className="text-xs text-ink/45 font-bold uppercase tracking-wider capitalize">{date}</span>
+        </div>
+
+        <h1 className="font-display text-3xl md:text-5xl leading-tight text-ink">{post.title}</h1>
+
+        {post.excerpt && (
+          <p className="mt-4 text-base md:text-lg text-ink/65 leading-relaxed">{post.excerpt}</p>
+        )}
+
+        {post.cover_image_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={post.cover_image_url}
+            alt=""
+            className="w-full aspect-[16/9] object-cover rounded-2xl mt-8"
+          />
+        )}
+
+        <div className="mt-10 prose prose-lg max-w-none text-ink/80 leading-relaxed whitespace-pre-wrap">
+          {post.body}
+        </div>
+      </article>
+    </div>
+  );
+}
+
+function tagColors(tag: string | null) {
+  switch (tag) {
+    case "Νέα Θέματα":   return { bg: "bg-[#056ef5]", text: "text-white" };
+    case "Ανακοινώσεις": return { bg: "bg-[#7c00d0]", text: "text-white" };
+    case "Στατιστικά":   return { bg: "bg-[#c8ff00]", text: "text-ink" };
+    default:              return { bg: "bg-ink/10",    text: "text-ink/70" };
+  }
+}

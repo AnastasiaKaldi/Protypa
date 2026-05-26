@@ -73,7 +73,7 @@ export default function SignInPage() {
             Συνδεθείτε για να αποκτήσετε πρόσβαση στα διαθέσιμα θέματα και το ιστορικό διορθώσεων σας.
           </p>
         </div>
-        <div className="relative z-10 text-white/50 text-xs">© {new Date().getFullYear()} Protypa</div>
+        <div className="relative z-10 text-white/50 text-xs">© {new Date().getFullYear()} Protupa</div>
       </div>
 
       {/* Right form panel */}

@@ -90,14 +90,60 @@ function DeadlineNotice({ sim, isPreview }: { sim: Simulation; isPreview: boolea
   if (!sim.grading_closes_at) return null;
   const diff = new Date(sim.grading_closes_at).getTime() - Date.now();
   const days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+  const hours = Math.max(0, Math.floor((diff / (1000 * 60 * 60)) % 24));
   const urgent = days < 3;
   const href = isPreview ? "/account/grading/preview" : `/account/grading/${sim.id}`;
 
+  if (urgent) {
+    const timeLeft =
+      days > 0
+        ? `${days} ${days === 1 ? "ημέρα" : "ημέρες"}${hours > 0 ? ` και ${hours}${hours === 1 ? " ώρα" : " ώρες"}` : ""}`
+        : hours > 0
+        ? `${hours} ${hours === 1 ? "ώρα" : "ώρες"}`
+        : "λιγότερο από 1 ώρα";
+
+    return (
+      <Link
+        href={href}
+        className="block bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors group"
+        style={{ boxShadow: "0 12px 32px -10px rgba(220, 38, 38, 0.55)" }}
+      >
+        <div className="flex items-center justify-between gap-4 px-5 py-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-11 h-11 rounded-full bg-white/15 grid place-items-center flex-shrink-0 ring-2 ring-white/30">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[10px] font-black uppercase tracking-[0.25em] bg-white text-red-600 px-2 py-0.5 rounded-sm">
+                  Επείγον
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/85">
+                  Λήγει σύντομα
+                </span>
+              </div>
+              <div className="text-base font-bold leading-tight truncate">{sim.title}</div>
+              <div className="text-sm text-white/85 mt-0.5">
+                Απομένουν <span className="font-bold tabular">{timeLeft}</span> για την καταχώρηση
+              </div>
+            </div>
+          </div>
+          <div className="flex-shrink-0 text-xs font-black uppercase tracking-wider bg-white text-red-600 px-5 py-2.5 rounded-full group-hover:translate-x-0.5 transition-transform whitespace-nowrap">
+            Βαθμολόγηση →
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // Calm state — for far-away deadlines
   return (
-    <div className={`flex items-center justify-between gap-4 border-l-2 ${urgent ? "border-red-500 bg-red-50/40" : "border-[#056ef5] bg-[#056ef5]/4"} px-4 py-3 rounded-r-md`}>
+    <div className="flex items-center justify-between gap-4 border-l-2 border-[#056ef5] bg-[#056ef5]/4 px-4 py-3 rounded-r-md">
       <div className="min-w-0">
-        <div className={`text-[11px] font-semibold uppercase tracking-wider ${urgent ? "text-red-700" : "text-[#056ef5]"}`}>
-          {urgent ? "Επείγουσα προθεσμία" : "Επόμενη προθεσμία"}
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-[#056ef5]">
+          Επόμενη προθεσμία
         </div>
         <div className="text-sm text-ink mt-0.5 truncate">{sim.title}</div>
         <div className="text-xs text-ink/55 mt-0.5">

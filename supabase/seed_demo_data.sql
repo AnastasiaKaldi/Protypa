@@ -45,9 +45,9 @@ values
   ('a1111111-0000-0000-0000-000000000004', 4, 'Διαγώνισμα 4 — Σεπτέμβριος 2026', 'bundle',
    '2026-09-15', '2026-09-15T09:00:00Z', null, 20, 20, true),
   ('a1111111-0000-0000-0000-000000000005', 5, 'Διαγώνισμα 5 — Μάιος 2026',     'bundle',
-   '2026-05-10', (now() - interval '7 days'), (now() + interval '3 days'), 20, 20, true),
+   '2026-05-10', (now() - interval '9 days'), (now() + interval '1 day 8 hours'), 20, 20, true),
   ('a1111111-0000-0000-0000-000000000006', 6, 'Διαγώνισμα 6 — Μάιος 2026',     'bundle',
-   '2026-05-18', (now() - interval '2 days'), (now() + interval '28 days'), 20, 20, true)
+   '2026-05-18', (now() - interval '2 days'), (now() + interval '4 days'), 20, 20, true)
 on conflict (id) do update set
   number            = excluded.number,
   title             = excluded.title,

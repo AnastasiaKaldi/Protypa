@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Student, StudentSimulationGrade, Simulation, SimulationQuestionTag } from "@/lib/types";
+import { computeScore } from "@/lib/scoring";
+import PrintButton from "./PrintButton";
 
 type PeerGrade = { student_id: string; simulation_id: string; score: number; school_simulation_id: string; wrong_questions?: number[] | null };
 type Subject = "all" | "greek" | "math";
@@ -198,15 +200,11 @@ export default async function StudentProfilePage({
     if (s === "greek") return qNum <= sim.greek_questions;
     return qNum > sim.greek_questions;
   }
+  // Uses the global point-weighted scoring (Q1-10=2, Q11-20=3, Q21-30=2, Q31-40=3).
   function subjectScore(wrongQs: number[], sim: Simulation, s: Subject): number {
-    if (s === "all") {
-      const tot = sim.greek_questions + sim.math_questions;
-      return Math.round((1 - wrongQs.length / tot) * 100);
-    }
-    const tot = s === "greek" ? sim.greek_questions : sim.math_questions;
-    if (!tot) return 0;
-    const wrongInSubject = wrongQs.filter((q) => inSubject(q, sim, s)).length;
-    return Math.round(((tot - wrongInSubject) / tot) * 100);
+    if (s === "all") return computeScore(wrongQs);
+    if (s === "greek") return computeScore(wrongQs, 1, sim.greek_questions);
+    return computeScore(wrongQs, sim.greek_questions + 1, sim.greek_questions + sim.math_questions);
   }
 
   // Project grades through the subject filter (recompute score + filter wrong_questions)
@@ -269,10 +267,13 @@ export default async function StudentProfilePage({
   const avatarColor = pickColor(student.id);
 
   return (
-    <div className="space-y-8 max-w-5xl">
-      <Link href="/account/students" className="text-xs text-ink/45 hover:text-ink transition-colors">
-        ← Κατάλογος μαθητών
-      </Link>
+    <div className="space-y-8 max-w-5xl print:max-w-none print-area">
+      <div className="flex items-center justify-between gap-4 no-print">
+        <Link href="/account/students" className="text-xs text-ink/45 hover:text-ink transition-colors">
+          ← Κατάλογος μαθητών
+        </Link>
+        <PrintButton />
+      </div>
 
       {isPreview && (
         <div className="border-l-2 border-amber-500 bg-amber-50/60 px-4 py-3 text-sm text-amber-900">

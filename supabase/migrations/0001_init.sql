@@ -1,4 +1,4 @@
--- Protypa Pass — initial schema
+-- Protupa Pass — initial schema
 -- Run in Supabase SQL editor or via `supabase db reset` after adjusting connection.
 
 -- ─── Enums ──────────────────────────────────────────────────────────────────

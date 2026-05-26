@@ -27,6 +27,7 @@ type FormData = {
   doy: string;
   subjects: string[];
   terms: boolean;
+  marketing_opt_in: boolean;
 };
 
 const EMPTY: FormData = {
@@ -37,6 +38,7 @@ const EMPTY: FormData = {
   afm: "", doy: "",
   subjects: [],
   terms: false,
+  marketing_opt_in: false,
 };
 
 export default function OnboardingPage() {
@@ -81,6 +83,7 @@ export default function OnboardingPage() {
       doy: form.doy,
       subjects: form.subjects,
       terms_accepted_at: new Date().toISOString(),
+      marketing_opt_in: form.marketing_opt_in,
     });
 
     if (schoolErr) { setError(schoolErr.message); setSaving(false); return; }
@@ -100,7 +103,7 @@ export default function OnboardingPage() {
         className="hidden md:flex flex-col justify-between p-10 relative overflow-hidden"
         style={{ backgroundColor: panelColor }}
       >
-        <img src="/Logos/mainLogo.png" alt="Protypa" className="h-8 w-auto" />
+        <img src="/Logos/mainLogo.png" alt="Protupa" className="h-8 w-auto" />
 
         <div className="relative z-10 space-y-4">
           {STEPS.map((s) => (
@@ -121,7 +124,7 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        <div className="text-white/30 text-xs">© {new Date().getFullYear()} Protypa</div>
+        <div className="text-white/30 text-xs">© {new Date().getFullYear()} Protupa</div>
         <img src="/TransparentAssets/Asset 13.png" alt="" aria-hidden="true"
           className="pointer-events-none select-none absolute top-6 right-6 w-36 opacity-50 rotate-6" />
       </div>
@@ -247,15 +250,15 @@ export default function OnboardingPage() {
           {step === 4 && (
             <div className="space-y-6">
               <div className="h-64 overflow-y-auto rounded-2xl border border-ink/10 p-5 text-sm text-ink/70 leading-relaxed space-y-4 bg-[#fafaf8]">
-                <p className="font-bold text-ink">ΟΡΟΙ ΧΡΗΣΗΣ ΠΛΑΤΦΟΡΜΑΣ PROTYPA</p>
+                <p className="font-bold text-ink">ΟΡΟΙ ΧΡΗΣΗΣ ΠΛΑΤΦΟΡΜΑΣ PROTUPA</p>
                 <p>Τελευταία ενημέρωση: {new Date().getFullYear()}</p>
                 <p>
-                  Η πρόσβαση στην πλατφόρμα Protypa και η χρήση των υπηρεσιών της προϋποθέτει
+                  Η πρόσβαση στην πλατφόρμα Protupa και η χρήση των υπηρεσιών της προϋποθέτει
                   την ανεπιφύλακτη αποδοχή των παρόντων Όρων Χρήσης.
                 </p>
                 <p className="font-bold text-ink">1. Παροχή υπηρεσιών</p>
                 <p>
-                  Η Protypa παρέχει πρόσβαση σε θέματα διαγωνισμάτων εξετάσεων Πρότυπων
+                  Η Protupa παρέχει πρόσβαση σε θέματα διαγωνισμάτων εξετάσεων Πρότυπων
                   και Πειραματικών Σχολών, στατιστικά στοιχεία, καθώς και εργαλεία καταχώρησης
                   και αξιολόγησης βαθμολογίας μαθητών για εγγεγραμμένα φροντιστήρια.
                 </p>
@@ -272,7 +275,7 @@ export default function OnboardingPage() {
                 </p>
                 <p className="font-bold text-ink">4. Πνευματική ιδιοκτησία</p>
                 <p>
-                  Όλο το περιεχόμενο της πλατφόρμας αποτελεί πνευματική ιδιοκτησία της Protypa
+                  Όλο το περιεχόμενο της πλατφόρμας αποτελεί πνευματική ιδιοκτησία της Protupa
                   και δεν επιτρέπεται η αναδημοσίευση χωρίς γραπτή άδεια.
                 </p>
                 <p className="font-bold text-ink">5. Αλλαγές όρων</p>
@@ -297,8 +300,31 @@ export default function OnboardingPage() {
                 <span className="text-sm text-ink/70 leading-relaxed">
                   Έχω διαβάσει και αποδέχομαι τους{" "}
                   <span className="text-[#056ef5] font-bold">Όρους Χρήσης</span> και την{" "}
-                  <span className="text-[#056ef5] font-bold">Πολιτική Απορρήτου</span> της Protypa.
+                  <span className="text-[#056ef5] font-bold">Πολιτική Απορρήτου</span> της Protupa.
                 </span>
+              </label>
+
+              {/* Marketing email opt-in */}
+              <label className="flex items-start gap-3 cursor-pointer group p-4 rounded-2xl border border-ink/10 bg-[#fafaf8]">
+                <div className="relative mt-0.5 flex-shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={form.marketing_opt_in}
+                    onChange={(e) => set("marketing_opt_in", e.target.checked)}
+                    className="sr-only"
+                  />
+                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all
+                    ${form.marketing_opt_in ? "bg-[#056ef5] border-[#056ef5]" : "border-ink/30 group-hover:border-[#056ef5]"}`}>
+                    {form.marketing_opt_in && <span className="text-white text-xs font-black">✓</span>}
+                  </div>
+                </div>
+                <div className="text-sm text-ink/80 leading-relaxed">
+                  <span className="font-semibold text-ink">Ενημερωτικά emails</span>
+                  <p className="mt-0.5 text-xs text-ink/55">
+                    Θέλω να λαμβάνω emails για νέα θέματα διαγωνισμάτων, ανακοινώσεις και ενημερώσεις της πλατφόρμας.
+                    Μπορείτε να αλλάξετε αυτή τη ρύθμιση οποιαδήποτε στιγμή από το προφίλ σας.
+                  </p>
+                </div>
               </label>
 
               {error && (

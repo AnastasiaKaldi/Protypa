@@ -10,12 +10,14 @@ type Activity = { kind: "graded" | "student" | "package" | "unlock"; title: stri
 type TopStudent = { name: string; class_year: string | null; score: number };
 type HistoryPoint = { label: string; value: number };
 type NextExam = { title: string; closes_at: string; href: string; number?: number } | null;
+type UrgentReminder = { title: string; href: string; daysLeft: number; hoursLeft: number } | null;
 type PackageItem = { name: string; expires: string };
 
 interface DashboardData {
   name: string;
   kpis: Kpi[];
   nextExam: NextExam;
+  urgentReminder: UrgentReminder;
   history: HistoryPoint[];
   activity: Activity[];
   topStudents: TopStudent[];
@@ -37,11 +39,12 @@ export default async function AccountDashboard({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return <DashboardView {...PREVIEW_DATA} purchaseSuccess={sp.purchase === "success"} />;
 
-  const [{ data: profile }, { data: students }, { data: grades }, { data: sims }, active] = await Promise.all([
+  const [{ data: profile }, { data: students }, { data: grades }, { data: sims }, { data: participations }, active] = await Promise.all([
     supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
     supabase.from("students").select("id, first_name, last_name, class_year, created_at").eq("school_id", user.id),
     supabase.from("student_simulation_grades").select("*").order("submitted_at", { ascending: false }),
     supabase.from("simulations").select("*").eq("is_published", true).order("number"),
+    supabase.from("school_simulations").select("simulation_id, is_submitted").eq("school_id", user.id),
     getActivePackages(user.id),
   ]);
 
@@ -50,9 +53,42 @@ export default async function AccountDashboard({
   const simsList = sims ?? [];
   const now = new Date().toISOString();
 
+  const submittedSimIds = new Set(
+    (participations ?? []).filter((p) => p.is_submitted).map((p) => p.simulation_id)
+  );
+
   const avgScore = gradesList.length ? Math.round(gradesList.reduce((a, g) => a + (g.score ?? 0), 0) / gradesList.length) : 0;
   const availableSims = simsList.filter((s) => s.unlocks_at && s.unlocks_at <= now);
-  const upcomingSim = simsList.find((s) => s.unlocks_at && s.unlocks_at <= now && (!s.grading_closes_at || s.grading_closes_at > now));
+
+  // "Next διαγώνισμα" = next unlocked, not-closed sim that the school hasn't
+  // submitted yet. Picks the one closing soonest so it stays useful.
+  const upcomingSim = simsList
+    .filter((s) =>
+      s.unlocks_at && s.unlocks_at <= now
+      && (!s.grading_closes_at || s.grading_closes_at > now)
+      && !submittedSimIds.has(s.id)
+    )
+    .sort((a, b) => (a.grading_closes_at ?? "").localeCompare(b.grading_closes_at ?? ""))[0];
+
+  // Urgent = same constraints but with deadline within 5 days
+  const urgentSim = simsList
+    .filter((s) =>
+      s.unlocks_at && s.unlocks_at <= now
+      && s.grading_closes_at && s.grading_closes_at > now
+      && !submittedSimIds.has(s.id)
+    )
+    .map((s) => ({ sim: s, diffMs: new Date(s.grading_closes_at!).getTime() - Date.now() }))
+    .filter((x) => x.diffMs < 5 * 24 * 60 * 60 * 1000)
+    .sort((a, b) => a.diffMs - b.diffMs)[0];
+
+  const urgentReminder: UrgentReminder = urgentSim
+    ? {
+        title: urgentSim.sim.title,
+        href: `/account/grading/${urgentSim.sim.id}`,
+        daysLeft: Math.max(0, Math.floor(urgentSim.diffMs / (1000 * 60 * 60 * 24))),
+        hoursLeft: Math.max(0, Math.floor((urgentSim.diffMs / (1000 * 60 * 60)) % 24)),
+      }
+    : null;
 
   const kpis: Kpi[] = [
     { label: "Μαθητές",      value: studentList.length, sub: studentList.length === 1 ? "καταχωρημένος" : "καταχωρημένοι" },
@@ -124,6 +160,7 @@ export default async function AccountDashboard({
       name={profile?.full_name ?? user.email ?? ""}
       kpis={kpis}
       nextExam={nextExam}
+      urgentReminder={urgentReminder}
       history={history}
       activity={activity.slice(0, 5)}
       topStudents={topStudents}
@@ -184,6 +221,9 @@ function DashboardView(d: DashboardData) {
         ))}
       </div>
 
+      {/* Urgent ungraded reminder */}
+      {d.urgentReminder && <UrgentGradeReminder reminder={d.urgentReminder} />}
+
       {/* Two-column: next exam + activity */}
       <div className="grid lg:grid-cols-2 gap-10">
         <NextExamSection exam={d.nextExam} />
@@ -205,6 +245,45 @@ function DashboardView(d: DashboardData) {
         </p>
       )}
     </div>
+  );
+}
+
+// ─── Urgent unsubmitted reminder ─────────────────────────────────────────────
+
+function UrgentGradeReminder({ reminder }: { reminder: { title: string; href: string; daysLeft: number; hoursLeft: number } }) {
+  const timeLeft =
+    reminder.daysLeft > 0
+      ? `${reminder.daysLeft} ${reminder.daysLeft === 1 ? "ημέρα" : "ημέρες"}${reminder.hoursLeft > 0 ? ` και ${reminder.hoursLeft}${reminder.hoursLeft === 1 ? " ώρα" : " ώρες"}` : ""}`
+      : reminder.hoursLeft > 0
+      ? `${reminder.hoursLeft} ${reminder.hoursLeft === 1 ? "ώρα" : "ώρες"}`
+      : "λιγότερο από 1 ώρα";
+
+  return (
+    <Link
+      href={reminder.href}
+      className="flex items-center justify-between gap-4 bg-red-600 text-white px-5 py-4 rounded-md hover:bg-red-700 transition-colors group"
+      style={{ boxShadow: "0 10px 30px -10px rgba(220, 38, 38, 0.5)" }}
+    >
+      <div className="flex items-center gap-4 min-w-0">
+        <div className="w-10 h-10 rounded-full bg-white/15 grid place-items-center flex-shrink-0 ring-2 ring-white/30">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          </svg>
+        </div>
+        <div className="min-w-0">
+          <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/85">
+            Εκκρεμεί βαθμολόγηση
+          </div>
+          <div className="text-sm font-bold mt-0.5 truncate">{reminder.title}</div>
+          <div className="text-xs text-white/85 mt-0.5">
+            Απομένουν <span className="font-bold tabular">{timeLeft}</span> πριν κλειδώσει
+          </div>
+        </div>
+      </div>
+      <div className="flex-shrink-0 text-xs font-black uppercase tracking-wider bg-white text-red-600 px-4 py-2 rounded-full group-hover:translate-x-0.5 transition-transform">
+        Βαθμολόγηση →
+      </div>
+    </Link>
   );
 }
 
@@ -445,6 +524,12 @@ const PREVIEW_DATA: DashboardData = {
     title: "Διαγώνισμα 3 — Ιανουάριος 2025",
     closes_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
     href: "/account/grading/preview",
+  },
+  urgentReminder: {
+    title: "Διαγώνισμα 3 — Ιανουάριος 2025",
+    href: "/account/grading/preview",
+    daysLeft: 2,
+    hoursLeft: 14,
   },
   history: [
     { label: "Δ1", value: 72 },

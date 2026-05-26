@@ -1,47 +1,35 @@
-"use client";
-import { useState } from "react";
 import Link from "next/link";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Post } from "@/lib/types";
 
 const CATEGORIES = ["Όλα", "Νέα Θέματα", "Ανακοινώσεις", "Στατιστικά"] as const;
-type Category = (typeof CATEGORIES)[number];
 
-const ANNOUNCEMENTS = [
-  {
-    id: 1,
-    tag: "Νέα Θέματα" as Category,
-    tagColor: "bg-[#056ef5]",
-    tagTextColor: "text-white",
-    date: "Μάιος 2026",
-    title: "Νέα Θέματα Προσομοίωσης Ν. Γλώσσας",
-    body: "Τα νέα θέματα προσομοίωσης Νεοελληνικής Γλώσσας για την εξεταστική περίοδο Μαΐου 2026 είναι πλέον διαθέσιμα. Περιλαμβάνουν πλήρη ανάλυση και διαγράμματα χαρακτηρισμού.",
-  },
-  {
-    id: 2,
-    tag: "Νέα Θέματα" as Category,
-    tagColor: "bg-[#7c00d0]",
-    tagTextColor: "text-white",
-    date: "Απρίλιος 2026",
-    title: "Θέματα Μαθηματικών — Προσομοίωση Απριλίου",
-    body: "Διαθέσιμα τα θέματα Μαθηματικών για τη Β' Προσομοίωση. Συνοδεύονται από πλήρη στατιστική ανάλυση λαθών και ατομικά διαγράμματα πορείας.",
-  },
-  {
-    id: 3,
-    tag: "Στατιστικά" as Category,
-    tagColor: "bg-[#c8ff00]",
-    tagTextColor: "text-ink",
-    date: "Μάρτιος 2026",
-    title: "Πανελλαδική Στατιστική Ανάλυση — Α' Τρίμηνο",
-    body: "Η πανελλαδική στατιστική ανάλυση λαθών για το Α' τρίμηνο είναι έτοιμη. Συγκρίνετε την επίδοση των μαθητών σας με τον εθνικό μέσο όρο.",
-  },
-];
+export const revalidate = 60;
 
-export default function NewsPage() {
-  const [activeFilter, setActiveFilter] = useState<Category | "Όλα">("Όλα");
+export default async function NewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string }>;
+}) {
+  const sp = await searchParams;
+  const activeFilter = sp.tag && CATEGORIES.includes(sp.tag as (typeof CATEGORIES)[number])
+    ? (sp.tag as (typeof CATEGORIES)[number])
+    : "Όλα";
 
-  const filtered =
-    activeFilter === "Όλα"
-      ? ANNOUNCEMENTS
-      : ANNOUNCEMENTS.filter((item) => item.tag === activeFilter);
+  const supabase = await createSupabaseServerClient();
+  let posts: Post[] = [];
+  if (supabase) {
+    const now = new Date().toISOString();
+    let query = supabase
+      .from("posts")
+      .select("*")
+      .not("publish_at", "is", null)
+      .lte("publish_at", now)
+      .order("publish_at", { ascending: false });
+    if (activeFilter !== "Όλα") query = query.eq("tag", activeFilter);
+    const { data } = await query;
+    posts = (data as Post[]) ?? [];
+  }
 
   return (
     <div className="overflow-hidden">
@@ -59,16 +47,16 @@ export default function NewsPage() {
                 <ul className="space-y-1">
                   {CATEGORIES.map((label) => (
                     <li key={label}>
-                      <button
-                        onClick={() => setActiveFilter(label)}
-                        className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                      <Link
+                        href={label === "Όλα" ? "/nea" : `/nea?tag=${encodeURIComponent(label)}`}
+                        className={`block w-full text-left px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                           activeFilter === label
                             ? "bg-[#056ef5] text-white"
                             : "text-ink/50 hover:text-ink hover:bg-ink/5"
                         }`}
                       >
                         {label}
-                      </button>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -77,50 +65,16 @@ export default function NewsPage() {
 
             {/* Cards */}
             <div className="lg:col-span-9 space-y-5">
-              {filtered.length === 0 ? (
+              {posts.length === 0 ? (
                 <div className="rounded-3xl border-2 border-dashed border-ink/15 p-12 text-center">
                   <p className="text-ink/40 text-sm font-bold uppercase tracking-wider">
-                    Δεν υπάρχουν ανακοινώσεις σε αυτή την κατηγορία
+                    {activeFilter === "Όλα"
+                      ? "Δεν υπάρχουν ακόμα ανακοινώσεις"
+                      : "Δεν υπάρχουν ανακοινώσεις σε αυτή την κατηγορία"}
                   </p>
                 </div>
               ) : (
-                filtered.map((item) => (
-                  <article
-                    key={item.id}
-                    className="group rounded-3xl border border-ink/10 p-7 md:p-9 hover:border-[#056ef5]/30 hover:shadow-lg transition-all"
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${item.tagColor} ${item.tagTextColor}`}
-                      >
-                        {item.tag}
-                      </span>
-                      <span className="text-xs text-ink/40 font-bold uppercase tracking-wider">
-                        {item.date}
-                      </span>
-                    </div>
-                    <h2 className="font-display text-2xl md:text-3xl leading-tight text-ink group-hover:text-[#056ef5] transition-colors">
-                      {item.title}
-                    </h2>
-                    <p className="mt-3 text-sm text-ink/70 leading-relaxed max-w-2xl">
-                      {item.body}
-                    </p>
-                    <div className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#056ef5]">
-                      Διαβάστε περισσότερα
-                      <svg
-                        className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M5 12h14M13 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </article>
-                ))
+                posts.map((post) => <PostCard key={post.id} post={post} />)
               )}
 
               <div className="rounded-3xl border border-dashed border-ink/15 p-8 text-center">
@@ -135,6 +89,57 @@ export default function NewsPage() {
       <Cta />
     </div>
   );
+}
+
+function PostCard({ post }: { post: Post }) {
+  const tagStyle = tagColors(post.tag);
+  const date = post.publish_at
+    ? new Date(post.publish_at).toLocaleDateString("el-GR", { month: "long", year: "numeric" })
+    : "";
+
+  return (
+    <Link href={`/nea/${post.slug}`} className="block group rounded-3xl border border-ink/10 p-7 md:p-9 hover:border-[#056ef5]/30 hover:shadow-lg transition-all">
+      {post.cover_image_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={post.cover_image_url}
+          alt=""
+          className="w-full aspect-[16/7] object-cover rounded-2xl mb-5"
+        />
+      )}
+      <div className="flex items-center gap-3 mb-4">
+        {post.tag && (
+          <span className={`inline-flex px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${tagStyle.bg} ${tagStyle.text}`}>
+            {post.tag}
+          </span>
+        )}
+        <span className="text-xs text-ink/40 font-bold uppercase tracking-wider capitalize">
+          {date}
+        </span>
+      </div>
+      <h2 className="font-display text-2xl md:text-3xl leading-tight text-ink group-hover:text-[#056ef5] transition-colors">
+        {post.title}
+      </h2>
+      {post.excerpt && (
+        <p className="mt-3 text-sm text-ink/70 leading-relaxed max-w-2xl">{post.excerpt}</p>
+      )}
+      <div className="mt-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#056ef5]">
+        Διαβάστε περισσότερα
+        <svg className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12h14M13 5l7 7-7 7" />
+        </svg>
+      </div>
+    </Link>
+  );
+}
+
+function tagColors(tag: string | null) {
+  switch (tag) {
+    case "Νέα Θέματα":    return { bg: "bg-[#056ef5]", text: "text-white" };
+    case "Ανακοινώσεις":  return { bg: "bg-[#7c00d0]", text: "text-white" };
+    case "Στατιστικά":    return { bg: "bg-[#c8ff00]", text: "text-ink" };
+    default:               return { bg: "bg-ink/10",    text: "text-ink/70" };
+  }
 }
 
 function Hero() {
@@ -177,7 +182,7 @@ function Cta() {
             Έτοιμοι να ξεκινήσετε;
           </h2>
           <p className="mt-4 text-base text-white/80 max-w-lg leading-relaxed">
-            Εξερευνήστε τα πακέτα μας και δείτε πώς η Protypa μπορεί να βοηθήσει τους μαθητές σας να ξεχωρίσουν.
+            Εξερευνήστε τα πακέτα μας και δείτε πώς η Protupa μπορεί να βοηθήσει τους μαθητές σας να ξεχωρίσουν.
           </p>
           <div className="mt-8 flex items-center gap-3 flex-wrap">
             <Link

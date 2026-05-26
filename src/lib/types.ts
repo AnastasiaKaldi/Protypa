@@ -102,6 +102,7 @@ export interface School {
   doy: string | null;
   subjects: string[];
   terms_accepted_at: string | null;
+  marketing_opt_in: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -159,6 +160,21 @@ export interface SimulationQuestionTag {
   question_number: number;
   subject: "greek" | "math";
   category: string;
+}
+
+export interface Post {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  body: string;
+  tag: string | null;
+  cover_image_url: string | null;
+  publish_at: string | null;
+  email_sent_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface StudentSimulationGrade {

@@ -25,13 +25,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="mx-auto max-w-7xl px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-6">
             <Link href="/admin" className="flex items-center gap-2">
-              <img src="/Logos/mainLogo.png" alt="Protypa" className="h-6 w-auto" />
+              <img src="/Logos/mainLogo.png" alt="Protupa" className="h-6 w-auto" />
               <span className="text-[10px] font-black tracking-[0.2em] uppercase text-[#c8ff00] ml-1">Admin</span>
             </Link>
             <nav className="hidden md:flex items-center gap-1">
               <AdminNavLink href="/admin" label="Πίνακας" />
               <AdminNavLink href="/admin/schools" label="Φροντιστήρια" />
-              <AdminNavLink href="/admin/simulations" label="Προσομοιώσεις" />
+              <AdminNavLink href="/admin/simulations" label="Διαγωνίσματα" />
+              <AdminNavLink href="/admin/news" label="Νέα" />
+              <AdminNavLink href="/admin/chatbot" label="Chatbot" />
             </nav>
           </div>
           <div className="flex items-center gap-4">

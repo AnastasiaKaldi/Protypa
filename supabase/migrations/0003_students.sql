@@ -1,4 +1,4 @@
--- Protypa Pass — named students, question categories & per-student grades
+-- Protupa Pass — named students, question categories & per-student grades
 -- Run after 0002_schools_grading.sql
 
 -- ─── Students (school's own roster) ─────────────────────────────────────────

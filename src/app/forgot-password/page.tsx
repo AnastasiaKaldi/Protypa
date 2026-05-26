@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-[calc(100vh-3.5rem)] grid md:grid-cols-[1fr_1.1fr]">
       {/* Left brand panel */}
       <div className="hidden md:flex flex-col justify-between bg-[#7c00d0] p-10 relative overflow-hidden">
-        <img src="/Logos/mainLogo.png" alt="Protypa" className="h-8 w-auto" />
+        <img src="/Logos/mainLogo.png" alt="Protupa" className="h-8 w-auto" />
         <div className="relative z-10">
           <h2 className="font-display text-5xl text-white leading-tight">
             Επαναφορά<br />
@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
             Στείλτε μας το email σας και θα σας στείλουμε έναν σύνδεσμο επαναφοράς κωδικού.
           </p>
         </div>
-        <div className="text-white/30 text-xs">© {new Date().getFullYear()} Protypa</div>
+        <div className="text-white/30 text-xs">© {new Date().getFullYear()} Protupa</div>
         <img src="/TransparentAssets/Asset 13.png" alt="" aria-hidden="true"
           className="pointer-events-none select-none absolute top-6 right-6 w-32 opacity-60 rotate-6" />
         <img src="/TransparentAssets/Asset 9.png" alt="" aria-hidden="true"

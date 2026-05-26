@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { computeScore, pointsForQuestion } from "@/lib/scoring";
 import type { Simulation, SchoolSimulation, StudentSimulationGrade, Student, SimulationQuestionTag } from "@/lib/types";
 
 interface Props {
@@ -57,8 +58,9 @@ export default function GradingSheet({ simulation, participation, students, exis
 
   function score(studentId: string) {
     const row = wrong[studentId] ?? Array(total).fill(false);
-    const wrongCount = row.filter(Boolean).length;
-    return Math.round(((total - wrongCount) / total) * 100);
+    const wrongQs: number[] = [];
+    row.forEach((isWrong, i) => { if (isWrong) wrongQs.push(i + 1); });
+    return computeScore(wrongQs);
   }
 
   function wrongCount(studentId: string) {
@@ -335,12 +337,13 @@ export default function GradingSheet({ simulation, participation, students, exis
                     Ν. ΓΛΩΣΣΑ
                   </td>
                 )}
-                {/* Question number */}
+                {/* Question number + point value */}
                 <td
                   style={{ width: COL_Q, position: "sticky", left: COL_SECTION, zIndex: 10 }}
-                  className="border border-gray-200 bg-[#fffbeb] text-center text-[10px] font-bold text-gray-500 py-0"
+                  className="border border-gray-200 bg-[#fffbeb] text-center py-0 leading-none"
                 >
-                  Ε{qi + 1}
+                  <div className="text-[10px] font-bold text-gray-600">Ε{qi + 1}</div>
+                  <div className="text-[8px] text-gray-400 mt-0.5">{pointsForQuestion(qi + 1)}β</div>
                 </td>
                 {/* Student cells */}
                 {activeStudents.map((s) => {
@@ -384,9 +387,10 @@ export default function GradingSheet({ simulation, participation, students, exis
                   )}
                   <td
                     style={{ width: COL_Q, position: "sticky", left: COL_SECTION, zIndex: 10 }}
-                    className="border border-gray-200 bg-[#eff6ff] text-center text-[10px] font-bold text-gray-500 py-0"
+                    className="border border-gray-200 bg-[#eff6ff] text-center py-0 leading-none"
                   >
-                    Ε{absQi + 1}
+                    <div className="text-[10px] font-bold text-gray-600">Ε{absQi + 1}</div>
+                    <div className="text-[8px] text-gray-400 mt-0.5">{pointsForQuestion(absQi + 1)}β</div>
                   </td>
                   {activeStudents.map((s) => {
                     const isWrong = wrong[s.id]?.[absQi] ?? false;

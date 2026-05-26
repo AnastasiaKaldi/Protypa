@@ -1,4 +1,4 @@
--- Protypa Pass — schools, simulations & grading schema
+-- Protupa Pass — schools, simulations & grading schema
 -- Run after 0001_init.sql in the Supabase SQL editor.
 
 -- ─── Extend profiles ────────────────────────────────────────────────────────

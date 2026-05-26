@@ -8,7 +8,8 @@ export function AccountNav() {
   return (
     <nav className="flex gap-0 mt-2 overflow-x-auto">
       <TabLink href="/account"           active={path === "/account"}>{el.account.dashboardTitle}</TabLink>
-      <TabLink href="/account/students"  active={path.startsWith("/account/students")}>Μαθητές</TabLink>
+      <TabLink href="/account/students"  active={path.startsWith("/account/students")}>Γονείς</TabLink>
+      <TabLink href="/account/school"    active={path.startsWith("/account/school")}>Φροντιστήριο</TabLink>
       <TabLink href="/account/grading"   active={path.startsWith("/account/grading")}>Διαγωνίσματα</TabLink>
       <TabLink href="/account/profile"   active={path.startsWith("/account/profile")}>Προφίλ</TabLink>
     </nav>

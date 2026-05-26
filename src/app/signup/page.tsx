@@ -36,7 +36,7 @@ export default function SignUpPage() {
             Δημιουργήστε δωρεάν λογαριασμό και αποκτήστε πρόσβαση στα εργαλεία προετοιμασίας.
           </p>
         </div>
-        <div className="relative z-10 text-white/50 text-xs">© {new Date().getFullYear()} Protypa</div>
+        <div className="relative z-10 text-white/50 text-xs">© {new Date().getFullYear()} Protupa</div>
       </div>
 
       {/* Right form panel */}
