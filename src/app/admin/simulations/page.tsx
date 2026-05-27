@@ -126,7 +126,7 @@ export default function AdminSimulationsPage() {
             <div className="grid md:grid-cols-3 gap-5">
               <AdminField label="Αριθμός *" type="number" value={form.number} onChange={(v) => set("number", v)} required />
               <div className="md:col-span-2">
-                <AdminField label="Τίτλος *" placeholder="π.χ. Προσομοίωση 1 — Νοέμβριος 2025"
+                <AdminField label="Τίτλος *" placeholder="π.χ. Προσομοίωση 1 · Νοέμβριος 2025"
                   value={form.title} onChange={(v) => set("title", v)} required />
               </div>
             </div>

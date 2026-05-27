@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -140,6 +140,9 @@ export default function GradingSheet({ simulation, participation, students, exis
 
   const activeStudents = students.filter((s) => selectedIds.has(s.id));
 
+  // Re-grade is allowed while the διαγώνισμα is still within its grading window
+  const canEdit = !simulation.grading_closes_at || new Date(simulation.grading_closes_at) > new Date();
+
   // ── Done state ────────────────────────────────────────────────────────────
   if (step === "done") {
     const graded = students.filter((s) => alreadyGraded.has(s.id) || selectedIds.has(s.id));
@@ -150,6 +153,17 @@ export default function GradingSheet({ simulation, participation, students, exis
           <div className="font-display text-5xl text-green-500">✓</div>
           <h2 className="mt-4 font-display text-2xl text-ink">Η βαθμολόγηση υποβλήθηκε!</h2>
           <p className="mt-2 text-sm text-ink/50">Τα αποτελέσματα αποθηκεύτηκαν. Δείτε λεπτομέρειες στο προφίλ κάθε μαθητή.</p>
+          {canEdit && (
+            <div className="mt-5 inline-flex items-center gap-2 text-xs text-ink/55 bg-white border border-ink/10 px-3 py-2 rounded-full">
+              <span>Κάνατε λάθος;</span>
+              <button
+                onClick={() => setStep("grade")}
+                className="font-black uppercase tracking-wider text-[#056ef5] hover:text-[#0451b8] cursor-pointer"
+              >
+                Επεξεργασία βαθμολόγησης →
+              </button>
+            </div>
+          )}
         </div>
         <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/40 mb-3">Αποτελέσματα</div>
         <div className="rounded-2xl border border-ink/10 bg-white overflow-hidden">
@@ -264,62 +278,306 @@ export default function GradingSheet({ simulation, participation, students, exis
   }
 
   // ── Grading grid ─────────────────────────────────────────────────────────
-  const COL_SECTION = 28;   // px — rotated label column
-  const COL_Q      = 52;    // px — question number column
-  const COL_STUDENT = 56;   // px — per-student column
+  const COL_SECTION = 36;   // px — rotated label column
+  const COL_Q      = 80;    // px — question number column (wider for bolder text)
+
+  // If the participation was already submitted before this session, we're editing existing grades
+  const isReGrading = !!participation?.is_submitted;
+
+  // Roster management — add or remove students mid-grading
+  function addStudent(id: string) {
+    setSelectedIds((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+    setWrong((prev) => {
+      if (prev[id]) return prev;
+      const existing = existingGrades.find((g) => g.student_id === id);
+      return {
+        ...prev,
+        [id]: Array.from({ length: total }, (_, qi) =>
+          existing ? existing.wrong_questions.includes(qi + 1) : false
+        ),
+      };
+    });
+  }
+
+  function removeStudent(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+    setWrong((prev) => {
+      // Drop key without using a tslint-friendly rest pattern
+      const next: Record<string, boolean[]> = {};
+      for (const k in prev) if (k !== id) next[k] = prev[k];
+      return next;
+    });
+  }
+
+  // One-student-at-a-time wizard
+  return (
+    <GradeStep
+      allStudents={students}
+      activeStudents={activeStudents}
+      wrong={wrong}
+      score={score}
+      wrongCount={wrongCount}
+      toggleCell={toggleCell}
+      onAddStudent={addStudent}
+      onRemoveStudent={removeStudent}
+      simulation={simulation}
+      total={total}
+      isReGrading={isReGrading}
+      onCancel={() => setStep(isReGrading ? "done" : "select")}
+      onSubmit={submit}
+      saving={saving}
+      error={error}
+      COL_SECTION={COL_SECTION}
+      COL_Q={COL_Q}
+    />
+  );
+}
+
+// ─── Grade step component — one student at a time ────────────────────────────
+
+function GradeStep({
+  allStudents, activeStudents, wrong, score, wrongCount, toggleCell,
+  onAddStudent, onRemoveStudent,
+  simulation, total,
+  isReGrading, onCancel, onSubmit, saving, error, COL_SECTION, COL_Q,
+}: {
+  allStudents: Student[];
+  activeStudents: Student[];
+  wrong: Record<string, boolean[]>;
+  score: (id: string) => number;
+  wrongCount: (id: string) => number;
+  toggleCell: (id: string, qi: number) => void;
+  onAddStudent: (id: string) => void;
+  onRemoveStudent: (id: string) => void;
+  simulation: Simulation;
+  total: number;
+  isReGrading: boolean;
+  onCancel: () => void;
+  onSubmit: () => void;
+  saving: boolean;
+  error: string | null;
+  COL_SECTION: number;
+  COL_Q: number;
+}) {
+  const [activeId, setActiveId] = useState<string>(() => activeStudents[0]?.id ?? "");
+  const [visited, setVisited] = useState<Set<string>>(() => new Set([activeStudents[0]?.id].filter(Boolean) as string[]));
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  // If the active student is no longer in selection (e.g. someone navigated back), jump to the first
+  useEffect(() => {
+    if (!activeStudents.some((s) => s.id === activeId)) {
+      setActiveId(activeStudents[0]?.id ?? "");
+    }
+  }, [activeStudents, activeId]);
+
+  const activeIdx = Math.max(0, activeStudents.findIndex((s) => s.id === activeId));
+  const currentStudent = activeStudents[activeIdx];
+
+  function switchTo(id: string) {
+    setActiveId(id);
+    setVisited((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }
+
+  const allVisited = activeStudents.every((s) => visited.has(s.id));
+  const canSubmit = !saving && (allVisited || isReGrading);
+
+  if (!currentStudent) return null;
 
   return (
     <div className="space-y-5" translate="no">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="text-xs text-ink/50">
+          {isReGrading && (
+            <>
+              <span className="inline-flex items-center gap-1 text-amber-700 font-semibold mr-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                Επεξεργασία προηγούμενης βαθμολόγησης
+              </span>·{" "}
+            </>
+          )}
           {activeStudents.length} μαθητές · {total} ερωτήσεις ·{" "}
-          <button onClick={() => setStep("select")} className="text-[#056ef5] hover:underline cursor-pointer">
-            αλλαγή επιλογής
+          <button onClick={onCancel} className="text-[#056ef5] hover:underline cursor-pointer">
+            {isReGrading ? "ακύρωση" : "αλλαγή επιλογής"}
           </button>
         </div>
-        <button onClick={submit} disabled={saving}
-          className="px-6 py-2.5 rounded-full bg-[#056ef5] text-white font-black uppercase tracking-wider text-sm hover:bg-[#0451b8] hover:-translate-y-0.5 transition-all disabled:opacity-50 cursor-pointer">
-          {saving ? "Αποθήκευση…" : "Υποβολή →"}
+        <button
+          onClick={onSubmit}
+          disabled={!canSubmit}
+          title={!allVisited && !isReGrading ? "Δείτε όλους τους μαθητές πριν την υποβολή" : undefined}
+          className="px-6 py-2.5 rounded-full bg-[#056ef5] text-white font-black uppercase tracking-wider text-sm hover:bg-[#0451b8] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        >
+          {saving ? "Αποθήκευση…" : isReGrading ? "Αποθήκευση αλλαγών →" : "Υποβολή όλων →"}
         </button>
       </div>
       {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 p-3 rounded-xl">{error}</p>}
 
-      {/* The spreadsheet — width:100% fills container when few students; min-width keeps cell sizes when many */}
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white">
-        <table
-          className="border-collapse w-full"
-          style={{ minWidth: COL_SECTION + COL_Q + activeStudents.length * COL_STUDENT }}
-        >
+      {/* Student picker strip */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-[11px] text-ink/55">
+          <span className="font-semibold uppercase tracking-wider">
+            Μαθητής {activeIdx + 1} από {activeStudents.length}
+          </span>
+          <span className="tabular">{visited.size}/{activeStudents.length} ολοκληρωμένοι</span>
+        </div>
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          {activeStudents.map((s, i) => {
+            const isActive = s.id === activeId;
+            const isVisited = visited.has(s.id);
+            const sc = score(s.id);
+            const wc = wrongCount(s.id);
+            return (
+              <div key={s.id} className="relative group flex-shrink-0">
+                <button
+                  onClick={() => switchTo(s.id)}
+                  className={`flex items-center gap-2 pl-3 pr-7 py-2 rounded-md whitespace-nowrap transition-colors text-sm ${
+                    isActive
+                      ? "bg-[#056ef5] text-white"
+                      : isVisited
+                        ? "bg-white border border-[#056ef5]/30 text-ink hover:border-[#056ef5]/60"
+                        : "bg-white border border-ink/15 text-ink/70 hover:border-ink/30"
+                  }`}
+                >
+                  <span className={`tabular text-[11px] font-bold ${isActive ? "text-white/80" : "text-ink/55"}`}>{i + 1}.</span>
+                  <span className="font-black">{s.last_name} {s.first_name}</span>
+                  {isVisited && (
+                    <span className={`tabular text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                      isActive ? "bg-white/15 text-white" : "bg-[#056ef5]/10 text-[#056ef5]"
+                    }`}>{sc}</span>
+                  )}
+                </button>
+                {/* Remove button — only when more than 1 student selected */}
+                {activeStudents.length > 1 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const confirmMsg = wc > 0
+                        ? `Αφαίρεση του/της ${s.last_name} ${s.first_name}; Θα χαθούν τα ${wc} σημειωμένα λάθη.`
+                        : `Αφαίρεση του/της ${s.last_name} ${s.first_name} από αυτή τη βαθμολόγηση;`;
+                      if (!confirm(confirmMsg)) return;
+                      // If removing the active student, switch to the next/prev one
+                      if (s.id === activeId) {
+                        const nextStudent = activeStudents[i + 1] ?? activeStudents[i - 1];
+                        if (nextStudent) setActiveId(nextStudent.id);
+                      }
+                      onRemoveStudent(s.id);
+                    }}
+                    title="Αφαίρεση"
+                    aria-label={`Αφαίρεση ${s.last_name} ${s.first_name}`}
+                    className={`absolute right-1 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full grid place-items-center text-[11px] font-black transition-opacity cursor-pointer ${
+                      isActive
+                        ? "text-white/70 hover:bg-white/15 hover:text-white opacity-100"
+                        : "text-ink/35 hover:bg-red-50 hover:text-red-600 opacity-0 group-hover:opacity-100"
+                    }`}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Add student button */}
+          {allStudents.some((s) => !activeStudents.some((a) => a.id === s.id)) && (
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setPickerOpen((o) => !o)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-md whitespace-nowrap text-xs font-bold text-[#056ef5] border border-dashed border-[#056ef5]/40 hover:bg-[#056ef5]/5 hover:border-[#056ef5]/70 transition-colors cursor-pointer"
+              >
+                + Προσθήκη μαθητή
+              </button>
+              {pickerOpen && (
+                <div
+                  className="absolute z-30 top-full mt-1 right-0 sm:right-auto sm:left-0 min-w-[240px] max-w-[300px] max-h-[280px] overflow-y-auto rounded-lg border border-ink/15 bg-white shadow-lg"
+                  onMouseLeave={() => setPickerOpen(false)}
+                >
+                  <div className="px-3 py-2 text-[10px] font-bold tracking-wider uppercase text-ink/55 border-b border-ink/10 bg-[#fafaf8]">
+                    Διαθέσιμοι μαθητές
+                  </div>
+                  <ul className="py-1">
+                    {allStudents
+                      .filter((s) => !activeStudents.some((a) => a.id === s.id))
+                      .map((s) => (
+                        <li key={s.id}>
+                          <button
+                            onClick={() => {
+                              onAddStudent(s.id);
+                              switchTo(s.id);
+                              setPickerOpen(false);
+                            }}
+                            className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-[#056ef5]/5 transition-colors cursor-pointer flex items-center justify-between gap-2"
+                          >
+                            <span className="truncate">
+                              <span className="font-semibold">{s.last_name} {s.first_name}</span>
+                              {s.class_year && <span className="text-ink/45 ml-2">{s.class_year}</span>}
+                            </span>
+                            <span className="text-[#056ef5] font-bold flex-shrink-0">+</span>
+                          </button>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Red instruction banner */}
+      <div className="flex items-start gap-3 bg-red-50 border-l-4 border-red-500 rounded-r-md px-4 py-3">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 text-red-600 mt-0.5">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <div>
+          <div className="text-sm font-bold text-red-800">
+            Πατήστε <span className="inline-block px-1.5 bg-red-600 text-white rounded text-xs align-middle">✕</span> σε κάθε ερώτηση που ο μαθητής απάντησε λάθος
+          </div>
+          <div className="text-xs text-red-700/80 mt-0.5">
+            Ο βαθμός υπολογίζεται αυτόματα. Πλοηγηθείτε ανάμεσα στους μαθητές με τα κουμπιά κάτω.
+          </div>
+        </div>
+      </div>
+
+      {/* The grading grid — ONE student */}
+      <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm bg-white">
+        <table className="border-collapse w-full">
           {/* ── Header row ─────────────────────────────────── */}
           <thead>
             <tr>
-              {/* section-label placeholder */}
-              <th style={{ width: COL_SECTION }} className="border border-gray-200 bg-[#e8f5e3]" />
-              {/* question col */}
+              <th style={{ width: COL_SECTION }} className="border border-gray-200 bg-[#eaffba]" />
               <th
-                style={{ width: COL_Q, position: "sticky", left: COL_SECTION, zIndex: 20 }}
-                className="border border-gray-200 bg-[#e8f5e3] px-2 py-2 text-center text-[9px] font-black tracking-widest uppercase text-gray-500"
+                style={{ width: COL_Q }}
+                className="border border-gray-200 bg-[#eaffba] px-2 py-3 text-center text-[11px] font-black tracking-widest uppercase text-gray-700"
               >
                 Ερωτ.
               </th>
-              {/* student cols */}
-              {activeStudents.map((s) => (
-                <th
-                  key={s.id}
-                  style={{ width: COL_STUDENT }}
-                  className="border border-gray-200 bg-[#e8f5e3] px-1 py-2 text-center"
+              <th className="border border-gray-200 bg-[#eaffba] px-3 py-3 text-center">
+                <Link
+                  href={`/account/students/${currentStudent.id}`}
+                  className="block leading-tight hover:opacity-80 transition-opacity"
                 >
-                  <Link
-                    href={`/account/students/${s.id}`}
-                    className="block text-[9px] font-black leading-tight text-gray-600 hover:text-[#056ef5] transition-colors"
-                    title={`${s.last_name} ${s.first_name}`}
-                  >
-                    <div className="truncate" style={{ maxWidth: COL_STUDENT - 8 }}>{s.last_name}</div>
-                    <div className="truncate text-gray-400 font-medium" style={{ maxWidth: COL_STUDENT - 8 }}>{s.first_name}</div>
-                  </Link>
-                </th>
-              ))}
+                  <div className="text-base font-black text-ink">{currentStudent.last_name} {currentStudent.first_name}</div>
+                  {currentStudent.class_year && (
+                    <div className="text-xs text-ink/60 font-bold mt-1">{currentStudent.class_year}</div>
+                  )}
+                </Link>
+              </th>
             </tr>
           </thead>
 
@@ -327,47 +585,29 @@ export default function GradingSheet({ simulation, participation, students, exis
             {/* ── Ν. ΓΛΩΣΣΑ section ──────────────────────────── */}
             {Array.from({ length: simulation.greek_questions }, (_, qi) => (
               <tr key={qi}>
-                {/* Rotated section label — only on first row */}
                 {qi === 0 && (
                   <td
                     rowSpan={simulation.greek_questions}
                     style={{ width: COL_SECTION, writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-                    className="border border-gray-200 bg-[#fef3c7] text-center text-[9px] font-black tracking-[0.3em] uppercase text-amber-700 select-none py-2"
+                    className="border border-gray-200 bg-[#f3e8ff] text-center text-[11px] font-black tracking-[0.3em] uppercase text-[#7c00d0] select-none py-2"
                   >
                     Ν. ΓΛΩΣΣΑ
                   </td>
                 )}
-                {/* Question number + point value */}
                 <td
-                  style={{ width: COL_Q, position: "sticky", left: COL_SECTION, zIndex: 10 }}
-                  className="border border-gray-200 bg-[#fffbeb] text-center py-0 leading-none"
+                  style={{ width: COL_Q }}
+                  className="border border-gray-200 bg-[#faf5ff] text-center py-1 leading-none"
                 >
-                  <div className="text-[10px] font-bold text-gray-600">Ε{qi + 1}</div>
-                  <div className="text-[8px] text-gray-400 mt-0.5">{pointsForQuestion(qi + 1)}β</div>
+                  <div className="text-sm font-black text-gray-800">Ε{qi + 1}</div>
+                  <div className="text-[10px] font-semibold text-gray-500 mt-1">{pointsForQuestion(qi + 1)}β</div>
                 </td>
-                {/* Student cells */}
-                {activeStudents.map((s) => {
-                  const isWrong = wrong[s.id]?.[qi] ?? false;
-                  return (
-                    <td
-                      key={s.id}
-                      style={{ width: COL_STUDENT, height: 28 }}
-                      className="border border-gray-200 bg-[#fffdf5] text-center p-0"
-                    >
-                      <button
-                        onClick={() => toggleCell(s.id, qi)}
-                        style={{ width: "100%", height: 28 }}
-                        className={`text-xs font-black transition-colors cursor-pointer select-none ${
-                          isWrong
-                            ? "bg-red-100 text-red-600 hover:bg-red-200"
-                            : "text-transparent hover:bg-amber-50 hover:text-amber-300"
-                        }`}
-                      >
-                        ✕
-                      </button>
-                    </td>
-                  );
-                })}
+                <td style={{ height: 48 }} className="border border-gray-200 bg-[#fdfaff] text-center p-0">
+                  <CellBtn
+                    isWrong={wrong[currentStudent.id]?.[qi] ?? false}
+                    onToggle={() => toggleCell(currentStudent.id, qi)}
+                    hue="purple"
+                  />
+                </td>
               </tr>
             ))}
 
@@ -380,40 +620,25 @@ export default function GradingSheet({ simulation, participation, students, exis
                     <td
                       rowSpan={simulation.math_questions}
                       style={{ width: COL_SECTION, writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-                      className="border border-gray-200 bg-[#dbeafe] text-center text-[9px] font-black tracking-[0.3em] uppercase text-blue-700 select-none py-2"
+                      className="border border-gray-200 bg-[#dbeafe] text-center text-[11px] font-black tracking-[0.3em] uppercase text-[#056ef5] select-none py-2"
                     >
                       ΜΑΘΗΜΑΤΙΚΑ
                     </td>
                   )}
                   <td
-                    style={{ width: COL_Q, position: "sticky", left: COL_SECTION, zIndex: 10 }}
-                    className="border border-gray-200 bg-[#eff6ff] text-center py-0 leading-none"
+                    style={{ width: COL_Q }}
+                    className="border border-gray-200 bg-[#eff6ff] text-center py-1 leading-none"
                   >
-                    <div className="text-[10px] font-bold text-gray-600">Ε{absQi + 1}</div>
-                    <div className="text-[8px] text-gray-400 mt-0.5">{pointsForQuestion(absQi + 1)}β</div>
+                    <div className="text-sm font-black text-gray-800">Ε{absQi + 1}</div>
+                    <div className="text-[10px] font-semibold text-gray-500 mt-1">{pointsForQuestion(absQi + 1)}β</div>
                   </td>
-                  {activeStudents.map((s) => {
-                    const isWrong = wrong[s.id]?.[absQi] ?? false;
-                    return (
-                      <td
-                        key={s.id}
-                        style={{ width: COL_STUDENT, height: 28 }}
-                        className="border border-gray-200 bg-[#f5f8ff] text-center p-0"
-                      >
-                        <button
-                          onClick={() => toggleCell(s.id, absQi)}
-                          style={{ width: "100%", height: 28 }}
-                          className={`text-xs font-black transition-colors cursor-pointer select-none ${
-                            isWrong
-                              ? "bg-red-100 text-red-600 hover:bg-red-200"
-                              : "text-transparent hover:bg-blue-50 hover:text-blue-300"
-                          }`}
-                        >
-                          ✕
-                        </button>
-                      </td>
-                    );
-                  })}
+                  <td style={{ height: 48 }} className="border border-gray-200 bg-[#f5f8ff] text-center p-0">
+                    <CellBtn
+                      isWrong={wrong[currentStudent.id]?.[absQi] ?? false}
+                      onToggle={() => toggleCell(currentStudent.id, absQi)}
+                      hue="blue"
+                    />
+                  </td>
                 </tr>
               );
             })}
@@ -422,32 +647,78 @@ export default function GradingSheet({ simulation, participation, students, exis
             <tr>
               <td
                 colSpan={2}
-                style={{ position: "sticky", left: 0, zIndex: 10 }}
-                className="border border-gray-300 bg-[#1a3a2a] px-3 py-2.5 text-[9px] font-black tracking-[0.25em] uppercase text-white/80"
+                className="border border-gray-300 bg-[#0a0a0f] px-3 py-3 text-[10px] font-black tracking-[0.25em] uppercase text-white/80"
               >
                 ΤΕΛΙΚΟΣ ΒΑΘΜΟΣ
               </td>
-              {activeStudents.map((s) => {
-                const sc = score(s.id);
-                return (
-                  <td key={s.id} className="border border-gray-300 bg-[#1a3a2a] text-center py-2">
-                    <div className={`text-base font-black tabular-nums ${
-                      sc >= 75 ? "text-[#c8ff00]" : sc >= 50 ? "text-yellow-300" : "text-red-400"
-                    }`}>
-                      {sc}
-                    </div>
-                  </td>
-                );
-              })}
+              <td className="border border-gray-300 bg-[#0a0a0f] text-center py-3">
+                <div className="flex items-center justify-center gap-3">
+                  <div className={`font-display text-2xl font-black tabular-nums ${
+                    score(currentStudent.id) >= 75 ? "text-[#c8ff00]" : score(currentStudent.id) >= 50 ? "text-yellow-300" : "text-red-400"
+                  }`}>
+                    {score(currentStudent.id)}
+                  </div>
+                  <div className="text-xs font-black text-white/85 uppercase tracking-wider">
+                    {wrongCount(currentStudent.id)} ΛΑΘΟΣ
+                  </div>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <p className="text-xs text-ink/30 text-center">
-        Κλικ σε κελί για να σημειώσετε λάθος · βαθμός = (σωστές / {total}) × 100
-      </p>
+      {/* Prev / Next navigation */}
+      <div className="flex items-center justify-between gap-3">
+        <button
+          onClick={() => switchTo(activeStudents[activeIdx - 1].id)}
+          disabled={activeIdx === 0}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-ink/15 text-sm font-semibold text-ink/70 hover:border-ink/30 hover:text-ink transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+        >
+          ← Προηγούμενος
+        </button>
+        <span className="text-xs text-ink/45 tabular">{activeIdx + 1} / {activeStudents.length}</span>
+        {activeIdx < activeStudents.length - 1 ? (
+          <button
+            onClick={() => switchTo(activeStudents[activeIdx + 1].id)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#056ef5] text-white text-sm font-bold hover:bg-[#0451b8] transition-colors cursor-pointer"
+          >
+            Επόμενος →
+          </button>
+        ) : (
+          <button
+            onClick={onSubmit}
+            disabled={!canSubmit}
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-green-600 text-white text-sm font-black uppercase tracking-wider hover:bg-green-700 transition-colors disabled:opacity-40 cursor-pointer"
+          >
+            {saving ? "Αποθήκευση…" : isReGrading ? "Αποθήκευση →" : "Υποβολή όλων →"}
+          </button>
+        )}
+      </div>
+
+      {!allVisited && !isReGrading && (
+        <p className="text-xs text-ink/40 text-center">
+          Δείτε όλους τους μαθητές πριν την τελική υποβολή
+        </p>
+      )}
     </div>
+  );
+}
+
+function CellBtn({ isWrong, onToggle, hue }: { isWrong: boolean; onToggle: () => void; hue: "purple" | "blue" }) {
+  const hover = hue === "purple"
+    ? "hover:bg-purple-50 hover:text-[#7c00d0]/40"
+    : "hover:bg-blue-50 hover:text-[#056ef5]/40";
+  return (
+    <button
+      onClick={onToggle}
+      style={{ width: "100%", height: 48 }}
+      className={`text-xl font-black transition-colors cursor-pointer select-none ${
+        isWrong ? "bg-red-100 text-red-600 hover:bg-red-200" : `text-transparent ${hover}`
+      }`}
+    >
+      ✕
+    </button>
   );
 }
 

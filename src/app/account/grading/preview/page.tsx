@@ -5,7 +5,7 @@ import Link from "next/link";
 const MOCK_SIM: Simulation = {
   id: "preview",
   number: 2,
-  title: "Διαγώνισμα 2 — Δεκέμβριος 2024",
+  title: "Διαγώνισμα 2 · Δεκέμβριος 2024",
   subject: "bundle",
   exam_date: "2024-12-14",
   unlocks_at: "2024-12-14T09:00:00Z",
@@ -19,12 +19,12 @@ const MOCK_SIM: Simulation = {
 };
 
 const MOCK_STUDENTS: Student[] = [
-  { id: "s1", school_id: "preview", first_name: "Μαρία",    last_name: "Παπαδοπούλου", class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: null, created_at: "", updated_at: "" },
-  { id: "s2", school_id: "preview", first_name: "Γιώργης",  last_name: "Αλεξίου",      class_year: "Γυμνάσιο", subjects: ["math"],         notes: null, created_at: "", updated_at: "" },
-  { id: "s3", school_id: "preview", first_name: "Ελένη",    last_name: "Βασιλείου",    class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: null, created_at: "", updated_at: "" },
-  { id: "s4", school_id: "preview", first_name: "Νίκος",    last_name: "Δημητρίου",    class_year: "Λύκειο",   subjects: ["greek"],        notes: null, created_at: "", updated_at: "" },
-  { id: "s5", school_id: "preview", first_name: "Σοφία",    last_name: "Κωνσταντίνου", class_year: "Λύκειο",   subjects: ["greek","math"], notes: null, created_at: "", updated_at: "" },
-  { id: "s6", school_id: "preview", first_name: "Θάνος",    last_name: "Οικονόμου",    class_year: "Λύκειο",   subjects: ["math"],         notes: null, created_at: "", updated_at: "" },
+  { id: "s1", school_id: "preview", first_name: "Μαρία",    last_name: "Παπαδοπούλου", class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+  { id: "s2", school_id: "preview", first_name: "Γιώργης",  last_name: "Αλεξίου",      class_year: "Γυμνάσιο", subjects: ["math"],         notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+  { id: "s3", school_id: "preview", first_name: "Ελένη",    last_name: "Βασιλείου",    class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+  { id: "s4", school_id: "preview", first_name: "Νίκος",    last_name: "Δημητρίου",    class_year: "Λύκειο",   subjects: ["greek"],        notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+  { id: "s5", school_id: "preview", first_name: "Σοφία",    last_name: "Κωνσταντίνου", class_year: "Λύκειο",   subjects: ["greek","math"], notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+  { id: "s6", school_id: "preview", first_name: "Θάνος",    last_name: "Οικονόμου",    class_year: "Λύκειο",   subjects: ["math"],         notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
 ];
 
 // Pre-seed some realistic wrong answers so the sheet isn't blank

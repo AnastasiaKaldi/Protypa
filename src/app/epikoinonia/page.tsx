@@ -220,7 +220,7 @@ function TextareaField({ label, name, placeholder }: {
 function SuccessState({ onReset }: { onReset: () => void }) {
   return (
     <div>
-      <div className="font-display text-6xl text-brand">Ευχαριστούμε.</div>
+      <div className="font-display text-6xl text-brand">Ευχαριστούμε</div>
       <h2 className="mt-6 font-display text-3xl text-ink">{el.contact.sentTitle}</h2>
       <p className="mt-3 text-ink/50 max-w-md leading-relaxed text-sm">{el.contact.sentBody}</p>
       <button

@@ -67,7 +67,7 @@ export default function SignInPage() {
         <div className="relative z-10">
           <h2 className="font-display text-5xl text-white leading-tight">
             Καλώς ήρθατε<br />
-            <span className="text-[#c8ff00]">ξανά.</span>
+            <span className="text-[#c8ff00]">ξανά</span>
           </h2>
           <p className="mt-4 text-white/80 text-sm max-w-xs leading-relaxed">
             Συνδεθείτε για να αποκτήσετε πρόσβαση στα διαθέσιμα θέματα και το ιστορικό διορθώσεων σας.

@@ -8,7 +8,7 @@ const GYMNASIO = ["Γυμνάσιο"];
 const LYKEIO   = ["Λύκειο"];
 const CLASS_YEARS = [...GYMNASIO, ...LYKEIO];
 
-const AVATAR_COLORS = ["#1b1b1b", "#3f3f46", "#52525b"];
+const AVATAR_COLORS = ["#056ef5", "#7c00d0", "#0451b8", "#5a0099", "#1b1b1b"];
 function pickColor(seed: string): string {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
@@ -20,7 +20,12 @@ export default function StudentsPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState({ first_name: "", last_name: "", class_year: "", subjects: [] as string[], notes: "" });
+  const [form, setForm] = useState({
+    first_name: "", last_name: "", class_year: "",
+    subjects: [] as string[], notes: "",
+    mother_name: "", father_name: "",
+    gender: "" as "" | "female" | "male" | "other",
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -39,9 +44,23 @@ export default function StudentsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  function resetForm() { setForm({ first_name: "", last_name: "", class_year: "", subjects: [], notes: "" }); setEditId(null); setError(null); }
+  function resetForm() {
+    setForm({
+      first_name: "", last_name: "", class_year: "",
+      subjects: [], notes: "",
+      mother_name: "", father_name: "", gender: "",
+    });
+    setEditId(null); setError(null);
+  }
   function startEdit(s: Student) {
-    setForm({ first_name: s.first_name, last_name: s.last_name, class_year: s.class_year ?? "", subjects: s.subjects, notes: s.notes ?? "" });
+    setForm({
+      first_name: s.first_name, last_name: s.last_name,
+      class_year: s.class_year ?? "",
+      subjects: s.subjects, notes: s.notes ?? "",
+      mother_name: s.mother_name ?? "",
+      father_name: s.father_name ?? "",
+      gender: (s.gender ?? "") as "" | "female" | "male" | "other",
+    });
     setEditId(s.id); setShowForm(true);
   }
   function toggleSubject(sub: string) {
@@ -61,6 +80,9 @@ export default function StudentsPage() {
         first_name: form.first_name, last_name: form.last_name,
         class_year: form.class_year || null, subjects: form.subjects,
         notes: form.notes || null,
+        mother_name: form.mother_name || null,
+        father_name: form.father_name || null,
+        gender: (form.gender || null) as Student["gender"],
         created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
       };
       setStudents((prev) => editId
@@ -69,7 +91,15 @@ export default function StudentsPage() {
       );
       setSaving(false); setShowForm(false); resetForm(); return;
     }
-    const payload = { school_id: user.id, ...form, class_year: form.class_year || null, notes: form.notes || null };
+    const payload = {
+      school_id: user.id,
+      ...form,
+      class_year: form.class_year || null,
+      notes: form.notes || null,
+      mother_name: form.mother_name || null,
+      father_name: form.father_name || null,
+      gender: form.gender || null,
+    };
     const { error: err } = editId
       ? await supabase.from("students").update(payload).eq("id", editId)
       : await supabase.from("students").insert(payload);
@@ -130,13 +160,13 @@ export default function StudentsPage() {
         </button>
       </div>
 
-      {/* KPI strip — dividers */}
+      {/* KPI strip — dividers with brand color accents */}
       {students.length > 0 && (
         <div className="border-y border-ink/10 divide-x divide-ink/10 grid grid-cols-2 md:grid-cols-4">
-          <StudentStat label="Σύνολο μαθητών"   value={counts.total} />
-          <StudentStat label="Γυμνάσιο"          value={counts.gymnasio} />
-          <StudentStat label="Λύκειο"            value={counts.lykeio} />
-          <StudentStat label="Σε δύο μαθήματα" value={students.filter((s) => s.subjects.length === 2).length} />
+          <StudentStat label="Σύνολο μαθητών"   value={counts.total}    color="#056ef5" />
+          <StudentStat label="Γυμνάσιο"          value={counts.gymnasio} color="#7c00d0" />
+          <StudentStat label="Λύκειο"            value={counts.lykeio}   color="#056ef5" />
+          <StudentStat label="Σε δύο μαθήματα" value={students.filter((s) => s.subjects.length === 2).length} color="#7c00d0" />
         </div>
       )}
 
@@ -151,6 +181,31 @@ export default function StudentsPage() {
               <FormField label="Όνομα *" value={form.first_name} onChange={(v) => setForm((p) => ({ ...p, first_name: v }))} placeholder="π.χ. Μαρία" />
               <FormField label="Επώνυμο *" value={form.last_name} onChange={(v) => setForm((p) => ({ ...p, last_name: v }))} placeholder="π.χ. Παπαδοπούλου" />
             </div>
+
+            <div>
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">Φύλο</span>
+              <div className="flex gap-2 mt-2">
+                {[
+                  { id: "female", label: "Θηλυκό" },
+                  { id: "male",   label: "Αρσενικό" },
+                  { id: "other",  label: "Άλλο" },
+                ].map(({ id, label }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setForm((p) => ({ ...p, gender: p.gender === id ? "" : (id as "female" | "male" | "other") }))}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-colors cursor-pointer ${
+                      form.gender === id
+                        ? "border-[#056ef5] bg-[#056ef5] text-white"
+                        : "border-ink/15 text-ink/60 hover:border-ink/30"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div>
               <label className="block">
                 <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">Τάξη</span>
@@ -162,6 +217,7 @@ export default function StudentsPage() {
                 </select>
               </label>
             </div>
+
             <div>
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">Μαθήματα</span>
               <div className="flex gap-3 mt-2">
@@ -173,6 +229,15 @@ export default function StudentsPage() {
                 ))}
               </div>
             </div>
+
+            <div className="pt-2 border-t border-ink/8">
+              <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40 mb-3">Στοιχεία γονέων</div>
+              <div className="grid grid-cols-2 gap-5">
+                <FormField label="Όνομα μητέρας" value={form.mother_name} onChange={(v) => setForm((p) => ({ ...p, mother_name: v }))} placeholder="π.χ. Ελένη" />
+                <FormField label="Όνομα πατέρα"  value={form.father_name} onChange={(v) => setForm((p) => ({ ...p, father_name: v }))} placeholder="π.χ. Γιώργος" />
+              </div>
+            </div>
+
             <FormField label="Σημειώσεις" value={form.notes} onChange={(v) => setForm((p) => ({ ...p, notes: v }))} placeholder="Προαιρετικά σχόλια…" />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <div className="flex gap-3">
@@ -232,10 +297,10 @@ export default function StudentsPage() {
       ) : (
         <div className="space-y-8">
           {GYMNASIO.some((cy) => byClass[cy]?.length > 0) && (
-            <ClassSection title="Γυμνάσιο" groups={GYMNASIO.filter((cy) => byClass[cy]?.length > 0).map((cy) => ({ title: cy, students: byClass[cy] }))} onEdit={startEdit} onDelete={remove} />
+            <ClassSection title="Γυμνάσιο" color="#7c00d0" groups={GYMNASIO.filter((cy) => byClass[cy]?.length > 0).map((cy) => ({ title: cy, students: byClass[cy] }))} onEdit={startEdit} onDelete={remove} />
           )}
           {LYKEIO.some((cy) => byClass[cy]?.length > 0) && (
-            <ClassSection title="Λύκειο" groups={LYKEIO.filter((cy) => byClass[cy]?.length > 0).map((cy) => ({ title: cy, students: byClass[cy] }))} onEdit={startEdit} onDelete={remove} />
+            <ClassSection title="Λύκειο" color="#056ef5" groups={LYKEIO.filter((cy) => byClass[cy]?.length > 0).map((cy) => ({ title: cy, students: byClass[cy] }))} onEdit={startEdit} onDelete={remove} />
           )}
           {noClass.length > 0 && (
             <ClassSection title="Χωρίς τάξη" groups={[{ title: "Χωρίς τάξη", students: noClass }]} onEdit={startEdit} onDelete={remove} />
@@ -248,16 +313,21 @@ export default function StudentsPage() {
 
 // ─── Components ──────────────────────────────────────────────────────────────
 
-function StudentStat({ label, value }: { label: string; value: number }) {
+function StudentStat({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
     <div className="px-4 py-4 first:pl-0">
       <div className="text-[11px] text-ink/50">{label}</div>
-      <div className="font-display text-2xl text-ink mt-1 tabular">{value}</div>
+      <div
+        className="font-display text-2xl mt-1 tabular"
+        style={{ color: color ?? "var(--color-ink)" }}
+      >
+        {value}
+      </div>
     </div>
   );
 }
 
-function ClassSection({ title, groups, onEdit, onDelete }: {
+function ClassSection({ title, color, groups, onEdit, onDelete }: {
   title: string; color?: string;
   groups: { title: string; students: Student[] }[];
   onEdit: (s: Student) => void; onDelete: (id: string) => void;
@@ -265,7 +335,13 @@ function ClassSection({ title, groups, onEdit, onDelete }: {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-3">
-        <h2 className="text-[11px] font-semibold tracking-wider uppercase text-ink/55">{title}</h2>
+        <h2
+          className="text-[11px] font-black tracking-wider uppercase inline-flex items-center gap-2"
+          style={color ? { color } : { color: "var(--color-ink-55)" }}
+        >
+          {color && <span className="w-2 h-2 rounded-sm" style={{ background: color }} />}
+          {title}
+        </h2>
         <span className="text-[11px] text-ink/45">{groups.reduce((s, g) => s + g.students.length, 0)} μαθητές</span>
       </div>
       {groups.map((g) => (
@@ -383,10 +459,10 @@ function FormField({ label, value, onChange, placeholder }: {
 // ─── Preview seed data ──────────────────────────────────────────────────────
 
 const PREVIEW_STUDENTS: Student[] = [
-  { id: "s1", school_id: "preview", first_name: "Μαρία",    last_name: "Παπαδοπούλου", class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: "Πολύ καλή στη Γλώσσα", created_at: "", updated_at: "" },
-  { id: "s2", school_id: "preview", first_name: "Γιώργης",  last_name: "Αλεξίου",      class_year: "Γυμνάσιο", subjects: ["math"],         notes: null, created_at: "", updated_at: "" },
-  { id: "s3", school_id: "preview", first_name: "Ελένη",    last_name: "Βασιλείου",    class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: null, created_at: "", updated_at: "" },
-  { id: "s4", school_id: "preview", first_name: "Νίκος",    last_name: "Δημητρίου",    class_year: "Λύκειο",   subjects: ["greek"],        notes: null, created_at: "", updated_at: "" },
-  { id: "s5", school_id: "preview", first_name: "Σοφία",    last_name: "Κωνσταντίνου", class_year: "Λύκειο",   subjects: ["greek","math"], notes: "Νεοεγγραφή", created_at: "", updated_at: "" },
-  { id: "s6", school_id: "preview", first_name: "Θάνος",    last_name: "Οικονόμου",    class_year: "Λύκειο",   subjects: ["math"],         notes: null, created_at: "", updated_at: "" },
+  { id: "s1", school_id: "preview", first_name: "Μαρία",    last_name: "Παπαδοπούλου", class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: "Πολύ καλή στη Γλώσσα", mother_name: null, father_name: null, gender: "female", created_at: "", updated_at: "" },
+  { id: "s2", school_id: "preview", first_name: "Γιώργης",  last_name: "Αλεξίου",      class_year: "Γυμνάσιο", subjects: ["math"],         notes: null,                  mother_name: null, father_name: null, gender: "male",   created_at: "", updated_at: "" },
+  { id: "s3", school_id: "preview", first_name: "Ελένη",    last_name: "Βασιλείου",    class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: null,                  mother_name: null, father_name: null, gender: "female", created_at: "", updated_at: "" },
+  { id: "s4", school_id: "preview", first_name: "Νίκος",    last_name: "Δημητρίου",    class_year: "Λύκειο",   subjects: ["greek"],        notes: null,                  mother_name: null, father_name: null, gender: "male",   created_at: "", updated_at: "" },
+  { id: "s5", school_id: "preview", first_name: "Σοφία",    last_name: "Κωνσταντίνου", class_year: "Λύκειο",   subjects: ["greek","math"], notes: "Νεοεγγραφή",          mother_name: null, father_name: null, gender: "female", created_at: "", updated_at: "" },
+  { id: "s6", school_id: "preview", first_name: "Θάνος",    last_name: "Οικονόμου",    class_year: "Λύκειο",   subjects: ["math"],         notes: null,                  mother_name: null, father_name: null, gender: "male",   created_at: "", updated_at: "" },
 ];

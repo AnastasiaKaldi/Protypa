@@ -150,6 +150,9 @@ export interface Student {
   class_year: string | null;
   subjects: string[];
   notes: string | null;
+  mother_name: string | null;
+  father_name: string | null;
+  gender: "female" | "male" | "other" | null;
   created_at: string;
   updated_at: string;
 }

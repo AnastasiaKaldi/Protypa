@@ -46,13 +46,13 @@ function GradingView({ sims, participationMap, now, isPreview = false }: {
         <p className="text-sm text-ink/55 mt-1">Ύλη, θέματα και καταχώρηση απαντήσεων ανά διαγώνισμα.</p>
       </div>
 
-      {/* KPI strip — dividers, no accents */}
+      {/* KPI strip — dividers with brand color accents */}
       {sims.length > 0 && (
         <div className="border-y border-ink/10 divide-x divide-ink/10 grid grid-cols-2 md:grid-cols-4">
-          <Kpi label="Σύνολο"       value={sims.length} />
-          <Kpi label="Διαθέσιμα"    value={available.length} />
-          <Kpi label="Υποβλήθηκαν" value={submitted.length} />
-          <Kpi label="Κλειδωμένα"   value={locked} />
+          <Kpi label="Σύνολο"       value={sims.length}       color="#056ef5" />
+          <Kpi label="Διαθέσιμα"    value={available.length}  color="#10b981" />
+          <Kpi label="Υποβλήθηκαν" value={submitted.length} color="#7c00d0" />
+          <Kpi label="Κλειδωμένα"   value={locked}            color="#94a3b8" />
         </div>
       )}
 
@@ -77,11 +77,16 @@ function GradingView({ sims, participationMap, now, isPreview = false }: {
   );
 }
 
-function Kpi({ label, value }: { label: string; value: number }) {
+function Kpi({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
     <div className="px-4 py-4 first:pl-0">
       <div className="text-[11px] text-ink/50">{label}</div>
-      <div className="font-display text-2xl text-ink mt-1 tabular">{value}</div>
+      <div
+        className="font-display text-2xl mt-1 tabular"
+        style={{ color: color ?? "var(--color-ink)" }}
+      >
+        {value}
+      </div>
     </div>
   );
 }
@@ -235,9 +240,22 @@ function StatusCell({ sim, unlocked, submitted, closed, p, isPreview }: {
   p: SchoolSimulation | undefined; isPreview: boolean;
 }) {
   if (!unlocked) return <StatusDot color="#94a3b8" label="Κλειδωμένο" />;
+  const href = isPreview ? "/account/grading/preview" : `/account/grading/${sim.id}`;
+
+  // Submitted + window still open → can re-grade
+  if (submitted && !closed) {
+    return (
+      <div className="inline-flex flex-col items-end gap-0.5">
+        <StatusDot color="#10b981" label="Υποβλήθηκε" />
+        <Link href={href} className="text-[10px] font-bold text-[#056ef5] hover:text-[#0451b8] uppercase tracking-wider">
+          Επεξεργασία →
+        </Link>
+      </div>
+    );
+  }
   if (submitted) return <StatusDot color="#10b981" label="Υποβλήθηκε" />;
   if (closed)    return <StatusDot color="#ef4444" label="Έληξε" />;
-  const href = isPreview ? "/account/grading/preview" : `/account/grading/${sim.id}`;
+
   return (
     <Link href={href} className="inline-flex items-center gap-1.5 text-xs font-bold text-[#056ef5] hover:text-[#0451b8]">
       {p ? "Συνέχεια" : "Έναρξη"} →
@@ -257,10 +275,10 @@ function StatusDot({ color, label }: { color: string; label: string }) {
 // ─── Preview ────────────────────────────────────────────────────────────────
 
 const PREVIEW_SIMS: Simulation[] = [
-  { id: "p1", number: 1, title: "Διαγώνισμα 1 — Νοέμβριος 2024", subject: "bundle", exam_date: "2024-11-16", unlocks_at: "2024-11-16T09:00:00Z", grading_closes_at: "2024-12-01T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
-  { id: "p2", number: 2, title: "Διαγώνισμα 2 — Δεκέμβριος 2024", subject: "bundle", exam_date: "2024-12-14", unlocks_at: "2024-12-14T09:00:00Z", grading_closes_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
-  { id: "p3", number: 3, title: "Διαγώνισμα 3 — Φεβρουάριος 2025", subject: "bundle", exam_date: "2025-02-08", unlocks_at: "2099-02-08T09:00:00Z", grading_closes_at: null, greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
-  { id: "p4", number: 4, title: "Διαγώνισμα 4 — Μάρτιος 2025", subject: "bundle", exam_date: "2025-03-15", unlocks_at: "2099-03-15T09:00:00Z", grading_closes_at: null, greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
+  { id: "p1", number: 1, title: "Διαγώνισμα 1 · Νοέμβριος 2024", subject: "bundle", exam_date: "2024-11-16", unlocks_at: "2024-11-16T09:00:00Z", grading_closes_at: "2024-12-01T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
+  { id: "p2", number: 2, title: "Διαγώνισμα 2 · Δεκέμβριος 2024", subject: "bundle", exam_date: "2024-12-14", unlocks_at: "2024-12-14T09:00:00Z", grading_closes_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
+  { id: "p3", number: 3, title: "Διαγώνισμα 3 · Φεβρουάριος 2025", subject: "bundle", exam_date: "2025-02-08", unlocks_at: "2099-02-08T09:00:00Z", grading_closes_at: null, greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
+  { id: "p4", number: 4, title: "Διαγώνισμα 4 · Μάρτιος 2025", subject: "bundle", exam_date: "2025-03-15", unlocks_at: "2099-03-15T09:00:00Z", grading_closes_at: null, greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
 ];
 
 const PREVIEW_PARTICIPATIONS: SchoolSimulation[] = [

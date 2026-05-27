@@ -17,22 +17,22 @@ function buildPreviewData(id: string): {
   tagMap: Map<string, Map<number, string>>;
 } | null {
   const STUDENTS: Record<string, Student> = {
-    s1: { id: "s1", school_id: "preview", first_name: "Μαρία",   last_name: "Παπαδοπούλου", class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: "Πολύ καλή στη Γλώσσα", created_at: "", updated_at: "" },
-    s2: { id: "s2", school_id: "preview", first_name: "Γιώργης", last_name: "Αλεξίου",      class_year: "Γυμνάσιο", subjects: ["math"],         notes: null, created_at: "", updated_at: "" },
-    s3: { id: "s3", school_id: "preview", first_name: "Ελένη",   last_name: "Βασιλείου",    class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: null, created_at: "", updated_at: "" },
-    s4: { id: "s4", school_id: "preview", first_name: "Νίκος",   last_name: "Δημητρίου",    class_year: "Λύκειο",   subjects: ["greek"],        notes: null, created_at: "", updated_at: "" },
-    s5: { id: "s5", school_id: "preview", first_name: "Σοφία",   last_name: "Κωνσταντίνου", class_year: "Λύκειο",   subjects: ["greek","math"], notes: "Νεοεγγραφή", created_at: "", updated_at: "" },
-    s6: { id: "s6", school_id: "preview", first_name: "Θάνος",   last_name: "Οικονόμου",    class_year: "Λύκειο",   subjects: ["math"],         notes: null, created_at: "", updated_at: "" },
+    s1: { id: "s1", school_id: "preview", first_name: "Μαρία",   last_name: "Παπαδοπούλου", class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: "Πολύ καλή στη Γλώσσα", mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+    s2: { id: "s2", school_id: "preview", first_name: "Γιώργης", last_name: "Αλεξίου",      class_year: "Γυμνάσιο", subjects: ["math"],         notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+    s3: { id: "s3", school_id: "preview", first_name: "Ελένη",   last_name: "Βασιλείου",    class_year: "Γυμνάσιο", subjects: ["greek","math"], notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+    s4: { id: "s4", school_id: "preview", first_name: "Νίκος",   last_name: "Δημητρίου",    class_year: "Λύκειο",   subjects: ["greek"],        notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+    s5: { id: "s5", school_id: "preview", first_name: "Σοφία",   last_name: "Κωνσταντίνου", class_year: "Λύκειο",   subjects: ["greek","math"], notes: "Νεοεγγραφή", mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
+    s6: { id: "s6", school_id: "preview", first_name: "Θάνος",   last_name: "Οικονόμου",    class_year: "Λύκειο",   subjects: ["math"],         notes: null, mother_name: null, father_name: null, gender: null, created_at: "", updated_at: "" },
   };
   const student = STUDENTS[id];
   if (!student) return null;
 
   // Sim catalog used by all preview students
   const SIMS: Simulation[] = [
-    { id: "p1", number: 1, title: "Διαγώνισμα 1 — Νοέμβριος 2024",   subject: "bundle", exam_date: "2024-11-16", unlocks_at: "2024-11-16T09:00:00Z", grading_closes_at: "2024-12-01T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
-    { id: "p2", number: 2, title: "Διαγώνισμα 2 — Δεκέμβριος 2024",  subject: "bundle", exam_date: "2024-12-14", unlocks_at: "2024-12-14T09:00:00Z", grading_closes_at: "2024-12-29T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
-    { id: "p3", number: 3, title: "Διαγώνισμα 3 — Φεβρουάριος 2025", subject: "bundle", exam_date: "2025-02-08", unlocks_at: "2025-02-08T09:00:00Z", grading_closes_at: "2025-02-23T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
-    { id: "p4", number: 4, title: "Διαγώνισμα 4 — Μάρτιος 2025",     subject: "bundle", exam_date: "2025-03-15", unlocks_at: "2025-03-15T09:00:00Z", grading_closes_at: "2025-03-30T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
+    { id: "p1", number: 1, title: "Διαγώνισμα 1 · Νοέμβριος 2024",   subject: "bundle", exam_date: "2024-11-16", unlocks_at: "2024-11-16T09:00:00Z", grading_closes_at: "2024-12-01T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
+    { id: "p2", number: 2, title: "Διαγώνισμα 2 · Δεκέμβριος 2024",  subject: "bundle", exam_date: "2024-12-14", unlocks_at: "2024-12-14T09:00:00Z", grading_closes_at: "2024-12-29T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
+    { id: "p3", number: 3, title: "Διαγώνισμα 3 · Φεβρουάριος 2025", subject: "bundle", exam_date: "2025-02-08", unlocks_at: "2025-02-08T09:00:00Z", grading_closes_at: "2025-02-23T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
+    { id: "p4", number: 4, title: "Διαγώνισμα 4 · Μάρτιος 2025",     subject: "bundle", exam_date: "2025-03-15", unlocks_at: "2025-03-15T09:00:00Z", grading_closes_at: "2025-03-30T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
   ];
   const submittedDates = ["2024-11-28T14:00:00Z", "2024-12-22T11:00:00Z", "2025-02-15T15:30:00Z", "2025-03-22T10:15:00Z"];
 

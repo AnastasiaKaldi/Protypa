@@ -50,7 +50,7 @@ export default function ResetPasswordPage() {
         <div className="relative z-10">
           <h2 className="font-display text-5xl text-white leading-tight">
             Νέος<br />
-            <span className="text-[#c8ff00]">κωδικός.</span>
+            <span className="text-[#c8ff00]">κωδικός</span>
           </h2>
           <p className="mt-4 text-white/70 text-sm max-w-xs leading-relaxed">
             Επιλέξτε έναν νέο κωδικό για τον λογαριασμό σας.
@@ -67,7 +67,7 @@ export default function ResetPasswordPage() {
           {done ? (
             <div>
               <div className="font-display text-6xl text-[#056ef5]">✓</div>
-              <h1 className="mt-4 font-display text-3xl text-ink">Ο κωδικός άλλαξε.</h1>
+              <h1 className="mt-4 font-display text-3xl text-ink">Ο κωδικός άλλαξε</h1>
               <p className="mt-3 text-ink/50 text-sm leading-relaxed max-w-xs">
                 Μπορείτε τώρα να συνδεθείτε με τον νέο σας κωδικό.
               </p>

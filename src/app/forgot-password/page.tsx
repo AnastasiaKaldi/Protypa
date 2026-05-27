@@ -31,7 +31,7 @@ export default function ForgotPasswordPage() {
         <div className="relative z-10">
           <h2 className="font-display text-5xl text-white leading-tight">
             Επαναφορά<br />
-            <span className="text-[#c8ff00]">κωδικού.</span>
+            <span className="text-[#c8ff00]">κωδικού</span>
           </h2>
           <p className="mt-4 text-white/70 text-sm max-w-xs leading-relaxed">
             Στείλτε μας το email σας και θα σας στείλουμε έναν σύνδεσμο επαναφοράς κωδικού.
@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
           {sent ? (
             <div>
               <div className="font-display text-6xl text-[#056ef5]">✓</div>
-              <h1 className="mt-4 font-display text-3xl text-ink">Το email στάλθηκε.</h1>
+              <h1 className="mt-4 font-display text-3xl text-ink">Το email στάλθηκε</h1>
               <p className="mt-3 text-ink/50 text-sm leading-relaxed max-w-xs">
                 Ελέγξτε τα εισερχόμενά σας και πατήστε τον σύνδεσμο που σας στείλαμε για να επαναφέρετε τον κωδικό σας.
               </p>

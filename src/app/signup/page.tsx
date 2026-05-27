@@ -30,7 +30,7 @@ export default function SignUpPage() {
         <div className="relative z-10">
           <h2 className="font-display text-5xl text-white leading-tight">
             Ξεκινήστε<br />
-            <span className="text-[#c8ff00]">σήμερα.</span>
+            <span className="text-[#c8ff00]">σήμερα</span>
           </h2>
           <p className="mt-4 text-white/80 text-sm max-w-xs leading-relaxed">
             Δημιουργήστε δωρεάν λογαριασμό και αποκτήστε πρόσβαση στα εργαλεία προετοιμασίας.

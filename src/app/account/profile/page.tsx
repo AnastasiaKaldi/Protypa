@@ -75,7 +75,7 @@ export default function ProfilePage() {
 
       <form onSubmit={save} className="space-y-8">
         {/* Company */}
-        <Section title="Στοιχεία Εταιρείας">
+        <Section title="Στοιχεία Εταιρείας" color="#056ef5">
           <Field label="Επωνυμία" value={school.legal_name ?? ""} onChange={(v) => set("legal_name", v)} placeholder="π.χ. Βασιλειάδης & ΣΙΑ ΟΕ" />
           <Field label="Διακριτικός τίτλος" value={school.trade_name ?? ""} onChange={(v) => set("trade_name", v)} placeholder="π.χ. Φροντιστήριο Πεδίο" />
           <div className="grid grid-cols-2 gap-5">
@@ -95,7 +95,7 @@ export default function ProfilePage() {
         </Section>
 
         {/* Address */}
-        <Section title="Διεύθυνση">
+        <Section title="Διεύθυνση" color="#7c00d0">
           <Field label="Οδός & αριθμός" value={school.address ?? ""} onChange={(v) => set("address", v)} placeholder="π.χ. Παπαδοπούλου 12" />
           <div className="grid grid-cols-2 gap-5">
             <Field label="Ταχ. κώδικας" value={school.postal_code ?? ""} onChange={(v) => set("postal_code", v)} placeholder="π.χ. 71201" />
@@ -105,7 +105,7 @@ export default function ProfilePage() {
         </Section>
 
         {/* Contact */}
-        <Section title="Επικοινωνία">
+        <Section title="Επικοινωνία" color="#056ef5">
           <Field label="Τηλέφωνο φροντιστηρίου" value={school.phone ?? ""} onChange={(v) => set("phone", v)} type="tel" placeholder="π.χ. 2801711611" />
           <Field label="Email φροντιστηρίου" value={school.school_email ?? ""} onChange={(v) => set("school_email", v)} type="email" placeholder="info@frontistirio.gr" />
           <Field label="Υπεύθυνος επικοινωνίας" value={school.contact_person ?? ""} onChange={(v) => set("contact_person", v)} placeholder="π.χ. Γραμματεία" />
@@ -114,7 +114,7 @@ export default function ProfilePage() {
         </Section>
 
         {/* Subjects */}
-        <Section title="Μαθήματα">
+        <Section title="Μαθήματα" color="#7c00d0">
           <div className="space-y-3">
             {[
               { id: "greek", label: "Νέα Ελληνική Γλώσσα", icon: "✎" },
@@ -171,11 +171,18 @@ export default function ProfilePage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, color = "#056ef5" }: { title: string; children: React.ReactNode; color?: string }) {
   return (
-    <div className="rounded-2xl border border-ink/10 bg-white p-6 space-y-5">
-      <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">{title}</div>
-      {children}
+    <div className="rounded-2xl border border-ink/10 bg-white overflow-hidden">
+      <div className="px-6 pt-5">
+        <div className="inline-flex items-center gap-2 text-[10px] font-black tracking-[0.2em] uppercase" style={{ color }}>
+          <span className="w-2 h-2 rounded-sm" style={{ background: color }} />
+          {title}
+        </div>
+      </div>
+      <div className="px-6 pb-6 pt-4 space-y-5">
+        {children}
+      </div>
     </div>
   );
 }

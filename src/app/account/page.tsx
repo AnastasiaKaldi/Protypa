@@ -208,9 +208,31 @@ function DashboardView(d: DashboardData) {
         </div>
       )}
 
-      {/* KPI strip — dividers, no cards */}
-      <div className="border-y border-ink/10 divide-x divide-ink/10 grid grid-cols-2 md:grid-cols-4">
-        {d.kpis.map((k) => (
+      {/* Featured students KPI — separated, branded, clickable */}
+      <Link
+        href="/account/students"
+        className="group block bg-[#c8ff00] text-ink rounded-2xl px-5 py-5 hover:bg-[#b8ee00] transition-colors"
+        style={{ boxShadow: "0 12px 28px -10px rgba(200,255,0,0.45)" }}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-ink/65">{d.kpis[0]?.label ?? "Μαθητές"}</div>
+            <div className="mt-1 flex items-baseline gap-3">
+              <span className="font-display text-3xl text-ink tabular">{d.kpis[0]?.value ?? 0}</span>
+              {d.kpis[0]?.sub && (
+                <span className="text-xs text-ink/70">{d.kpis[0].sub}</span>
+              )}
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider bg-ink/10 hover:bg-ink/20 text-ink px-3 py-2 rounded-full transition-colors group-hover:translate-x-0.5">
+            Κατάλογος μαθητών →
+          </span>
+        </div>
+      </Link>
+
+      {/* Remaining KPI strip — dividers, no cards */}
+      <div className="border-y border-ink/10 divide-x divide-ink/10 grid grid-cols-1 sm:grid-cols-3">
+        {d.kpis.slice(1).map((k) => (
           <div key={k.label} className="px-4 py-4 first:pl-0">
             <div className="text-[11px] text-ink/50">{k.label}</div>
             <div className="mt-1 flex items-baseline gap-2">
@@ -521,12 +543,12 @@ const PREVIEW_DATA: DashboardData = {
   ],
   nextExam: {
     number: 3,
-    title: "Διαγώνισμα 3 — Ιανουάριος 2025",
+    title: "Διαγώνισμα 3 · Ιανουάριος 2025",
     closes_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
     href: "/account/grading/preview",
   },
   urgentReminder: {
-    title: "Διαγώνισμα 3 — Ιανουάριος 2025",
+    title: "Διαγώνισμα 3 · Ιανουάριος 2025",
     href: "/account/grading/preview",
     daysLeft: 2,
     hoursLeft: 14,

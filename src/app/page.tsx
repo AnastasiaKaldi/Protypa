@@ -25,43 +25,37 @@ function Hero() {
       {/* Blue brand overlay — preserves brand colour while letting image show through */}
       <div className="absolute inset-0 bg-brand/80" />
 
-      <div className="relative z-10 w-full mx-auto max-w-7xl px-4 sm:px-6 py-14 md:py-20">
-        <div className="grid md:grid-cols-2 gap-10 items-center">
+      {/* Sprite cluster — intentionally asymmetrical, varied sizes & rotations */}
+      <div aria-hidden="true" className="hidden md:block absolute inset-0 z-10 pointer-events-none">
+        <img src="/TransparentAssets/Asset 20.png" alt="" className="select-none absolute top-[14%] left-[4%]   w-32 -rotate-[18deg]" />
+        <img src="/TransparentAssets/Asset 19.png" alt="" className="select-none absolute top-[6%]  right-[28%] w-20 rotate-[8deg]" />
+        <img src="/TransparentAssets/Asset 18.png" alt="" className="select-none absolute bottom-[6%] left-[36%] w-16 rotate-[22deg]" />
+        <img src="/TransparentAssets/Asset 7.png"  alt="" className="select-none absolute top-[42%] right-[6%]  w-36 -rotate-[7deg]" />
+        <img src="/TransparentAssets/Asset 13.png" alt="" className="select-none absolute bottom-[22%] left-[12%] w-24 rotate-[14deg]" />
+      </div>
 
-          {/* Left — content */}
-          <div>
-            <h1 className="font-display text-[clamp(3rem,5.5vw,5.5rem)] leading-[0.9] text-paper">
-              {el.home.heroApplyTitle}
-            </h1>
+      {/* Content — centered as the main event */}
+      <div className="relative z-20 w-full mx-auto max-w-3xl px-4 sm:px-6 py-20 md:py-28 text-center">
+        <h1 className="font-display text-[clamp(2.75rem,6vw,6rem)] leading-[0.9] text-paper">
+          {el.home.heroApplyTitle}
+        </h1>
 
-            <div className="mt-10 md:mt-14 flex flex-col items-start gap-4 max-w-sm">
-              <Link
-                href="/paketa"
-                className="group w-full inline-flex items-center justify-center gap-2 px-10 py-5 rounded-full bg-[#FDFFFC] text-[#7c00d0] border-2 border-[#7c00d0] font-black uppercase tracking-wider hover:bg-[#7c00d0]/5 hover:-translate-y-0.5 transition-all text-base md:text-lg"
-              >
-                Εξερευνιστε τα πακετα
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M13 5l7 7-7 7" />
-                </svg>
-              </Link>
-              <Link
-                href="/demo"
-                className="w-full inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] font-bold uppercase tracking-wider hover:bg-[#056ef5]/5 hover:-translate-y-0.5 transition-all text-sm"
-              >
-                Δοκιμαστε το demo
-              </Link>
-            </div>
-          </div>
-
-          {/* Right — sprite cluster */}
-          <div className="relative hidden md:block h-[480px]">
-            <img src="/TransparentAssets/Asset 23.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 opacity-100" />
-            <img src="/TransparentAssets/Asset 19.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-4 right-4 w-36 opacity-100 rotate-12" />
-            <img src="/TransparentAssets/Asset 21.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-12 left-0 w-32 opacity-100 -rotate-6" />
-            <img src="/TransparentAssets/Asset 18.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute top-8 left-8 w-24 opacity-100 -rotate-12" />
-            <img src="/TransparentAssets/Asset 7.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-4 right-8 w-28 opacity-100 rotate-6" />
-          </div>
-
+        <div className="mt-10 md:mt-14 flex flex-col items-center gap-4 max-w-sm mx-auto">
+          <Link
+            href="/paketa"
+            className="group w-full inline-flex items-center justify-center gap-2 px-10 py-5 rounded-full bg-[#FDFFFC] text-[#7c00d0] border-2 border-[#7c00d0] font-black uppercase tracking-wider hover:bg-[#7c00d0]/5 hover:-translate-y-0.5 transition-all text-base md:text-lg"
+          >
+            Εξερευνήστε τα πακέτα
+            <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M13 5l7 7-7 7" />
+            </svg>
+          </Link>
+          <Link
+            href="/demo"
+            className="w-full inline-flex items-center justify-center gap-2 px-10 py-5 rounded-full bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] font-black uppercase tracking-wider hover:bg-[#056ef5]/5 hover:-translate-y-0.5 transition-all text-base md:text-lg"
+          >
+            Δοκιμαστε το demo
+          </Link>
         </div>
       </div>
     </section>
@@ -72,24 +66,24 @@ function Hero() {
 /* ─── TICKER ───────────────────────────────────────────────────────────── */
 
 const TICKER_ITEMS = [
-  { text: "Πρότυπα Σχολεία", color: "#ffffff" },
-  { text: "◆", color: "#c8ff00" },
-  { text: "Ωνάσεια Σχολεία", color: "#ffffff" },
-  { text: "◆", color: "#c8ff00" },
-  { text: "Εκκλησιαστικά Σχολεία", color: "#ffffff" },
-  { text: "◆", color: "#c8ff00" },
-  { text: "Ανάλυση Λαθών", color: "#ffffff" },
-  { text: "◆", color: "#c8ff00" },
-  { text: "Στατιστική Πορεία", color: "#ffffff" },
-  { text: "◆", color: "#c8ff00" },
-  { text: "Εξατομικευμένη Διδασκαλία", color: "#ffffff" },
-  { text: "◆", color: "#c8ff00" },
+  { text: "Πρότυπα Σχολεία", color: "#0a0a0f" },
+  { text: "◆", color: "#056ef5" },
+  { text: "Ωνάσεια Σχολεία", color: "#0a0a0f" },
+  { text: "◆", color: "#056ef5" },
+  { text: "Εκκλησιαστικά Σχολεία", color: "#0a0a0f" },
+  { text: "◆", color: "#056ef5" },
+  { text: "Ανάλυση Λαθών", color: "#0a0a0f" },
+  { text: "◆", color: "#056ef5" },
+  { text: "Στατιστική Πορεία", color: "#0a0a0f" },
+  { text: "◆", color: "#056ef5" },
+  { text: "Εξατομικευμένη Διδασκαλία", color: "#0a0a0f" },
+  { text: "◆", color: "#056ef5" },
 ];
 
 function Ticker() {
   const doubled = [...TICKER_ITEMS, ...TICKER_ITEMS];
   return (
-    <div className="relative bg-[#056ef5] overflow-hidden py-4 border-y border-white/10">
+    <div className="relative bg-[#c8ff00] overflow-hidden py-4 border-y border-black/10">
       <style>{`
         @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         .ticker-track { animation: ticker 32s linear infinite; }
@@ -124,7 +118,7 @@ function Features() {
             </div>
             <h2 className="font-display text-4xl md:text-6xl text-ink leading-none">
               Το εργαλείο που{" "}
-              <span className="text-brand">κάνει τη διαφορά.</span>
+              <span className="text-brand">κάνει τη διαφορά</span>
             </h2>
             <p className="mt-6 text-sm md:text-base text-ink/70 max-w-2xl leading-relaxed">
               Οι εξετάσεις για τα Πρότυπα, Ωνάσεια και Εκκλησιαστικά Σχολεία είναι μια διαδικασία κατάταξης. Στόχος να γράψουν οι μαθητές μας καλύτερα από τους άλλους υποψηφίους. Άρα πρέπει να έχετε εικόνα του πού βρίσκεται ο κάθε μαθητής σας σε σχέση με τους υπόλοιπους συμμετέχοντες.
@@ -178,7 +172,7 @@ function Features() {
                 <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-paper/50">Στο Φροντιστήριο</div>
                 <h3 className="mt-4 font-display text-2xl sm:text-4xl md:text-5xl leading-none text-paper">
                   Περισσότερες εγγραφές.{" "}
-                  <span className="text-[#c8ff00]">Λιγότερες διαγραφές.</span>
+                  <span className="text-[#c8ff00]">Λιγότερες διαγραφές</span>
                 </h3>
                 <p className="mt-6 max-w-md text-paper/80 leading-relaxed text-sm md:text-base">
                   Διαφοροποιηθείτε από τον ανταγωνισμό με δεδομένα που χτίζουν εμπιστοσύνη στους γονείς. Καλύτερα αποτελέσματα, θετικές συστάσεις και μελλοντικοί μαθητές.
@@ -264,7 +258,7 @@ function MidCta() {
               Ξεκινήστε σήμερα
             </div>
             <h2 className="font-display text-[clamp(2rem,4vw,3.5rem)] leading-[0.9] text-paper">
-              Ξεκινηστε και καντε τη Διαφορα
+              Ξεκινήστε &amp; κάντε τη διαφορά
             </h2>
           </div>
 
