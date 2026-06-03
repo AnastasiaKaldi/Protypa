@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getActivePackages } from "@/lib/entitlements";
 import type { Simulation, SchoolSimulation } from "@/lib/types";
 
 export default async function GradingListPage() {
@@ -11,22 +12,40 @@ export default async function GradingListPage() {
 
   const now = new Date().toISOString();
 
-  const [{ data: simulations }, { data: myParticipations }] = await Promise.all([
+  const [{ data: simulations }, { data: myParticipations }, active] = await Promise.all([
     supabase.from("simulations").select("*").eq("is_published", true).order("number"),
     supabase.from("school_simulations").select("*").eq("school_id", user.id),
+    getActivePackages(user.id),
   ]);
 
   const sims = (simulations as Simulation[]) ?? [];
   const participationMap = new Map(((myParticipations as SchoolSimulation[]) ?? []).map((p) => [p.simulation_id, p]));
 
-  return <GradingView sims={sims} participationMap={participationMap} now={now} />;
+  // Build the set of subjects this user has paid access to.
+  const purchasedSubjects = new Set<string>();
+  for (const a of active) {
+    if (a.pkg.subject) purchasedSubjects.add(a.pkg.subject);
+  }
+  const hasBundle = purchasedSubjects.has("bundle");
+  const hasGreek = hasBundle || purchasedSubjects.has("greek");
+  const hasMath = hasBundle || purchasedSubjects.has("math");
+
+  function hasAccess(simSubject: string): boolean {
+    if (simSubject === "bundle") return hasBundle || (hasGreek && hasMath);
+    if (simSubject === "greek")  return hasGreek;
+    if (simSubject === "math")   return hasMath;
+    return false;
+  }
+
+  return <GradingView sims={sims} participationMap={participationMap} now={now} hasAccess={hasAccess} />;
 }
 
 // ─── View ────────────────────────────────────────────────────────────────────
 
-function GradingView({ sims, participationMap, now, isPreview = false }: {
+function GradingView({ sims, participationMap, now, isPreview = false, hasAccess = () => true }: {
   sims: Simulation[]; participationMap: Map<string, SchoolSimulation>;
   now: string; isPreview?: boolean;
+  hasAccess?: (simSubject: string) => boolean;
 }) {
   const available = sims.filter((s) => s.unlocks_at && s.unlocks_at <= now);
   const submitted = sims.filter((s) => participationMap.get(s.id)?.is_submitted);
@@ -65,7 +84,7 @@ function GradingView({ sims, participationMap, now, isPreview = false }: {
           <p className="text-xs text-ink/40 mt-2">Θα ειδοποιηθείτε με email όταν ξεκλειδωθεί το πρώτο.</p>
         </div>
       ) : (
-        <SimulationsTable sims={sims} participationMap={participationMap} now={now} isPreview={isPreview} />
+        <SimulationsTable sims={sims} participationMap={participationMap} now={now} isPreview={isPreview} hasAccess={hasAccess} />
       )}
 
       {isPreview && (
@@ -126,12 +145,12 @@ function DeadlineNotice({ sim, isPreview }: { sim: Simulation; isPreview: boolea
                   Επείγον
                 </span>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/85">
-                  Λήγει σύντομα
+                  Στατιστικά κλείνουν σύντομα
                 </span>
               </div>
               <div className="text-base font-bold leading-tight truncate">{sim.title}</div>
               <div className="text-sm text-white/85 mt-0.5">
-                Απομένουν <span className="font-bold tabular">{timeLeft}</span> για την καταχώρηση
+                Απομένουν <span className="font-bold tabular">{timeLeft}</span> για να συμπεριληφθούν στα στατιστικά
               </div>
             </div>
           </div>
@@ -148,11 +167,11 @@ function DeadlineNotice({ sim, isPreview }: { sim: Simulation; isPreview: boolea
     <div className="flex items-center justify-between gap-4 border-l-2 border-[#056ef5] bg-[#056ef5]/4 px-4 py-3 rounded-r-md">
       <div className="min-w-0">
         <div className="text-[11px] font-semibold uppercase tracking-wider text-[#056ef5]">
-          Επόμενη προθεσμία
+          Στατιστικά κλείνουν
         </div>
         <div className="text-sm text-ink mt-0.5 truncate">{sim.title}</div>
         <div className="text-xs text-ink/55 mt-0.5">
-          {days === 0 ? "Λήγει σήμερα" : days === 1 ? "1 ημέρα απομένει" : `${days} ημέρες απομένουν`}
+          {days === 0 ? "σήμερα" : days === 1 ? "σε 1 ημέρα" : `σε ${days} ημέρες`}
         </div>
       </div>
       <Link href={href} className="flex-shrink-0 text-xs font-bold text-[#056ef5] hover:text-[#0451b8] whitespace-nowrap">
@@ -164,9 +183,10 @@ function DeadlineNotice({ sim, isPreview }: { sim: Simulation; isPreview: boolea
 
 // ─── Table ───────────────────────────────────────────────────────────────────
 
-function SimulationsTable({ sims, participationMap, now, isPreview }: {
+function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }: {
   sims: Simulation[]; participationMap: Map<string, SchoolSimulation>;
   now: string; isPreview: boolean;
+  hasAccess: (simSubject: string) => boolean;
 }) {
   return (
     <div className="border border-ink/10 rounded-md overflow-hidden">
@@ -176,8 +196,6 @@ function SimulationsTable({ sims, participationMap, now, isPreview }: {
             <tr className="border-b border-ink/10 bg-[#fafaf8]">
               <th className="text-left px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 w-12">#</th>
               <th className="text-left px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55">Διαγώνισμα</th>
-              <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-center hidden md:table-cell">Ύλη</th>
-              <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-center hidden md:table-cell">Θέματα</th>
               <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-right hidden sm:table-cell">Συμμετοχή</th>
               <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-right">Κατάσταση</th>
             </tr>
@@ -200,30 +218,23 @@ function SimulationsTable({ sims, participationMap, now, isPreview }: {
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-3 text-center hidden md:table-cell">
-                    {sim.material_url
-                      ? <a href={sim.material_url} target="_blank" rel="noopener noreferrer" className="text-xs text-[#056ef5] hover:underline">PDF</a>
-                      : <span className="text-xs text-ink/30">—</span>}
-                  </td>
-                  <td className="px-3 py-3 text-center hidden md:table-cell">
-                    {sim.questions_url
-                      ? <a href={sim.questions_url} target="_blank" rel="noopener noreferrer" className="text-xs text-[#056ef5] hover:underline">PDF</a>
-                      : <span className="text-xs text-ink/30">—</span>}
-                  </td>
                   <td className="px-3 py-3 text-right hidden sm:table-cell">
                     {p?.student_count != null ? (
                       <span className="text-sm tabular">{p.student_count}</span>
                     ) : <span className="text-xs text-ink/30">—</span>}
                   </td>
                   <td className="px-3 py-3 text-right">
-                    <StatusCell
-                      sim={sim}
-                      unlocked={!!unlocked}
-                      submitted={!!submitted}
-                      closed={!!closed}
-                      p={p}
-                      isPreview={isPreview}
-                    />
+                    <div className="inline-flex items-center justify-end gap-3">
+                      <ExamDownload url={sim.questions_url} canAccess={hasAccess(sim.subject)} unlocked={!!unlocked} />
+                      <StatusCell
+                        sim={sim}
+                        unlocked={!!unlocked}
+                        submitted={!!submitted}
+                        closed={!!closed}
+                        p={p}
+                        isPreview={isPreview}
+                      />
+                    </div>
                   </td>
                 </tr>
               );
@@ -242,8 +253,27 @@ function StatusCell({ sim, unlocked, submitted, closed, p, isPreview }: {
   if (!unlocked) return <StatusDot color="#94a3b8" label="Κλειδωμένο" />;
   const href = isPreview ? "/account/grading/preview" : `/account/grading/${sim.id}`;
 
-  // Submitted + window still open → can re-grade
-  if (submitted && !closed) {
+  // After the stats window closes, grading stays open but late submissions
+  // won't show up in analytics. Surface that state in the row.
+  if (closed) {
+    return (
+      <div className="inline-flex flex-col items-end gap-0.5">
+        {submitted
+          ? <StatusDot color="#10b981" label="Υποβλήθηκε" />
+          : <Link href={href} className="text-xs font-bold text-ink/65 hover:text-ink">
+              {p ? "Συνέχεια" : "Έναρξη"} →
+            </Link>
+        }
+        <span className="text-[10px] font-bold text-amber-700 inline-flex items-center gap-1">
+          <span className="w-1 h-1 rounded-full bg-amber-500" />
+          Στατιστικά κλειστά
+        </span>
+      </div>
+    );
+  }
+
+  // Submitted within stats window → can still re-grade
+  if (submitted) {
     return (
       <div className="inline-flex flex-col items-end gap-0.5">
         <StatusDot color="#10b981" label="Υποβλήθηκε" />
@@ -253,13 +283,42 @@ function StatusCell({ sim, unlocked, submitted, closed, p, isPreview }: {
       </div>
     );
   }
-  if (submitted) return <StatusDot color="#10b981" label="Υποβλήθηκε" />;
-  if (closed)    return <StatusDot color="#ef4444" label="Έληξε" />;
 
   return (
     <Link href={href} className="inline-flex items-center gap-1.5 text-xs font-bold text-[#056ef5] hover:text-[#0451b8]">
       {p ? "Συνέχεια" : "Έναρξη"} →
     </Link>
+  );
+}
+
+function ExamDownload({ url, canAccess, unlocked }: { url: string | null; canAccess: boolean; unlocked: boolean }) {
+  if (!unlocked || !url) return null;
+  if (!canAccess) {
+    return (
+      <span
+        title="Απαιτείται αγορά του αντίστοιχου πακέτου"
+        className="inline-flex items-center gap-1 text-xs text-ink/35 cursor-not-allowed"
+        aria-label="Locked"
+      >
+        🔒
+      </span>
+    );
+  }
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      title="Κατέβασμα διαγωνίσματος (PDF)"
+      className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#7c00d0] hover:text-white hover:bg-[#7c00d0] border border-[#7c00d0]/40 hover:border-[#7c00d0] px-2.5 py-1.5 rounded-full transition-colors"
+    >
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      PDF
+    </a>
   );
 }
 

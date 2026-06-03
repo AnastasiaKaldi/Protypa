@@ -79,21 +79,23 @@ export default async function GradingDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      {closed && !participation?.is_submitted ? (
-        <div className="rounded-2xl bg-red-50 border border-red-200 p-5">
-          <p className="text-sm text-red-700 font-medium">Η προθεσμία καταχώρησης έχει λήξει για αυτή την Προσομοίωση.</p>
+      {closed && (
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
+          <strong className="font-bold">Σημείωση:</strong> Η προθεσμία στατιστικών για αυτό το διαγώνισμα έχει λήξει.
+          Μπορείτε ακόμα να καταχωρήσετε ή να επεξεργαστείτε βαθμολογίες, αλλά οι νέες καταχωρήσεις
+          <strong className="font-semibold"> δεν θα συμπεριλαμβάνονται στα στατιστικά</strong> των μαθητών σας ή του τμήματος.
         </div>
-      ) : (
-        <GradingSheet
-          simulation={simulation}
-          participation={participation}
-          students={students}
-          existingGrades={existingGrades}
-          tags={tags}
-          schoolSimulationId={participation?.id ?? null}
-          userId={user.id}
-        />
       )}
+
+      <GradingSheet
+        simulation={simulation}
+        participation={participation}
+        students={students}
+        existingGrades={existingGrades}
+        tags={tags}
+        schoolSimulationId={participation?.id ?? null}
+        userId={user.id}
+      />
     </div>
   );
 }

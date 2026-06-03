@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/account";
+  const nextParam = searchParams.get("next");
 
   if (code) {
     const cookieStore = await cookies();
@@ -28,9 +28,17 @@ export async function GET(request: NextRequest) {
       },
     );
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      // If the URL specified a destination, honour it; otherwise route admins
+      // to /admin and everyone else to /account.
+      let destination = nextParam ?? "/account";
+      if (!nextParam && data.user) {
+        const { data: profile } = await supabase
+          .from("profiles").select("is_admin").eq("id", data.user.id).maybeSingle();
+        if (profile?.is_admin) destination = "/admin";
+      }
+      return NextResponse.redirect(`${origin}${destination}`);
     }
   }
 

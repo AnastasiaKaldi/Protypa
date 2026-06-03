@@ -1,3 +1,22 @@
+// Decide if a submitted grade should be included in any statistic aggregate.
+//
+// New rule (May 2026): grading is always open once a sim has unlocked, but
+// the admin sets a `grading_closes_at` deadline that bounds the *statistics
+// window*. Grades submitted on or before the deadline count toward dashboard,
+// student-profile, and school-wide stats. Grades submitted after are still
+// stored (and visible as historical data) but are EXCLUDED from aggregates.
+//
+// If the admin never set a deadline (grading_closes_at IS NULL), every grade
+// counts forever.
+export function gradeCountsForStats(
+  submittedAt: string | null | undefined,
+  gradingClosesAt: string | null | undefined,
+): boolean {
+  if (!gradingClosesAt) return true;
+  if (!submittedAt) return false;
+  return new Date(submittedAt).getTime() <= new Date(gradingClosesAt).getTime();
+}
+
 // ──────────────────────────────────────────────────────────────────────────
 // Question point weighting — fixed for every διαγώνισμα.
 //

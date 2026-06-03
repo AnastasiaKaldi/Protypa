@@ -8,7 +8,7 @@ import { el } from "@/lib/i18n/el";
 function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") ?? "/account";
+  const explicitNext = params.get("next");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(
@@ -24,10 +24,20 @@ function SignInForm() {
         setError(null);
         setLoading(true);
         const supabase = createSupabaseBrowserClient();
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) { setError(error.message); setLoading(false); return; }
+
+        // Route admins to /admin, customers to /account.
+        // If a specific ?next= URL was passed (e.g. deep link), honour it.
+        let destination = explicitNext ?? "/account";
+        if (!explicitNext && user) {
+          const { data: profile } = await supabase
+            .from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+          if (profile?.is_admin) destination = "/admin";
+        }
         setLoading(false);
-        if (error) setError(error.message);
-        else { router.push(next); router.refresh(); }
+        router.push(destination);
+        router.refresh();
       }}
     >
       <AuthField label={el.auth.email} type="email" value={email} onChange={setEmail} />

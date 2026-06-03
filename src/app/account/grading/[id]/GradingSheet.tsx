@@ -140,8 +140,10 @@ export default function GradingSheet({ simulation, participation, students, exis
 
   const activeStudents = students.filter((s) => selectedIds.has(s.id));
 
-  // Re-grade is allowed while the διαγώνισμα is still within its grading window
-  const canEdit = !simulation.grading_closes_at || new Date(simulation.grading_closes_at) > new Date();
+  // Grading is always open — but if the stats deadline has passed, new edits
+  // won't be counted toward analytics. We surface that fact above the table
+  // already; here we just always allow the action.
+  const canEdit = true;
 
   // ── Done state ────────────────────────────────────────────────────────────
   if (step === "done") {

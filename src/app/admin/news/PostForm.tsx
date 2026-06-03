@@ -219,6 +219,7 @@ function AdminField({ label, value, onChange, type = "text", placeholder, help, 
         <input
           type={type} value={value} placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
+          {...(type === "date" || type === "datetime-local" ? { lang: "el-GR" } : {})}
           className="mt-2 w-full bg-transparent border-0 border-b-2 border-white/20 px-0 py-2.5 text-base text-white placeholder:text-white/25 focus:outline-none focus:border-[#056ef5] transition-colors"
         />
       )}

@@ -1,0 +1,111 @@
+<!--
+  Protupa · Confirm Signup
+  Paste into Supabase Dashboard → Authentication → Email Templates → "Confirm signup".
+
+  Recommended subject: Επιβεβαιώστε το email σας · Protupa
+
+  Supabase variables available:
+    {{ .ConfirmationURL }}    full URL the user clicks
+    {{ .Token }} / {{ .TokenHash }}
+    {{ .SiteURL }}            project's Site URL
+    {{ .Email }}              the address being confirmed
+    {{ .Data.full_name }}     custom metadata passed via signUp options.data
+-->
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Επιβεβαίωση email · Protupa</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f5f3ee;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a1a1a;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      Καλωσορίσατε στο Protupa — επιβεβαιώστε το email σας για να ξεκινήσετε.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f3ee;">
+      <tr>
+        <td align="center" style="padding:40px 16px;">
+          <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 8px 24px -12px rgba(124,0,208,0.18);">
+
+            <!-- Brand bar -->
+            <tr>
+              <td style="background:#7c00d0;padding:28px 32px;">
+                <div style="font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.01em;">
+                  Protupa
+                </div>
+                <div style="margin-top:6px;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#c8ff00;">
+                  Δημιουργία λογαριασμού
+                </div>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:40px 32px 24px 32px;">
+                <h1 style="margin:0 0 16px 0;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.25;color:#1a1a1a;font-weight:600;">
+                  Καλωσορίσατε στο Protupa
+                </h1>
+                <p style="margin:0 0 12px 0;font-size:15px;line-height:1.6;color:#1a1a1a;">
+                  Ευχαριστούμε που εγγραφήκατε. Πατήστε το παρακάτω κουμπί για να επιβεβαιώσετε τη διεύθυνση
+                  <strong style="color:#1a1a1a;">{{ .Email }}</strong>
+                  και να ολοκληρώσετε τη δημιουργία του λογαριασμού σας.
+                </p>
+              </td>
+            </tr>
+
+            <!-- CTA -->
+            <tr>
+              <td align="center" style="padding:8px 32px 32px 32px;">
+                <a href="{{ .ConfirmationURL }}"
+                   style="display:inline-block;padding:16px 36px;background:#056ef5;color:#ffffff;text-decoration:none;font-weight:800;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;border-radius:999px;">
+                  Επιβεβαίωση email
+                </a>
+              </td>
+            </tr>
+
+            <!-- Fallback link -->
+            <tr>
+              <td style="padding:0 32px 32px 32px;">
+                <p style="margin:0 0 8px 0;font-size:12px;line-height:1.5;color:#666;">
+                  Αν το κουμπί δεν λειτουργεί, αντιγράψτε και επικολλήστε τον παρακάτω σύνδεσμο στον περιηγητή σας:
+                </p>
+                <p style="margin:0;font-size:12px;line-height:1.4;word-break:break-all;">
+                  <a href="{{ .ConfirmationURL }}" style="color:#056ef5;text-decoration:underline;">{{ .ConfirmationURL }}</a>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Divider -->
+            <tr>
+              <td style="padding:0 32px;">
+                <div style="height:1px;background:#e5e3dc;"></div>
+              </td>
+            </tr>
+
+            <!-- Footer note -->
+            <tr>
+              <td style="padding:20px 32px 32px 32px;">
+                <p style="margin:0;font-size:12px;line-height:1.5;color:#888;">
+                  Αν δεν δημιουργήσατε λογαριασμό στο Protupa, μπορείτε να αγνοήσετε αυτό το μήνυμα.
+                </p>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Outer footer -->
+          <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;margin-top:20px;">
+            <tr>
+              <td align="center" style="padding:8px 16px;">
+                <p style="margin:0;font-size:11px;color:#999;">
+                  © Protupa · <a href="{{ .SiteURL }}" style="color:#999;text-decoration:underline;">protupa.gr</a>
+                </p>
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

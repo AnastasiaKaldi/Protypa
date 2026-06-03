@@ -61,15 +61,22 @@ export default function AdminSimulationsPage() {
     e.preventDefault();
     setSaving(true); setError(null);
     const supabase = createSupabaseBrowserClient();
+
+    // Auto-compute the next available number when creating; preserve when editing.
+    const nextNumber = editId
+      ? parseInt(form.number) || 1
+      : (simulations.reduce((max, s) => Math.max(max, s.number), 0) + 1);
+
     const payload = {
-      number: parseInt(form.number),
+      number: nextNumber,
       title: form.title,
-      subject: form.subject,
+      // Every διαγώνισμα is the full 20 Greek + 20 Math bundle (per the global rule)
+      subject: "bundle",
+      greek_questions: 20,
+      math_questions: 20,
       exam_date: form.exam_date || null,
       unlocks_at: form.unlocks_at ? new Date(form.unlocks_at).toISOString() : null,
       grading_closes_at: form.grading_closes_at ? new Date(form.grading_closes_at).toISOString() : null,
-      greek_questions: parseInt(form.greek_questions),
-      math_questions: parseInt(form.math_questions),
       is_published: form.is_published,
       material_url: form.material_url || null,
       questions_url: form.questions_url || null,
@@ -123,36 +130,23 @@ export default function AdminSimulationsPage() {
             {editId ? "Επεξεργασία Προσομοίωσης" : "Νέα Προσομοίωση"}
           </div>
           <form onSubmit={save} className="space-y-5">
+            <AdminField label="Τίτλος *" placeholder="π.χ. Διαγώνισμα 1 · Νοέμβριος 2025"
+              value={form.title} onChange={(v) => set("title", v)} required />
             <div className="grid md:grid-cols-3 gap-5">
-              <AdminField label="Αριθμός *" type="number" value={form.number} onChange={(v) => set("number", v)} required />
-              <div className="md:col-span-2">
-                <AdminField label="Τίτλος *" placeholder="π.χ. Προσομοίωση 1 · Νοέμβριος 2025"
-                  value={form.title} onChange={(v) => set("title", v)} required />
-              </div>
+              <EUDateField label="Ημ/νία εξέτασης" value={form.exam_date}        onChange={(v) => set("exam_date", v)} />
+              <EUDateField label="Ξεκλείδωμα"      value={form.unlocks_at}        onChange={(v) => set("unlocks_at", v)} withTime />
+              <EUDateField label="Κλείσιμο βαθμολόγησης" value={form.grading_closes_at} onChange={(v) => set("grading_closes_at", v)} withTime />
             </div>
-            <div className="grid md:grid-cols-3 gap-5">
-              <div>
-                <label className="block">
-                  <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">Μάθημα *</span>
-                  <select value={form.subject} onChange={(e) => set("subject", e.target.value)}
-                    className="mt-2 w-full bg-transparent border-0 border-b-2 border-white/20 px-0 py-2.5 text-sm text-white focus:outline-none focus:border-[#056ef5] transition-colors cursor-pointer">
-                    <option value="bundle" className="bg-[#0a0a0f]">Και τα δύο</option>
-                    <option value="greek"  className="bg-[#0a0a0f]">Ν. Γλώσσα</option>
-                    <option value="math"   className="bg-[#0a0a0f]">Μαθηματικά</option>
-                  </select>
-                </label>
-              </div>
-              <AdminField label="Ερωτήσεις Γλώσσας" type="number" value={form.greek_questions} onChange={(v) => set("greek_questions", v)} />
-              <AdminField label="Ερωτήσεις Μαθ/κών" type="number" value={form.math_questions} onChange={(v) => set("math_questions", v)} />
-            </div>
-            <div className="grid md:grid-cols-3 gap-5">
-              <AdminField label="Ημ/νία εξέτασης" type="date" value={form.exam_date} onChange={(v) => set("exam_date", v)} />
-              <AdminField label="Ξεκλείδωμα" type="datetime-local" value={form.unlocks_at} onChange={(v) => set("unlocks_at", v)} />
-              <AdminField label="Κλείσιμο βαθμολόγησης" type="datetime-local" value={form.grading_closes_at} onChange={(v) => set("grading_closes_at", v)} />
-            </div>
-            <div className="grid md:grid-cols-2 gap-5">
-              <AdminField label="URL Ύλης (PDF)" placeholder="https://..." value={form.material_url} onChange={(v) => set("material_url", v)} />
-              <AdminField label="URL Θεμάτων (PDF)" placeholder="https://..." value={form.questions_url} onChange={(v) => set("questions_url", v)} />
+            <div className="pt-2 border-t border-white/10">
+              <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40 mb-4">Αρχείο διαγωνίσματος</div>
+              <PdfUpload
+                label="Θέματα διαγωνίσματος (PDF)"
+                url={form.questions_url}
+                onChange={(v) => set("questions_url", v)}
+              />
+              <p className="text-xs font-medium text-white/75 mt-3">
+                Μεταφορτώστε PDF αρχεία. Θα είναι διαθέσιμα στους χρήστες που έχουν αγοράσει το αντίστοιχο πακέτο.
+              </p>
             </div>
             <label className="flex items-center gap-3 cursor-pointer">
               <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${form.is_published ? "bg-[#c8ff00] border-[#c8ff00]" : "border-white/30"}`}
@@ -226,16 +220,194 @@ export default function AdminSimulationsPage() {
   );
 }
 
+function PdfUpload({ label, url, onChange }: { label: string; url: string; onChange: (v: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleUpload(file: File) {
+    if (file.type !== "application/pdf") {
+      setError("Μόνο PDF αρχεία επιτρέπονται.");
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      setError("Το αρχείο πρέπει να είναι μικρότερο από 50 MB.");
+      return;
+    }
+    setUploading(true); setError(null);
+    const supabase = createSupabaseBrowserClient();
+    const path = `${crypto.randomUUID()}.pdf`;
+    const { error: upErr } = await supabase.storage.from("exam-papers").upload(path, file, {
+      contentType: "application/pdf",
+      upsert: false,
+    });
+    if (upErr) { setError(upErr.message); setUploading(false); return; }
+    const { data: pub } = supabase.storage.from("exam-papers").getPublicUrl(path);
+    onChange(pub.publicUrl);
+    setUploading(false);
+  }
+
+  // Filename slug for display (last segment of the URL)
+  const filename = url ? decodeURIComponent(url.split("/").pop() ?? "") : null;
+
+  return (
+    <div>
+      <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40 mb-2">{label}</div>
+      {url ? (
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-white/15 bg-white/5">
+          <div className="w-9 h-9 rounded bg-red-500/15 text-red-300 grid place-items-center flex-shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-white truncate" title={filename ?? ""}>{filename}</div>
+            <a href={url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#c8ff00] hover:underline">
+              Άνοιγμα PDF →
+            </a>
+          </div>
+          <label className="cursor-pointer text-[10px] font-bold uppercase tracking-wider text-white/60 hover:text-white border border-white/15 hover:border-white/40 px-2.5 py-1.5 rounded transition-colors">
+            <input type="file" accept="application/pdf" className="hidden"
+              onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} />
+            {uploading ? "..." : "Αλλαγή"}
+          </label>
+          <button type="button" onClick={() => onChange("")} title="Αφαίρεση"
+            className="text-[10px] text-white/45 hover:text-red-400 transition-colors cursor-pointer">
+            ✕
+          </button>
+        </div>
+      ) : (
+        <label className="cursor-pointer block">
+          <input type="file" accept="application/pdf" className="hidden"
+            onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])} />
+          <div className="flex items-center justify-center gap-2 px-4 py-5 rounded-lg border-2 border-dashed border-white/20 hover:border-[#056ef5]/60 hover:bg-[#056ef5]/5 transition-colors text-center">
+            <div>
+              <div className="text-xs font-bold text-white/70">
+                {uploading ? "Μεταφόρτωση…" : "Επιλέξτε PDF"}
+              </div>
+              <div className="text-[10px] text-white/35 mt-0.5">ή σύρετε εδώ · έως 50 MB</div>
+            </div>
+          </div>
+        </label>
+      )}
+      {error && <p className="text-[10px] text-red-400 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// European-format date / datetime input. Always displays dd/mm/yyyy[ HH:MM]
+// regardless of browser locale. Stores YYYY-MM-DD or YYYY-MM-DDTHH:MM
+// internally so submission code keeps working.
+// ──────────────────────────────────────────────────────────────────────────
+
+function EUDateField({
+  label, value, onChange, withTime = false,
+}: {
+  label: string;
+  value: string;            // stored format: YYYY-MM-DD or YYYY-MM-DDTHH:MM
+  onChange: (v: string) => void;
+  withTime?: boolean;
+}) {
+  // The visible text input shows dd/mm/yyyy[ HH:MM]; keep its own local state
+  // so partial typing doesn't get reformatted on every keystroke.
+  const [text, setText] = useState(() => isoToEU(value, withTime));
+
+  // If the parent value changes externally (e.g. startEdit), resync.
+  useEffect(() => {
+    setText(isoToEU(value, withTime));
+  }, [value, withTime]);
+
+  function commit(raw: string) {
+    setText(raw);
+    const iso = euToIso(raw, withTime);
+    onChange(iso ?? "");
+  }
+
+  return (
+    <label className="block">
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">{label}</span>
+      <div className="relative mt-2">
+        <input
+          type="text"
+          inputMode="numeric"
+          value={text}
+          placeholder={withTime ? "ηη/μμ/εεεε ΩΩ:ΛΛ" : "ηη/μμ/εεεε"}
+          onChange={(e) => commit(e.target.value)}
+          className="w-full bg-transparent border-0 border-b-2 border-white/20 px-0 py-2.5 pr-9 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#056ef5] transition-colors tabular-nums"
+        />
+        {/* Hidden native picker — clicking the calendar icon opens it */}
+        <input
+          type={withTime ? "datetime-local" : "date"}
+          value={value}
+          onChange={(e) => commit(isoToEU(e.target.value, withTime))}
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-7 opacity-0 cursor-pointer"
+          aria-hidden="true"
+          tabIndex={-1}
+        />
+        <svg
+          className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-white/40"
+          width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        >
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+      </div>
+    </label>
+  );
+}
+
+// ISO 8601 (date or datetime-local) → "dd/mm/yyyy" or "dd/mm/yyyy HH:MM"
+function isoToEU(iso: string, withTime: boolean): string {
+  if (!iso) return "";
+  const [date, time] = iso.split("T");
+  if (!date) return "";
+  const parts = date.split("-");
+  if (parts.length !== 3) return "";
+  const [y, m, d] = parts;
+  let out = `${d}/${m}/${y}`;
+  if (withTime && time) out += ` ${time.slice(0, 5)}`;
+  return out;
+}
+
+// "dd/mm/yyyy" or "dd/mm/yyyy HH:MM" → ISO. Returns null if input is invalid /
+// partial — the caller can decide to keep typing or clear the stored value.
+function euToIso(text: string, withTime: boolean): string | null {
+  if (!text.trim()) return "";
+  const re = withTime
+    ? /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[\s,]+(\d{1,2}):(\d{2}))?$/
+    : /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+  const m = text.match(re);
+  if (!m) return null;
+  const [, d, mo, y, h, mn] = m;
+  const dd = d.padStart(2, "0");
+  const mm = mo.padStart(2, "0");
+  // Basic sanity check
+  const day = +dd, mon = +mm;
+  if (mon < 1 || mon > 12 || day < 1 || day > 31) return null;
+  if (!withTime) return `${y}-${mm}-${dd}`;
+  if (!h || !mn) return `${y}-${mm}-${dd}T00:00`;
+  const hh = h.padStart(2, "0");
+  if (+hh > 23 || +mn > 59) return null;
+  return `${y}-${mm}-${dd}T${hh}:${mn}`;
+}
+
 function AdminField({ label, value, onChange, type = "text", placeholder, required = false }: {
   label: string; value: string; onChange: (v: string) => void;
   type?: string; placeholder?: string; required?: boolean;
 }) {
+  // Force European dd/mm/yyyy formatting on date / datetime-local inputs
+  // regardless of the user's browser locale.
+  const isDate = type === "date" || type === "datetime-local";
   return (
     <label className="block">
       <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">{label}</span>
       <input
         required={required} type={type} value={value} placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
+        {...(isDate ? { lang: "el-GR" } : {})}
         className="mt-2 w-full bg-transparent border-0 border-b-2 border-white/20 px-0 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#056ef5] transition-colors"
       />
     </label>

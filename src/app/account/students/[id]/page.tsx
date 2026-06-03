@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Student, StudentSimulationGrade, Simulation, SimulationQuestionTag } from "@/lib/types";
-import { computeScore } from "@/lib/scoring";
+import { computeScore, gradeCountsForStats } from "@/lib/scoring";
 import PrintButton from "./PrintButton";
 
 type PeerGrade = { student_id: string; simulation_id: string; score: number; school_simulation_id: string; wrong_questions?: number[] | null };
@@ -207,18 +207,26 @@ export default async function StudentProfilePage({
     return computeScore(wrongQs, sim.greek_questions + 1, sim.greek_questions + sim.math_questions);
   }
 
-  // Project grades through the subject filter (recompute score + filter wrong_questions)
+  // Project grades through the subject filter (recompute score + filter wrong_questions).
+  // Each row gets an `_inStats` flag — true if the grade was submitted on/before
+  // the stats deadline (or the sim has no deadline at all). Late grades stay
+  // visible in the exam-history list but are excluded from every aggregate.
   const sGrades = grades.map((g) => ({
     ...g,
     score: subjectScore(g.wrong_questions ?? [], g.simulations, subject),
     wrong_questions: (g.wrong_questions ?? []).filter((q) => inSubject(q, g.simulations, subject)),
+    _inStats: gradeCountsForStats(g.submitted_at, g.simulations?.grading_closes_at),
   }));
 
-  // Category aggregation — only count questions in the active subject
+  const eligibleGrades = sGrades.filter((g) => g._inStats);
+
+  // Category aggregation — only count questions in the active subject AND
+  // only from on-time submissions.
   const categoryStats: Record<string, { wrong: number; total: number; subject: "greek" | "math" }> = {};
   for (const grade of grades) {
     const sim = grade.simulations;
     if (!sim) continue;
+    if (!gradeCountsForStats(grade.submitted_at, sim.grading_closes_at)) continue;
     const total = sim.greek_questions + sim.math_questions;
     const simTagMap = tagMap.get(grade.simulation_id);
     for (let q = 1; q <= total; q++) {
@@ -231,21 +239,22 @@ export default async function StudentProfilePage({
     }
   }
 
-  const avgScore = sGrades.length ? Math.round(sGrades.reduce((s, g) => s + g.score, 0) / sGrades.length) : null;
-  const bestScore = sGrades.length ? Math.max(...sGrades.map((g) => g.score)) : null;
-  const worstScore = sGrades.length ? Math.min(...sGrades.map((g) => g.score)) : null;
-  const totalQuestions = sGrades.reduce((s, g) => {
+  const avgScore = eligibleGrades.length ? Math.round(eligibleGrades.reduce((s, g) => s + g.score, 0) / eligibleGrades.length) : null;
+  const bestScore = eligibleGrades.length ? Math.max(...eligibleGrades.map((g) => g.score)) : null;
+  const worstScore = eligibleGrades.length ? Math.min(...eligibleGrades.map((g) => g.score)) : null;
+  const totalQuestions = eligibleGrades.reduce((s, g) => {
     const sim = g.simulations;
     if (!sim) return s;
     return s + (subject === "all" ? sim.greek_questions + sim.math_questions : subject === "greek" ? sim.greek_questions : sim.math_questions);
   }, 0);
-  const totalWrong = sGrades.reduce((s, g) => s + g.wrong_questions.length, 0);
+  const totalWrong = eligibleGrades.reduce((s, g) => s + g.wrong_questions.length, 0);
 
-  const trend = sGrades.length > 1 ? sGrades[sGrades.length - 1].score - sGrades[0].score : 0;
+  const trend = eligibleGrades.length > 1 ? eligibleGrades[eligibleGrades.length - 1].score - eligibleGrades[0].score : 0;
 
   // Class avg per sim — recomputed for the current subject from peer wrong_questions
+  // (only over eligible grades)
   const classAvgs = new Map<string, number>();
-  for (const grade of sGrades) {
+  for (const grade of eligibleGrades) {
     const peers = allGrades.filter((p) => p.school_simulation_id === grade.school_simulation_id);
     if (!peers.length) continue;
     const peerScores = peers.map((p) =>
@@ -255,7 +264,7 @@ export default async function StudentProfilePage({
     );
     classAvgs.set(grade.school_simulation_id, peerScores.reduce((a, b) => a + b, 0) / peerScores.length);
   }
-  const studentAvgVsClass = sGrades.length && classAvgs.size
+  const studentAvgVsClass = eligibleGrades.length && classAvgs.size
     ? Math.round(avgScore! - (Array.from(classAvgs.values()).reduce((a, b) => a + b, 0) / classAvgs.size))
     : 0;
 
@@ -317,10 +326,16 @@ export default async function StudentProfilePage({
 
       {/* KPI strip — dividers */}
       <div className="border-y border-ink/10 divide-x divide-ink/10 grid grid-cols-2 md:grid-cols-4">
-        <ProfileKPI label="Μέσος βαθμός" value={avgScore} trend={trend} trendLabel={sGrades.length > 1 ? "από την αρχή" : null} />
+        <ProfileKPI label="Μέσος βαθμός" value={avgScore} trend={trend} trendLabel={eligibleGrades.length > 1 ? "από την αρχή" : null} />
         <ProfileKPI label="Καλύτερος"     value={bestScore} />
         <ProfileKPI label="Χειρότερος"    value={worstScore} />
-        <ProfileKPI label="Διαγωνίσματα"  value={sGrades.length} sub={totalWrong > 0 ? `${totalWrong}/${totalQuestions} λάθος` : null} />
+        <ProfileKPI
+          label="Διαγωνίσματα"
+          value={sGrades.length}
+          sub={sGrades.length !== eligibleGrades.length
+            ? `${eligibleGrades.length} στα στατιστικά`
+            : totalWrong > 0 ? `${totalWrong}/${totalQuestions} λάθος` : null}
+        />
       </div>
 
       {sGrades.length === 0 ? (
@@ -334,7 +349,7 @@ export default async function StudentProfilePage({
         <>
           {/* Performance + Donut */}
           <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
-            <ProgressChart grades={sGrades} classAvgs={classAvgs} />
+            <ProgressChart grades={eligibleGrades} classAvgs={classAvgs} />
             <CategoryDonut categories={categoryList} />
           </div>
 
@@ -406,10 +421,17 @@ export default async function StudentProfilePage({
                 })();
 
                 return (
-                  <div key={grade.id} className="border border-ink/10 rounded-md p-4 hover:border-ink/25 transition-colors bg-white">
+                  <div key={grade.id} className={`border rounded-md p-4 transition-colors bg-white ${grade._inStats ? "border-ink/10 hover:border-ink/25" : "border-amber-300/50 bg-amber-50/30"}`}>
                     <div className="flex items-start justify-between gap-4 flex-wrap">
                       <div>
-                        <div className="text-xs text-ink/45">Διαγώνισμα {sim.number}</div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="text-xs text-ink/45">Διαγώνισμα {sim.number}</div>
+                          {!grade._inStats && (
+                            <span className="text-[9px] font-black uppercase tracking-wider text-amber-800 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded">
+                              Εκτός στατιστικών
+                            </span>
+                          )}
+                        </div>
                         <div className="text-base text-ink mt-0.5">{sim.title}</div>
                         <div className="text-[11px] text-ink/45 mt-0.5">
                           {new Date(grade.submitted_at).toLocaleDateString("el-GR", { day: "2-digit", month: "long", year: "numeric" })}

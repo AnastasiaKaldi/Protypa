@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_admin, full_name")
+    .select("is_admin")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -36,11 +36,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <AdminNavLink href="/admin/chatbot" label="Chatbot" />
             </nav>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-white/40 hidden sm:block">{profile.full_name ?? user.email}</span>
-            <Link href="/account" className="text-xs text-white/40 hover:text-white/70 transition-colors">
-              → Λογαριασμός
-            </Link>
+          <div className="flex items-center">
             <SignOutButton className="text-xs text-white/40 hover:text-white/70 transition-colors px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/30" />
           </div>
         </div>
@@ -57,7 +53,7 @@ function AdminNavLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="px-3 py-1.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/10 transition-all font-medium"
+      className="px-3 py-1.5 rounded-lg text-sm text-white/90 hover:text-white hover:bg-white/10 transition-all font-semibold"
     >
       {label}
     </Link>

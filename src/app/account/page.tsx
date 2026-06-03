@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getActivePackages } from "@/lib/entitlements";
+import { gradeCountsForStats } from "@/lib/scoring";
 import { formatDate } from "@/lib/format";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -57,7 +58,12 @@ export default async function AccountDashboard({
     (participations ?? []).filter((p) => p.is_submitted).map((p) => p.simulation_id)
   );
 
-  const avgScore = gradesList.length ? Math.round(gradesList.reduce((a, g) => a + (g.score ?? 0), 0) / gradesList.length) : 0;
+  // Build a quick lookup of stats-deadline per sim id so we can filter grades
+  const simDeadlines = new Map(simsList.map((s) => [s.id, s.grading_closes_at as string | null]));
+  // Only on-time grades count for aggregates / KPIs / line chart
+  const eligibleGrades = gradesList.filter((g) => gradeCountsForStats(g.submitted_at, simDeadlines.get(g.simulation_id)));
+
+  const avgScore = eligibleGrades.length ? Math.round(eligibleGrades.reduce((a, g) => a + (g.score ?? 0), 0) / eligibleGrades.length) : 0;
   const availableSims = simsList.filter((s) => s.unlocks_at && s.unlocks_at <= now);
 
   // "Next διαγώνισμα" = next unlocked, not-closed sim that the school hasn't
@@ -92,7 +98,7 @@ export default async function AccountDashboard({
 
   const kpis: Kpi[] = [
     { label: "Μαθητές",      value: studentList.length, sub: studentList.length === 1 ? "καταχωρημένος" : "καταχωρημένοι" },
-    { label: "Μέσος βαθμός", value: avgScore || "—",    sub: gradesList.length ? `${gradesList.length} βαθμολογήσεις` : "καμία ακόμα" },
+    { label: "Μέσος βαθμός", value: avgScore || "—",    sub: eligibleGrades.length ? `${eligibleGrades.length} βαθμολογήσεις στα στατιστικά` : "καμία ακόμα" },
     { label: "Διαγωνίσματα", value: simsList.length,    sub: `${availableSims.length} διαθέσιμα` },
     { label: "Πακέτα",       value: active.length,      sub: active.length ? "ενεργά" : "κανένα" },
   ];
@@ -102,7 +108,7 @@ export default async function AccountDashboard({
     : null;
 
   const bySim = new Map<string, number[]>();
-  for (const g of gradesList) {
+  for (const g of eligibleGrades) {
     if (!bySim.has(g.simulation_id)) bySim.set(g.simulation_id, []);
     bySim.get(g.simulation_id)!.push(g.score ?? 0);
   }
@@ -115,7 +121,7 @@ export default async function AccountDashboard({
     });
 
   const studentAvgs = new Map<string, { sum: number; n: number }>();
-  for (const g of gradesList) {
+  for (const g of eligibleGrades) {
     const cur = studentAvgs.get(g.student_id) ?? { sum: 0, n: 0 };
     cur.sum += g.score ?? 0; cur.n += 1;
     studentAvgs.set(g.student_id, cur);
@@ -298,7 +304,7 @@ function UrgentGradeReminder({ reminder }: { reminder: { title: string; href: st
           </div>
           <div className="text-sm font-bold mt-0.5 truncate">{reminder.title}</div>
           <div className="text-xs text-white/85 mt-0.5">
-            Απομένουν <span className="font-bold tabular">{timeLeft}</span> πριν κλειδώσει
+            Απομένουν <span className="font-bold tabular">{timeLeft}</span> για τα στατιστικά
           </div>
         </div>
       </div>
