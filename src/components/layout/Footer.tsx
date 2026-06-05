@@ -14,7 +14,7 @@ export function Footer() {
             </Link>
             <p className="mt-4 text-sm text-paper max-w-sm leading-relaxed">
               {el.brand.tagline}. Πραγματικά θέματα, έξυπνη διόρθωση και
-              αναλυτικά στατιστικά για κάθε μαθητή.
+              αναλυτικά στατιστικά για κάθε μαθητή
             </p>
           </div>
 
