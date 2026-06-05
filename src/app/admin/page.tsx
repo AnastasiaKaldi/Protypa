@@ -29,7 +29,7 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/30 mb-2">Πίνακας Ελέγχου</div>
+        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/80 mb-2">Πίνακας Ελέγχου</div>
         <h1 className="font-display text-3xl text-white">Καλώς ήρθατε, Admin</h1>
       </div>
 
@@ -38,7 +38,7 @@ export default async function AdminDashboard() {
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl border border-white/10 bg-white/5 p-6">
             <div className="font-display text-4xl mb-1" style={{ color: s.color }}>{s.value}</div>
-            <div className="text-xs text-white/50 leading-snug">{s.label}</div>
+            <div className="text-xs text-white leading-snug">{s.label}</div>
           </div>
         ))}
       </div>
@@ -60,19 +60,19 @@ export default async function AdminDashboard() {
           cta="Διαχείριση προσομοιώσεων"
         />
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/30 mb-3">Σύντομα</div>
+          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/80 mb-3">Σύντομα</div>
           <h3 className="font-display text-xl text-white mb-2">Στατιστικά</h3>
-          <p className="text-sm text-white/50 leading-relaxed">
+          <p className="text-sm text-white leading-relaxed">
             Πανελλαδική εικόνα αποτελεσμάτων και συγκριτικές αναλύσεις ανά Προσομοίωση.
           </p>
-          <span className="inline-block mt-4 text-xs text-white/20 border border-white/10 px-3 py-1 rounded-full">Σύντομα διαθέσιμο</span>
+          <span className="inline-block mt-4 text-xs text-white/80 border border-white/20 px-3 py-1 rounded-full">Σύντομα διαθέσιμο</span>
         </div>
       </div>
 
       {/* Recent sign-ups */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/30">Τελευταίες εγγραφές</div>
+          <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/80">Τελευταίες εγγραφές</div>
           <Link href="/admin/schools" className="text-xs text-[#056ef5] hover:text-[#c8ff00] transition-colors font-bold">
             Όλα →
           </Link>
@@ -82,21 +82,21 @@ export default async function AdminDashboard() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10 bg-white/5">
-                  <th className="text-left px-5 py-3 text-[10px] font-bold tracking-wider uppercase text-white/30">Φροντιστήριο</th>
-                  <th className="text-left px-5 py-3 text-[10px] font-bold tracking-wider uppercase text-white/30 hidden sm:table-cell">Πόλη</th>
-                  <th className="text-left px-5 py-3 text-[10px] font-bold tracking-wider uppercase text-white/30">Εγγραφή</th>
+                  <th className="text-left px-5 py-3 text-[10px] font-bold tracking-wider uppercase text-white/80">Φροντιστήριο</th>
+                  <th className="text-left px-5 py-3 text-[10px] font-bold tracking-wider uppercase text-white/80 hidden sm:table-cell">Πόλη</th>
+                  <th className="text-left px-5 py-3 text-[10px] font-bold tracking-wider uppercase text-white/80">Εγγραφή</th>
                 </tr>
               </thead>
               <tbody>
                 {recentSchools.map((s, i) => (
                   <tr key={s.id} className={i % 2 === 0 ? "bg-white/[0.02]" : ""}>
                     <td className="px-5 py-4">
-                      <Link href={`/admin/schools/${s.id}`} className="text-white hover:text-[#056ef5] transition-colors font-medium">
+                      <Link href={`/admin/schools/${s.id}`} className="!text-white hover:!text-[#056ef5] transition-colors font-medium">
                         {s.trade_name ?? s.legal_name ?? "—"}
                       </Link>
                     </td>
-                    <td className="px-5 py-4 text-white/50 hidden sm:table-cell">{s.city ?? "—"}</td>
-                    <td className="px-5 py-4 text-white/40 text-xs">
+                    <td className="px-5 py-4 text-white hidden sm:table-cell">{s.city ?? "—"}</td>
+                    <td className="px-5 py-4 text-white text-xs">
                       {new Date(s.created_at).toLocaleDateString("el-GR")}
                     </td>
                   </tr>
@@ -104,7 +104,7 @@ export default async function AdminDashboard() {
               </tbody>
             </table>
           ) : (
-            <p className="px-5 py-8 text-sm text-white/30 text-center">Δεν υπάρχουν εγγεγραμμένα φροντιστήρια ακόμα.</p>
+            <p className="px-5 py-8 text-sm text-white/70 text-center">Δεν υπάρχουν εγγεγραμμένα φροντιστήρια ακόμα.</p>
           )}
         </div>
       </div>
@@ -121,7 +121,7 @@ function QuickCard({ href, title, desc, color, cta }: {
         Διαχείριση
       </div>
       <h3 className="font-display text-xl text-white mb-2">{title}</h3>
-      <p className="text-sm text-white/50 leading-relaxed mb-5">{desc}</p>
+      <p className="text-sm text-white leading-relaxed mb-5">{desc}</p>
       <span className="text-xs font-black uppercase tracking-wider transition-colors" style={{ color }}>
         {cta} →
       </span>

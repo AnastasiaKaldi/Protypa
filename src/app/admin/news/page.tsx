@@ -21,7 +21,7 @@ export default async function AdminNewsPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/30 mb-2">Admin</div>
+          <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/80 mb-2">Admin</div>
           <h1 className="font-display text-3xl text-white">Νέα &amp; Ανακοινώσεις</h1>
           <p className="mt-1 text-sm text-white/55">{posts.length} {posts.length === 1 ? "άρθρο" : "άρθρα"}</p>
         </div>
@@ -35,7 +35,7 @@ export default async function AdminNewsPage() {
 
       {posts.length === 0 ? (
         <div className="rounded-2xl border border-white/10 p-12 text-center">
-          <p className="text-white/40 text-sm">Δεν υπάρχουν άρθρα ακόμα.</p>
+          <p className="text-white text-sm">Δεν υπάρχουν άρθρα ακόμα.</p>
           <Link href="/admin/news/new" className="inline-block mt-3 text-xs font-bold text-[#c8ff00] hover:text-white transition-colors">
             Δημιουργία πρώτου άρθρου →
           </Link>
@@ -62,7 +62,7 @@ export default async function AdminNewsPage() {
                   <tr key={p.id} className="hover:bg-white/3 transition-colors">
                     <td className="px-4 py-3">
                       <div className="text-sm text-white">{p.title}</div>
-                      <div className="text-[10px] text-white/40 mt-0.5">/{p.slug}</div>
+                      <div className="text-[10px] text-white mt-0.5">/{p.slug}</div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
                       <span className="text-xs text-white/55">{p.tag ?? "—"}</span>
@@ -73,7 +73,7 @@ export default async function AdminNewsPage() {
                           {new Date(p.publish_at).toLocaleDateString("el-GR", { day: "2-digit", month: "short", year: "numeric" })}
                         </span>
                       ) : (
-                        <span className="text-xs text-white/30">—</span>
+                        <span className="text-xs text-white/80">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3">

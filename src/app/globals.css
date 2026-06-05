@@ -124,6 +124,12 @@ h1, h2, h3, h4, p, span, li, td, th {
   30%           { opacity: 1;   transform: translateY(-2px); }
 }
 
+/* Admin mobile drawer slide-in */
+@keyframes admin-drawer-in {
+  0%   { transform: translateX(-100%); opacity: 0; }
+  100% { transform: translateX(0);     opacity: 1; }
+}
+
 /* Print rules — clean per-student PDF output */
 @media print {
   /* Hide everything except the print area */

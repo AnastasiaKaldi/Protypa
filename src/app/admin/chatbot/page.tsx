@@ -36,7 +36,7 @@ export default async function ChatbotMissesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/30 mb-2">Admin</div>
+        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/80 mb-2">Admin</div>
         <h1 className="font-display text-3xl text-white">Chatbot Misses</h1>
         <p className="mt-1 text-sm text-white/55">
           Ερωτήσεις στις οποίες ο βοηθός δεν μπόρεσε να απαντήσει. Χρησιμοποιήστε τες για να
@@ -63,8 +63,8 @@ export default async function ChatbotMissesPage() {
 
       {misses.length === 0 ? (
         <div className="rounded-2xl border border-white/10 p-12 text-center">
-          <p className="text-white/40 text-sm">Καμία αποτυχημένη ερώτηση καταγεγραμμένη.</p>
-          <p className="text-white/30 text-xs mt-2">Όλες οι ερωτήσεις βρίσκουν απάντηση 🎉</p>
+          <p className="text-white text-sm">Καμία αποτυχημένη ερώτηση καταγεγραμμένη.</p>
+          <p className="text-white/80 text-xs mt-2">Όλες οι ερωτήσεις βρίσκουν απάντηση 🎉</p>
         </div>
       ) : (
         <div className="rounded-2xl border border-white/10 overflow-hidden">
@@ -90,7 +90,7 @@ export default async function ChatbotMissesPage() {
                     {m.user_id ? (
                       <span className="text-white/55 tabular">{m.user_id.slice(0, 8)}…</span>
                     ) : (
-                      <span className="text-white/30">ανώνυμος</span>
+                      <span className="text-white/80">ανώνυμος</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-xs text-white/45 text-right whitespace-nowrap">

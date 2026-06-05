@@ -3,6 +3,7 @@ import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { Chrome } from "@/components/layout/Chrome";
 import Chatbot from "@/components/Chatbot";
 import { el } from "@/lib/i18n/el";
 
@@ -29,9 +30,9 @@ export default function RootLayout({
       className={`${notoSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <Header />
+        <Chrome><Header /></Chrome>
         <main className="flex-1">{children}</main>
-        <Footer />
+        <Chrome><Footer /></Chrome>
         <Chatbot />
       </body>
     </html>

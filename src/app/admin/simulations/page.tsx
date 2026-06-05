@@ -112,7 +112,7 @@ export default function AdminSimulationsPage() {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/30 mb-2">Admin</div>
+          <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/80 mb-2">Admin</div>
           <h1 className="font-display text-3xl text-white">Προσομοιώσεις</h1>
         </div>
         <button
@@ -138,7 +138,7 @@ export default function AdminSimulationsPage() {
               <EUDateField label="Κλείσιμο βαθμολόγησης" value={form.grading_closes_at} onChange={(v) => set("grading_closes_at", v)} withTime />
             </div>
             <div className="pt-2 border-t border-white/10">
-              <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40 mb-4">Αρχείο διαγωνίσματος</div>
+              <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white mb-4">Αρχείο διαγωνίσματος</div>
               <PdfUpload
                 label="Θέματα διαγωνίσματος (PDF)"
                 url={form.questions_url}
@@ -158,7 +158,7 @@ export default function AdminSimulationsPage() {
             {error && <p className="text-sm text-red-400">{error}</p>}
             <div className="flex gap-3">
               <button type="button" onClick={() => { setShowForm(false); setEditId(null); }}
-                className="px-5 py-2 rounded-full border border-white/20 text-white/50 text-sm font-bold hover:border-white/40 transition-colors cursor-pointer">
+                className="px-5 py-2 rounded-full border border-white/20 text-white text-sm font-bold hover:border-white/40 transition-colors cursor-pointer">
                 Ακύρωση
               </button>
               <button type="submit" disabled={saving}
@@ -172,10 +172,10 @@ export default function AdminSimulationsPage() {
 
       {/* Simulations list */}
       {loading ? (
-        <div className="text-center py-12 text-white/30">Φόρτωση…</div>
+        <div className="text-center py-12 text-white/80">Φόρτωση…</div>
       ) : simulations.length === 0 ? (
         <div className="rounded-2xl border border-white/10 p-12 text-center">
-          <p className="text-white/30 text-sm">Δεν υπάρχουν Προσομοιώσεις ακόμα. Δημιουργήστε την πρώτη.</p>
+          <p className="text-white/80 text-sm">Δεν υπάρχουν Προσομοιώσεις ακόμα. Δημιουργήστε την πρώτη.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -186,7 +186,7 @@ export default function AdminSimulationsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-white">{sim.title}</div>
-                <div className="text-xs text-white/40 mt-0.5 flex flex-wrap gap-3">
+                <div className="text-xs text-white mt-0.5 flex flex-wrap gap-3">
                   <span>{subjectLabel(sim.subject)}</span>
                   {sim.exam_date && <span>Εξέταση: {new Date(sim.exam_date).toLocaleDateString("el-GR")}</span>}
                   {sim.unlocks_at && <span>Ξεκλ.: {new Date(sim.unlocks_at).toLocaleDateString("el-GR")}</span>}
@@ -198,7 +198,7 @@ export default function AdminSimulationsPage() {
                   className={`text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
                     sim.is_published
                       ? "border-green-500/30 bg-green-500/10 text-green-400 hover:bg-green-500/20"
-                      : "border-white/20 text-white/40 hover:border-white/40"
+                      : "border-white/20 text-white hover:border-white/40"
                   }`}>
                   {sim.is_published ? "✓ Δημοσιευμένο" : "Μη δημοσ."}
                 </button>
@@ -251,7 +251,7 @@ function PdfUpload({ label, url, onChange }: { label: string; url: string; onCha
 
   return (
     <div>
-      <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40 mb-2">{label}</div>
+      <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white mb-2">{label}</div>
       {url ? (
         <div className="flex items-center gap-3 p-3 rounded-lg border border-white/15 bg-white/5">
           <div className="w-9 h-9 rounded bg-red-500/15 text-red-300 grid place-items-center flex-shrink-0">
@@ -326,7 +326,7 @@ function EUDateField({
 
   return (
     <label className="block">
-      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">{label}</span>
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white">{label}</span>
       <div className="relative mt-2">
         <input
           type="text"
@@ -334,7 +334,7 @@ function EUDateField({
           value={text}
           placeholder={withTime ? "ηη/μμ/εεεε ΩΩ:ΛΛ" : "ηη/μμ/εεεε"}
           onChange={(e) => commit(e.target.value)}
-          className="w-full bg-transparent border-0 border-b-2 border-white/20 px-0 py-2.5 pr-9 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#056ef5] transition-colors tabular-nums"
+          className="w-full bg-transparent border-0 border-b-2 border-white/20 px-0 py-2.5 pr-9 text-sm text-white placeholder:text-white/80 focus:outline-none focus:border-[#056ef5] transition-colors tabular-nums"
         />
         {/* Hidden native picker — clicking the calendar icon opens it */}
         <input
@@ -346,7 +346,7 @@ function EUDateField({
           tabIndex={-1}
         />
         <svg
-          className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-white/40"
+          className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-white"
           width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
         >
           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -403,12 +403,12 @@ function AdminField({ label, value, onChange, type = "text", placeholder, requir
   const isDate = type === "date" || type === "datetime-local";
   return (
     <label className="block">
-      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">{label}</span>
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white">{label}</span>
       <input
         required={required} type={type} value={value} placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         {...(isDate ? { lang: "el-GR" } : {})}
-        className="mt-2 w-full bg-transparent border-0 border-b-2 border-white/20 px-0 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-[#056ef5] transition-colors"
+        className="mt-2 w-full bg-transparent border-0 border-b-2 border-white/20 px-0 py-2.5 text-sm text-white placeholder:text-white/80 focus:outline-none focus:border-[#056ef5] transition-colors"
       />
     </label>
   );

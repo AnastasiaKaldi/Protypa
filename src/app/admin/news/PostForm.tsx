@@ -99,7 +99,7 @@ export default function PostForm({ initial, postId }: Props) {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <Link href="/admin/news" className="text-xs text-white/40 hover:text-white/70 transition-colors">
+        <Link href="/admin/news" className="text-xs text-white hover:text-white/70 transition-colors">
           ← Όλα τα άρθρα
         </Link>
         <h1 className="font-display text-3xl text-white mt-2">
@@ -121,7 +121,7 @@ export default function PostForm({ initial, postId }: Props) {
         {/* Tag */}
         <div>
           <label className="block">
-            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">Κατηγορία</span>
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white">Κατηγορία</span>
             <select
               value={tag}
               onChange={(e) => setTag(e.target.value as (typeof TAGS)[number])}
@@ -134,13 +134,13 @@ export default function PostForm({ initial, postId }: Props) {
 
         {/* Cover image upload */}
         <div>
-          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">Εικόνα εξωφύλλου</span>
+          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white">Εικόνα εξωφύλλου</span>
           <div className="mt-2 flex items-center gap-3">
             {coverImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={coverImageUrl} alt="" className="w-32 h-20 object-cover rounded-lg border border-white/15" />
             ) : (
-              <div className="w-32 h-20 rounded-lg border-2 border-dashed border-white/15 grid place-items-center text-white/30 text-xs">
+              <div className="w-32 h-20 rounded-lg border-2 border-dashed border-white/15 grid place-items-center text-white/80 text-xs">
                 Καμία
               </div>
             )}
@@ -208,7 +208,7 @@ function AdminField({ label, value, onChange, type = "text", placeholder, help, 
 }) {
   return (
     <label className="block">
-      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">{label}</span>
+      <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white">{label}</span>
       {multiline ? (
         <textarea
           value={value} placeholder={placeholder} rows={rows}
