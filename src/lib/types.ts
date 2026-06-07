@@ -21,17 +21,25 @@ export interface PackageFeature {
   included: boolean;
 }
 
+export type PackageType = "parent" | "school" | "legacy";
+export type BillingInterval = "month" | "year" | "one_time";
+export type AccountType = "school" | "parent";
+
 export interface Package {
   id: string;
   slug: string;
   name_el: string;
   description_el: string | null;
-  subject: Subject;
+  subject: Subject | null;        // null for parent/school v2 packages
+  package_type: PackageType;
+  min_students: number | null;    // null for legacy
+  max_students: number | null;
   price_cents: number;
   original_price_cents: number | null;
   duration_days: number;
+  billing_interval: BillingInterval;
   features: PackageFeature[];
-  stripe_price_id: string;
+  stripe_price_id: string | null; // null until Stripe products are created
 }
 
 export interface ExamPaper {

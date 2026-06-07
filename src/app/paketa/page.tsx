@@ -2,29 +2,34 @@ import Link from "next/link";
 import { el } from "@/lib/i18n/el";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Package } from "@/lib/types";
-import { formatEuro } from "@/lib/format";
 import { PlansClient } from "./PlansClient";
-import { PACKAGES } from "./packages-data";
 
 
 export const revalidate = 3600; // cache page for 1 hour — package prices rarely change
 
 export default async function PackagesPage() {
   const supabase = await createSupabaseServerClient();
-  const [packages, user] = await Promise.all([
+  const [rawPackages, user] = await Promise.all([
     supabase
-      ? supabase.from("packages").select("*").order("price_cents", { ascending: true }).then((r) => r.data)
+      ? supabase
+          .from("packages")
+          .select("*")
+          .in("package_type", ["parent", "school"])
+          .order("price_cents", { ascending: true })
+          .then((r) => r.data)
       : Promise.resolve(null),
     supabase
       ? supabase.auth.getUser().then((r) => r.data.user)
       : Promise.resolve(null),
   ]);
 
+  const packages = (rawPackages as Package[]) ?? [];
+
   return (
     <div>
       <Hero />
-      <PlansClient packages={(packages as Package[]) ?? []} signedIn={!!user} />
-      <Compare packages={(packages as Package[]) ?? []} />
+      <PlansClient packages={packages} signedIn={!!user} />
+      <Compare packages={packages} />
       <Guarantee />
       <Faqs />
     </div>
@@ -52,9 +57,6 @@ function Hero() {
           <br />
           <span className="text-paper">{el.packages.titleC} {el.packages.titleD}</span>
         </h1>
-        <p className="mt-8 max-w-xl text-base md:text-lg text-paper leading-relaxed">
-          {el.packages.subtitle}
-        </p>
       </div>
     </section>
   );
@@ -63,21 +65,37 @@ function Hero() {
 
 /* ─── COMPARE ──────────────────────────────────────────────────────────── */
 
+// 2-column comparison: Parent vs Φροντιστήριο.
+// The school column merges all 4 school tiers since they have identical
+// feature sets — only the student limit changes.
 function Compare({ packages }: { packages: Package[] }) {
-  const pkgBySlug = Object.fromEntries(packages.map((p) => [p.slug, p]));
+  const parentPkg = packages.find((p) => p.package_type === "parent");
+  // Use the highest school tier as the representative — shows "Έως 25 μαθητές"
+  // instead of "Έως 10 μαθητές", which reflects the ceiling of what schools can buy.
+  const schoolPkg = packages
+    .filter((p) => p.package_type === "school")
+    .sort((a, b) => (b.max_students ?? 0) - (a.max_students ?? 0))[0];
 
-  // All unique features across all packages, in order
+  // Union of all feature labels across the two columns, preserving order.
   const seen = new Set<string>();
-  const allFeatures: string[] = [];
-  for (const pkg of PACKAGES) {
+  const allFeatureLabels: string[] = [];
+  for (const pkg of [parentPkg, schoolPkg]) {
+    if (!pkg) continue;
     for (const f of pkg.features) {
-      if (!seen.has(f)) { seen.add(f); allFeatures.push(f); }
+      if (!seen.has(f.label)) {
+        seen.add(f.label);
+        allFeatureLabels.push(f.label);
+      }
     }
+  }
+
+  function included(pkg: Package | undefined, label: string): boolean {
+    if (!pkg) return false;
+    return pkg.features.some((f) => f.label === label && f.included);
   }
 
   return (
     <section className="relative py-10 md:py-20 bg-[#0a0a0f] overflow-hidden">
-      {/* Faint dot grid for texture */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.07]"
@@ -86,12 +104,12 @@ function Compare({ packages }: { packages: Package[] }) {
           backgroundSize: "22px 22px",
         }}
       />
-      {/* Ambient corner highlight */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
         style={{
-          background: "radial-gradient(ellipse 60% 50% at 100% 0%, rgba(5,110,245,0.10), transparent 60%)",
+          background:
+            "radial-gradient(ellipse 60% 50% at 100% 0%, rgba(5,110,245,0.10), transparent 60%)",
         }}
       />
 
@@ -104,7 +122,9 @@ function Compare({ packages }: { packages: Package[] }) {
             {el.packages.compareTitle}
           </h2>
           <p className="mt-4 text-muted text-base">
-            {el.packages.compareSubtitle}
+            Τα δύο πακέτα έχουν την ίδια πρόσβαση στα διαγωνίσματα. Η μεγάλη διαφορά είναι ότι το πακέτο
+            φροντιστηρίου περιλαμβάνει συνολικά στατιστικά για όλους τους μαθητές σας και σύγκριση με τον
+            πανελλαδικό μέσο όρο. Οι γονείς βλέπουν τα στατιστικά του παιδιού τους.
           </p>
         </div>
 
@@ -112,54 +132,61 @@ function Compare({ packages }: { packages: Package[] }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="text-left font-display text-sm md:text-lg text-paper px-3 py-4 md:px-6 md:py-5 min-w-[120px]">
-                  Χαρακτιριστικα
+                <th className="text-left font-display text-sm md:text-lg text-paper px-3 py-4 md:px-6 md:py-5 min-w-[180px]">
+                  Χαρακτηριστικά
                 </th>
-                {PACKAGES.map((pkg) => (
-                  <th key={pkg.slug} className="text-center px-3 py-4 md:px-6 md:py-5 font-display text-sm md:text-lg text-paper min-w-[90px]">
-                    {pkg.name}
-                  </th>
-                ))}
+                <th className="text-center px-3 py-4 md:px-6 md:py-5 font-display text-base md:text-xl text-paper min-w-[120px]">
+                  Γονέας
+                </th>
+                <th className="text-center px-3 py-4 md:px-6 md:py-5 font-display text-base md:text-xl text-paper min-w-[120px]">
+                  Φροντιστήριο
+                </th>
               </tr>
             </thead>
             <tbody>
-              {allFeatures.map((label, i) => (
+              {allFeatureLabels.map((label, i) => (
                 <tr key={label} className={i % 2 === 0 ? "bg-white/[0.02]" : "bg-transparent"}>
                   <td className="px-3 py-3 md:px-6 md:py-4 text-paper text-xs md:text-sm">{label}</td>
-                  {PACKAGES.map((pkg) => {
-                    const included = (pkg.features as readonly string[]).includes(label);
-                    return (
-                      <td key={pkg.slug} className="text-center px-3 py-3 md:px-6 md:py-4">
-                        {included ? (
-                          <span className="inline-grid place-items-center w-7 h-7 rounded-full bg-accent text-ink font-black text-xs leading-none">
-                            ✓
-                          </span>
-                        ) : (
-                          <span className="inline-grid place-items-center w-7 h-7 rounded-full ring-1 ring-white/15 text-white/20 text-xs leading-none">
-                            ·
-                          </span>
-                        )}
-                      </td>
-                    );
-                  })}
+                  <td className="text-center px-3 py-3 md:px-6 md:py-4">
+                    <CheckCell ok={included(parentPkg, label)} />
+                  </td>
+                  <td className="text-center px-3 py-3 md:px-6 md:py-4">
+                    <CheckCell ok={included(schoolPkg, label)} />
+                  </td>
                 </tr>
               ))}
               <tr className="border-t border-white/10">
-                <td className="px-3 py-4 md:px-6 md:py-5 text-paper font-display text-sm md:text-lg">Τιμή</td>
-                {PACKAGES.map((pkg) => {
-                  const dbPkg = pkgBySlug[pkg.slug];
-                  return (
-                    <td key={pkg.slug} className="text-center px-3 py-4 md:px-6 md:py-5 font-display text-lg md:text-2xl text-accent tabular-nums">
-                      {dbPkg ? formatEuro(dbPkg.price_cents) : "—"}
-                    </td>
-                  );
-                })}
+                <td className="px-3 py-4 md:px-6 md:py-5 text-paper font-display text-sm md:text-lg">
+                  Αριθμός μαθητών
+                </td>
+                <td className="text-center px-3 py-4 md:px-6 md:py-5 font-display text-base md:text-lg text-accent tabular-nums">
+                  1–2
+                </td>
+                <td className="text-center px-3 py-4 md:px-6 md:py-5 font-display text-base md:text-lg text-accent tabular-nums">
+                  5–25
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <p className="mt-4 text-xs text-paper/60 text-center">
+          Το πακέτο φροντιστηρίου έχει 4 επίπεδα (5–10, 11–15, 16–20, 21–25 μαθητές) με κλιμακούμενη τιμή.
+        </p>
       </div>
     </section>
+  );
+}
+
+function CheckCell({ ok }: { ok: boolean }) {
+  return ok ? (
+    <span className="inline-grid place-items-center w-7 h-7 rounded-full bg-accent text-ink font-black text-xs leading-none">
+      ✓
+    </span>
+  ) : (
+    <span className="inline-grid place-items-center w-7 h-7 rounded-full ring-1 ring-white/15 text-white/30 text-xs leading-none">
+      —
+    </span>
   );
 }
 
@@ -190,11 +217,6 @@ function Guarantee() {
               href="/demo"
               className="group inline-flex items-center gap-2 mt-8 px-7 py-4 rounded-full bg-[#056ef5] !text-white border-2 border-[#056ef5] font-black uppercase tracking-wider text-sm hover:bg-[#0451b8] hover:-translate-y-0.5 transition-all"
             >
-              <span className="w-6 h-6 rounded-full bg-white/20 grid place-items-center group-hover:scale-110 transition-transform">
-                <svg className="w-2.5 h-2.5 ml-0.5" viewBox="0 0 24 24" fill="white">
-                  <polygon points="6 4 20 12 6 20 6 4" />
-                </svg>
-              </span>
               {el.packages.guaranteeCta}
             </Link>
           </div>

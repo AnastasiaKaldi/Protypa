@@ -28,10 +28,9 @@ function Hero() {
       {/* Sprite cluster — intentionally asymmetrical, varied sizes & rotations */}
       <div aria-hidden="true" className="hidden md:block absolute inset-0 z-10 pointer-events-none">
         <img src="/TransparentAssets/Asset 20.png" alt="" className="select-none absolute top-[14%] left-[4%]   w-32 -rotate-[18deg]" />
-        <img src="/TransparentAssets/Asset 19.png" alt="" className="select-none absolute top-[6%]  right-[28%] w-20 rotate-[8deg]" />
-        <img src="/TransparentAssets/Asset 18.png" alt="" className="select-none absolute bottom-[6%] left-[36%] w-16 rotate-[22deg]" />
+        <img src="/TransparentAssets/Asset 13.png" alt="" className="select-none absolute top-[6%]  right-[28%] w-20 rotate-[8deg]" />
         <img src="/TransparentAssets/Asset 7.png"  alt="" className="select-none absolute top-[42%] right-[6%]  w-36 -rotate-[7deg]" />
-        <img src="/TransparentAssets/Asset 13.png" alt="" className="select-none absolute bottom-[22%] left-[12%] w-24 rotate-[14deg]" />
+        <img src="/TransparentAssets/Asset 19.png" alt="" className="select-none absolute bottom-[22%] left-[12%] w-40 rotate-[14deg]" />
       </div>
 
       {/* Content — centered as the main event */}
@@ -65,19 +64,19 @@ function Hero() {
 
 /* ─── TICKER ───────────────────────────────────────────────────────────── */
 
-const TICKER_ITEMS = [
-  { text: "Πρότυπα Σχολεία", color: "#0a0a0f" },
-  { text: "◆", color: "#056ef5" },
-  { text: "Ωνάσεια Σχολεία", color: "#0a0a0f" },
-  { text: "◆", color: "#056ef5" },
-  { text: "Εκκλησιαστικά Σχολεία", color: "#0a0a0f" },
-  { text: "◆", color: "#056ef5" },
-  { text: "Ανάλυση Λαθών", color: "#0a0a0f" },
-  { text: "◆", color: "#056ef5" },
-  { text: "Στατιστική Πορεία", color: "#0a0a0f" },
-  { text: "◆", color: "#056ef5" },
-  { text: "Εξατομικευμένη Διδασκαλία", color: "#0a0a0f" },
-  { text: "◆", color: "#056ef5" },
+type TickerItem =
+  | { kind: "text"; text: string; color: string }
+  | { kind: "image"; src: string; alt?: string };
+
+const SEP: TickerItem = { kind: "image", src: "/TransparentAssets/Asset 20.png", alt: "" };
+
+const TICKER_ITEMS: TickerItem[] = [
+  { kind: "text", text: "Πρότυπα Σχολεία",           color: "#0a0a0f" }, SEP,
+  { kind: "text", text: "Ωνάσεια Σχολεία",           color: "#0a0a0f" }, SEP,
+  { kind: "text", text: "Εκκλησιαστικά Σχολεία",      color: "#0a0a0f" }, SEP,
+  { kind: "text", text: "Ανάλυση Λαθών",             color: "#0a0a0f" }, SEP,
+  { kind: "text", text: "Στατιστική Πορεία",         color: "#0a0a0f" }, SEP,
+  { kind: "text", text: "Εξατομικευμένη Διδασκαλία",  color: "#0a0a0f" }, SEP,
 ];
 
 function Ticker() {
@@ -88,16 +87,26 @@ function Ticker() {
         @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         .ticker-track { animation: ticker 32s linear infinite; }
       `}</style>
-      <div className="ticker-track flex whitespace-nowrap">
-        {doubled.map((item, i) => (
-          <span
-            key={i}
-            className="font-display text-base md:text-lg mx-5 flex-shrink-0"
-            style={{ color: item.color }}
-          >
-            {item.text}
-          </span>
-        ))}
+      <div className="ticker-track flex items-center whitespace-nowrap">
+        {doubled.map((item, i) =>
+          item.kind === "text" ? (
+            <span
+              key={i}
+              className="font-display text-base md:text-lg mx-5 flex-shrink-0"
+              style={{ color: item.color }}
+            >
+              {item.text}
+            </span>
+          ) : (
+            <img
+              key={i}
+              src={item.src}
+              alt={item.alt ?? ""}
+              aria-hidden={!item.alt}
+              className="select-none mx-5 flex-shrink-0 h-5 md:h-6 w-auto"
+            />
+          ),
+        )}
       </div>
     </div>
   );
@@ -145,18 +154,18 @@ function Features() {
 
           {/* Εσείς / Εμείς */}
           <div className="flex flex-col sm:flex-row gap-0 mb-8 rounded-3xl overflow-hidden">
-            <div className="flex-1 bg-[#056ef5] px-8 py-7 flex items-center gap-4">
+            <div className="flex-1 bg-[#056ef5] hover:bg-[#0451b8] transition-colors duration-300 px-8 py-7 flex items-center gap-4">
               <span className="font-display text-4xl text-paper/20 flex-shrink-0">→</span>
               <div>
                 <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-paper/50 mb-1">Εσείς</div>
                 <p className="font-display text-xl md:text-2xl text-paper leading-tight">Καταχωρείτε τις απαντήσεις των μαθητών</p>
               </div>
             </div>
-            <div className="flex-1 bg-[#c8ff00] px-8 py-7 flex items-center gap-4">
+            <div className="flex-1 bg-[#c8ff00] hover:bg-[#b8ee00] transition-colors duration-300 px-8 py-7 flex items-center gap-4">
               <span className="font-display text-4xl text-ink/20 flex-shrink-0">→</span>
               <div>
                 <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/50 mb-1">Εμείς</div>
-                <p className="font-display text-xl md:text-2xl text-ink leading-tight">Αναλύουμε τα πάντα για εσάς</p>
+                <p className="font-display text-xl md:text-2xl text-ink leading-tight">Αναλύουμε κάθε γραπτό για εσάς</p>
               </div>
             </div>
           </div>
@@ -165,13 +174,13 @@ function Features() {
           <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 md:gap-5 sm:auto-rows-[minmax(180px,auto)]">
 
             {/* Big card — Φροντιστήριο */}
-            <Link href="/sxetika" className="sm:col-span-6 md:col-span-4 md:row-span-2 relative rounded-3xl bg-accent-purple p-8 md:p-10 overflow-hidden group hover:-translate-y-1 transition-transform duration-300 block cursor-pointer">
+            <Link href="/sxetika" className="sm:col-span-6 md:col-span-4 md:row-span-2 relative rounded-3xl bg-accent-purple hover:bg-[#6500b0] p-8 md:p-10 overflow-hidden group hover:-translate-y-1 transition-all duration-300 block cursor-pointer">
               <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-brand/10 blur-3xl" />
               <img src="/TransparentAssets/Asset 9.png" alt="" aria-hidden="true" className="pointer-events-none select-none absolute bottom-4 right-4 w-28 md:w-40 opacity-30 rotate-6" />
               <div className="relative">
                 <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-paper/50">Στο Φροντιστήριο</div>
                 <h3 className="mt-4 font-display text-2xl sm:text-4xl md:text-5xl leading-none text-paper">
-                  Περισσότερες εγγραφές.{" "}
+                  Περισσότερες εγγραφές{" "}
                   <span className="text-[#c8ff00]">Λιγότερες διαγραφές</span>
                 </h3>
                 <p className="mt-6 max-w-md text-paper/80 leading-relaxed text-sm md:text-base">
@@ -184,6 +193,7 @@ function Features() {
             <BentoCard
               span="col-span-6 sm:col-span-3 md:col-span-2"
               bg="bg-[#056ef5]"
+              hoverBg="hover:bg-[#0451b8]"
               accentText="text-[#c8ff00]"
               label="Στον Διδάσκοντα"
               title="Ανάλυση Τύπου Λάθους"
@@ -194,6 +204,7 @@ function Features() {
             <BentoCard
               span="col-span-6 sm:col-span-3 md:col-span-2"
               bg="bg-[#7c00d0]"
+              hoverBg="hover:bg-[#6500b0]"
               accentText="text-[#c8ff00]"
               label="Στον Διδάσκοντα"
               title="Αναδεικνύει κρυμμένες αδυναμίες"
@@ -204,6 +215,7 @@ function Features() {
             <BentoCard
               span="col-span-6 md:col-span-2"
               bg="bg-[#056ef5]"
+              hoverBg="hover:bg-[#0451b8]"
               accentText="text-[#c8ff00]"
               label="Στους Γονείς"
               title="Σύγκριση με τα πραγματικά αποτελέσματα"
@@ -214,6 +226,7 @@ function Features() {
             <BentoCard
               span="col-span-6 md:col-span-4"
               bg="bg-[#c8ff00]"
+              hoverBg="hover:bg-[#b8ee00]"
               accentText="text-ink"
               bodyColor="text-ink"
               label="Στους Γονείς"
@@ -228,11 +241,11 @@ function Features() {
   );
 }
 
-function BentoCard({ span, bg, accentText, label, title, body, bodyColor = "text-paper" }: {
-  span: string; bg: string; accentText: string; label: string; title: string; body: string; bodyColor?: string;
+function BentoCard({ span, bg, hoverBg, accentText, label, title, body, bodyColor = "text-paper" }: {
+  span: string; bg: string; hoverBg: string; accentText: string; label: string; title: string; body: string; bodyColor?: string;
 }) {
   return (
-    <Link href="/sxetika" className={`${span} relative rounded-3xl ${bg} p-7 md:p-8 overflow-hidden hover:-translate-y-1 transition-transform duration-300 block cursor-pointer`}>
+    <Link href="/sxetika" className={`${span} relative rounded-3xl ${bg} ${hoverBg} p-7 md:p-8 overflow-hidden hover:-translate-y-1 transition-all duration-300 block cursor-pointer`}>
       <div className={`text-[10px] font-bold tracking-[0.2em] uppercase ${accentText} opacity-70`}>{label}</div>
       <h3 className={`mt-3 font-display text-2xl md:text-3xl leading-tight ${accentText}`}>{title}</h3>
       <p className={`mt-3 text-sm leading-relaxed opacity-70 ${bodyColor}`}>{body}</p>

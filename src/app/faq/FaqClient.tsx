@@ -5,9 +5,10 @@ import { el } from "@/lib/i18n/el";
 
 const CATEGORY_NUMERALS: Record<string, string> = {
   general: "01",
-  packages: "02",
-  grading: "03",
-  account: "04",
+  protupa: "02",
+  packages: "03",
+  grading: "04",
+  account: "05",
 };
 
 export function FaqClient() {

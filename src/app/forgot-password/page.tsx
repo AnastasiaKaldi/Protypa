@@ -26,22 +26,31 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-[calc(100vh-3.5rem)] grid md:grid-cols-[1fr_1.1fr]">
       {/* Left brand panel */}
-      <div className="hidden md:flex flex-col justify-between bg-[#7c00d0] p-10 relative overflow-hidden">
-        <img src="/Logos/mainLogo.png" alt="Protupa" className="h-8 w-auto" />
-        <div className="relative z-10">
-          <h2 className="font-display text-5xl text-white leading-tight">
-            Επαναφορά<br />
-            <span className="text-[#c8ff00]">κωδικού</span>
-          </h2>
-          <p className="mt-4 text-white/70 text-sm max-w-xs leading-relaxed">
-            Στείλτε μας το email σας και θα σας στείλουμε έναν σύνδεσμο επαναφοράς κωδικού.
-          </p>
+      <div className="hidden md:flex flex-col bg-[#7c00d0] p-10 relative overflow-hidden">
+        {/* Background image */}
+        <img
+          src="/forgotPassword.jpg"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none select-none absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Purple wash so the headline + body copy stay legible over the photo */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#7c00d0]/85 via-[#7c00d0]/60 to-[#7c00d0]/85" />
+
+        {/* Vertically centered headline + body copy */}
+        <div className="flex-1 flex items-center relative z-10">
+          <div>
+            <h2 className="font-display text-5xl text-white leading-tight drop-shadow-sm">
+              Επαναφορά<br />
+              <span className="text-[#c8ff00]">κωδικού</span>
+            </h2>
+            <p className="mt-4 text-white/80 text-sm max-w-xs leading-relaxed">
+              Στείλτε μας το email σας και θα σας στείλουμε έναν σύνδεσμο επαναφοράς κωδικού.
+            </p>
+          </div>
         </div>
-        <div className="text-white/30 text-xs">© {new Date().getFullYear()} Protupa</div>
-        <img src="/TransparentAssets/Asset 13.png" alt="" aria-hidden="true"
-          className="pointer-events-none select-none absolute top-6 right-6 w-32 opacity-60 rotate-6" />
-        <img src="/TransparentAssets/Asset 9.png" alt="" aria-hidden="true"
-          className="pointer-events-none select-none absolute bottom-10 right-8 w-28 opacity-40 -rotate-6" />
+
+        <div className="text-white/40 text-xs relative z-10">© {new Date().getFullYear()} Protupa</div>
       </div>
 
       {/* Right form panel */}
@@ -54,6 +63,16 @@ export default function ForgotPasswordPage() {
               <p className="mt-3 text-ink/50 text-sm leading-relaxed max-w-xs">
                 Ελέγξτε τα εισερχόμενά σας και πατήστε τον σύνδεσμο που σας στείλαμε για να επαναφέρετε τον κωδικό σας.
               </p>
+              <div className="mt-4 flex items-start gap-2 max-w-xs rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-700 flex-shrink-0 mt-0.5" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <p className="text-xs text-amber-900 leading-relaxed">
+                  Δεν το βλέπετε; Ελέγξτε και τον φάκελο ανεπιθύμητης αλληλογραφίας (spam).
+                </p>
+              </div>
               <Link
                 href="/signin"
                 className="inline-flex items-center gap-2 mt-8 px-6 py-3 rounded-full bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5] font-black uppercase tracking-wider text-xs hover:bg-[#056ef5]/5 hover:-translate-y-0.5 transition-all"

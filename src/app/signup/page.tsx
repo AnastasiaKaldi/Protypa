@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { el } from "@/lib/i18n/el";
 
+type AccountType = "school" | "parent";
+
 export default function SignUpPage() {
   const router = useRouter();
+  const [accountType, setAccountType] = useState<AccountType>("school");
   const [fullName, setFullName] = useState("");
   const [schoolName, setSchoolName] = useState("");
   const [email, setEmail] = useState("");
@@ -57,7 +60,13 @@ export default function SignUpPage() {
               const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
-                options: { data: { full_name: fullName, school_name: schoolName } },
+                options: {
+                  data: {
+                    full_name: fullName,
+                    school_name: accountType === "school" ? schoolName : null,
+                    account_type: accountType,
+                  },
+                },
               });
               setLoading(false);
               if (error) { setError(error.message); }
@@ -65,8 +74,41 @@ export default function SignUpPage() {
               else { setInfo(el.auth.checkEmail); }
             }}
           >
+            {/* Account-type toggle: parent vs φροντιστήριο */}
+            <div>
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40">
+                Είστε
+              </span>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAccountType("school")}
+                  className={`px-4 py-3 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+                    accountType === "school"
+                      ? "bg-[#056ef5] text-white border-2 border-[#056ef5]"
+                      : "bg-white text-ink/60 border-2 border-ink/10 hover:border-ink/30"
+                  }`}
+                >
+                  Φροντιστήριο
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAccountType("parent")}
+                  className={`px-4 py-3 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+                    accountType === "parent"
+                      ? "bg-[#7c00d0] text-white border-2 border-[#7c00d0]"
+                      : "bg-white text-ink/60 border-2 border-ink/10 hover:border-ink/30"
+                  }`}
+                >
+                  Γονέας
+                </button>
+              </div>
+            </div>
+
             <AuthField label={el.auth.fullName} value={fullName} onChange={setFullName} />
-            <AuthField label={el.auth.schoolName} value={schoolName} onChange={setSchoolName} />
+            {accountType === "school" && (
+              <AuthField label={el.auth.schoolName} value={schoolName} onChange={setSchoolName} />
+            )}
             <AuthField label={el.auth.email} type="email" value={email} onChange={setEmail} />
             <AuthField label={el.auth.password} type="password" value={password} onChange={setPassword} />
             {error && (

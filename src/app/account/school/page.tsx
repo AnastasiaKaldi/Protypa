@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAccountType } from "@/lib/entitlements";
 import type { Simulation } from "@/lib/types";
 
 interface QuestionStat {
@@ -32,6 +34,11 @@ export default async function SchoolPage({
   if (!supabase) return null;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
+
+  // Parent accounts don't get school-wide stats — only schools (φροντιστήρια) do.
+  const accountType = await getAccountType(user.id);
+  if (accountType === "parent") redirect("/account");
+
   const sp = await searchParams;
 
   // Sims this school has participated in

@@ -1,5 +1,5 @@
 import { createSupabaseServerClient } from "./supabase/server";
-import type { ExamPaper, Package, Purchase } from "./types";
+import type { AccountType, ExamPaper, Package, Purchase } from "./types";
 
 // Single source of truth for "does this user have access to X right now?"
 // Every protected page and API route MUST go through these helpers — no ad-hoc
@@ -76,4 +76,58 @@ export async function hasAccessToPaper(
     .maybeSingle();
 
   return !!purchase;
+}
+
+// ─── v2: account type + student limits ─────────────────────────────────────
+// A user's account_type lives on `profiles`. It controls which package types
+// they should be shown and which areas of the app they can see (parents do
+// NOT see /account/school).
+
+export async function getAccountType(userId: string): Promise<AccountType> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return "school";
+  const { data } = await supabase
+    .from("profiles")
+    .select("account_type")
+    .eq("id", userId)
+    .maybeSingle();
+  return ((data?.account_type as AccountType | undefined) ?? "school");
+}
+
+// Returns the highest active student limit across the user's current packages.
+// • Parents on the parent package → 2
+// • Schools on tier-1 → 10, tier-2 → 15, … tier-4 → 25
+// • No active package → 0 (UI shows "purchase to add students")
+export async function getStudentLimit(userId: string): Promise<number> {
+  const active = await getActivePackages(userId);
+  let max = 0;
+  for (const a of active) {
+    const m = a.pkg.max_students;
+    if (typeof m === "number" && m > max) max = m;
+  }
+  return max;
+}
+
+// Convenience: are they allowed to add another student right now?
+// Returns the current count, the limit, and whether they're at/over capacity.
+export async function getStudentCapacity(userId: string): Promise<{
+  current: number;
+  limit: number;
+  canAdd: boolean;
+}> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return { current: 0, limit: 0, canAdd: false };
+  const [{ count }, limit] = await Promise.all([
+    supabase
+      .from("students")
+      .select("*", { count: "exact", head: true })
+      .eq("school_id", userId),
+    getStudentLimit(userId),
+  ]);
+  const current = count ?? 0;
+  return {
+    current,
+    limit,
+    canAdd: limit > 0 && current < limit,
+  };
 }

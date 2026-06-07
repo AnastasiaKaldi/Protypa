@@ -22,9 +22,15 @@ export default async function GradingListPage() {
   const participationMap = new Map(((myParticipations as SchoolSimulation[]) ?? []).map((p) => [p.simulation_id, p]));
 
   // Build the set of subjects this user has paid access to.
+  // v2 packages (parent / school-tier-*) include both Γλώσσα and Μαθηματικά,
+  // so they count as the bundle.
   const purchasedSubjects = new Set<string>();
   for (const a of active) {
-    if (a.pkg.subject) purchasedSubjects.add(a.pkg.subject);
+    if (a.pkg.package_type === "parent" || a.pkg.package_type === "school") {
+      purchasedSubjects.add("bundle");
+    } else if (a.pkg.subject) {
+      purchasedSubjects.add(a.pkg.subject);
+    }
   }
   const hasBundle = purchasedSubjects.has("bundle");
   const hasGreek = hasBundle || purchasedSubjects.has("greek");
@@ -63,6 +69,55 @@ function GradingView({ sims, participationMap, now, isPreview = false, hasAccess
         <div className="text-xs text-ink/45">Βαθμολόγηση</div>
         <h1 className="font-display text-2xl text-ink mt-1">Διαγωνίσματα</h1>
         <p className="text-sm text-ink/55 mt-1">Ύλη, θέματα και καταχώρηση απαντήσεων ανά διαγώνισμα.</p>
+      </div>
+
+      {/* Ύλη download buttons — Greek + Math annual schedule PDFs */}
+      <div className="grid sm:grid-cols-2 gap-3">
+        <a
+          href="/yli/yli-glossa-2026-2027.pdf"
+          download="Ύλη Γλώσσας 2026-2027.pdf"
+          className="group flex items-center gap-4 px-5 py-4 rounded-2xl bg-[#7c00d0] hover:bg-[#6500b0] transition-colors !text-white"
+        >
+          <span className="w-10 h-10 rounded-xl bg-white/15 grid place-items-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="text-[10px] font-bold tracking-[0.18em] uppercase opacity-80">
+              Ετήσιος προτεινόμενος προγραμματισμός
+            </div>
+            <div className="font-display text-lg leading-tight mt-0.5">Γλώσσα</div>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-white/15 px-2.5 py-1 rounded-full group-hover:bg-white/20 transition-colors">
+            PDF ↓
+          </span>
+        </a>
+
+        <a
+          href="/yli/yli-mathimatika-2026-2027.pdf"
+          download="Ύλη Μαθηματικών 2026-2027.pdf"
+          className="group flex items-center gap-4 px-5 py-4 rounded-2xl bg-[#056ef5] hover:bg-[#0451b8] transition-colors !text-white"
+        >
+          <span className="w-10 h-10 rounded-xl bg-white/15 grid place-items-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="text-[10px] font-bold tracking-[0.18em] uppercase opacity-80">
+              Ετήσιος προτεινόμενος προγραμματισμός
+            </div>
+            <div className="font-display text-lg leading-tight mt-0.5">Μαθηματικά</div>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-white/15 px-2.5 py-1 rounded-full group-hover:bg-white/20 transition-colors">
+            PDF ↓
+          </span>
+        </a>
       </div>
 
       {/* KPI strip — dividers with brand color accents */}
@@ -197,6 +252,7 @@ function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }:
               <th className="text-left px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 w-12">#</th>
               <th className="text-left px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55">Διαγώνισμα</th>
               <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-right hidden sm:table-cell">Συμμετοχή</th>
+              <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-right hidden md:table-cell">Στατιστικά</th>
               <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-right">Κατάσταση</th>
             </tr>
           </thead>
@@ -208,7 +264,7 @@ function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }:
               const submitted = p?.is_submitted;
 
               return (
-                <tr key={sim.id} className={`row-hover ${!unlocked ? "text-ink/45" : "text-ink"}`}>
+                <tr key={sim.id} className="row-hover text-ink">
                   <td className="px-3 py-3 tabular text-xs text-ink/60">{sim.number}</td>
                   <td className="px-3 py-3">
                     <div className="text-sm text-ink leading-tight">{sim.title}</div>
@@ -223,12 +279,14 @@ function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }:
                       <span className="text-sm tabular">{p.student_count}</span>
                     ) : <span className="text-xs text-ink/30">—</span>}
                   </td>
+                  <td className="px-3 py-3 text-right hidden md:table-cell">
+                    <StatsWindowCell closesAt={sim.grading_closes_at} now={now} />
+                  </td>
                   <td className="px-3 py-3 text-right">
                     <div className="inline-flex items-center justify-end gap-3">
                       <ExamDownload url={sim.questions_url} canAccess={hasAccess(sim.subject)} unlocked={!!unlocked} />
                       <StatusCell
                         sim={sim}
-                        unlocked={!!unlocked}
                         submitted={!!submitted}
                         closed={!!closed}
                         p={p}
@@ -246,33 +304,18 @@ function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }:
   );
 }
 
-function StatusCell({ sim, unlocked, submitted, closed, p, isPreview }: {
-  sim: Simulation; unlocked: boolean; submitted: boolean; closed: boolean;
+function StatusCell({ sim, submitted, closed, p, isPreview }: {
+  sim: Simulation; submitted: boolean; closed: boolean;
   p: SchoolSimulation | undefined; isPreview: boolean;
 }) {
-  if (!unlocked) return <StatusDot color="#94a3b8" label="Κλειδωμένο" />;
+  // Grading is always available — no `unlocked` gate. Schools and parents
+  // can record (or re-record) grades at any time. `closed` only affects
+  // whether the grade is included in stats, surfaced via the row label.
   const href = isPreview ? "/account/grading/preview" : `/account/grading/${sim.id}`;
 
-  // After the stats window closes, grading stays open but late submissions
-  // won't show up in analytics. Surface that state in the row.
-  if (closed) {
-    return (
-      <div className="inline-flex flex-col items-end gap-0.5">
-        {submitted
-          ? <StatusDot color="#10b981" label="Υποβλήθηκε" />
-          : <Link href={href} className="text-xs font-bold text-ink/65 hover:text-ink">
-              {p ? "Συνέχεια" : "Έναρξη"} →
-            </Link>
-        }
-        <span className="text-[10px] font-bold text-amber-700 inline-flex items-center gap-1">
-          <span className="w-1 h-1 rounded-full bg-amber-500" />
-          Στατιστικά κλειστά
-        </span>
-      </div>
-    );
-  }
-
-  // Submitted within stats window → can still re-grade
+  // Grading is always open. The only branch that changes behavior is whether
+  // the row was already submitted (→ surface a "re-grade" link) and whether
+  // we've passed the stats deadline (→ append a small "Στατιστικά κλειστά" note).
   if (submitted) {
     return (
       <div className="inline-flex flex-col items-end gap-0.5">
@@ -280,14 +323,29 @@ function StatusCell({ sim, unlocked, submitted, closed, p, isPreview }: {
         <Link href={href} className="text-[10px] font-bold text-[#056ef5] hover:text-[#0451b8] uppercase tracking-wider">
           Επεξεργασία →
         </Link>
+        {closed && (
+          <span className="text-[10px] font-bold text-amber-700 inline-flex items-center gap-1 mt-0.5">
+            <span className="w-1 h-1 rounded-full bg-amber-500" />
+            Στατιστικά κλειστά
+          </span>
+        )}
       </div>
     );
   }
 
+  // Not submitted yet — show the action link, plus the deadline note if past.
   return (
-    <Link href={href} className="inline-flex items-center gap-1.5 text-xs font-bold text-[#056ef5] hover:text-[#0451b8]">
-      {p ? "Συνέχεια" : "Έναρξη"} →
-    </Link>
+    <div className="inline-flex flex-col items-end gap-0.5">
+      <Link href={href} className="inline-flex items-center gap-1.5 text-xs font-bold text-[#056ef5] hover:text-[#0451b8]">
+        {p ? "Συνέχεια" : "Έναρξη"} →
+      </Link>
+      {closed && (
+        <span className="text-[10px] font-bold text-amber-700 inline-flex items-center gap-1">
+          <span className="w-1 h-1 rounded-full bg-amber-500" />
+          Στατιστικά κλειστά
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -319,6 +377,41 @@ function ExamDownload({ url, canAccess, unlocked }: { url: string | null; canAcc
       </svg>
       PDF
     </a>
+  );
+}
+
+function StatsWindowCell({ closesAt, now }: { closesAt: string | null; now: string }) {
+  // No deadline configured → stats stay open forever.
+  if (!closesAt) {
+    return <span className="text-xs text-ink/40">Χωρίς προθεσμία</span>;
+  }
+  const dt = new Date(closesAt);
+  const dateLabel = dt.toLocaleDateString("el-GR", { day: "2-digit", month: "short", year: "numeric" });
+
+  // Past the deadline → stats are now closed (grading itself is still allowed).
+  if (closesAt <= now) {
+    return (
+      <div className="inline-flex flex-col items-end leading-tight">
+        <span className="text-xs font-semibold text-amber-700">Έκλεισαν</span>
+        <span className="text-[10px] text-ink/45 tabular mt-0.5">{dateLabel}</span>
+      </div>
+    );
+  }
+
+  // Future deadline → show "Έως [date]".
+  const diffDays = Math.floor((dt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const urgent = diffDays >= 0 && diffDays < 3;
+  return (
+    <div className="inline-flex flex-col items-end leading-tight">
+      <span className={`text-xs font-semibold tabular ${urgent ? "text-red-600" : "text-ink"}`}>
+        Έως {dateLabel}
+      </span>
+      {urgent && (
+        <span className="text-[10px] text-red-600 mt-0.5">
+          {diffDays === 0 ? "σήμερα" : diffDays === 1 ? "σε 1 ημέρα" : `σε ${diffDays} ημέρες`}
+        </span>
+      )}
+    </div>
   );
 }
 

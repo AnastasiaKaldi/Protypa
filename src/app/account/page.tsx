@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getActivePackages } from "@/lib/entitlements";
+import { getActivePackages, getStudentCapacity } from "@/lib/entitlements";
 import { gradeCountsForStats } from "@/lib/scoring";
 import { formatDate } from "@/lib/format";
 
@@ -40,13 +40,14 @@ export default async function AccountDashboard({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return <DashboardView {...PREVIEW_DATA} purchaseSuccess={sp.purchase === "success"} />;
 
-  const [{ data: profile }, { data: students }, { data: grades }, { data: sims }, { data: participations }, active] = await Promise.all([
-    supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+  const [{ data: profile }, { data: students }, { data: grades }, { data: sims }, { data: participations }, active, capacity] = await Promise.all([
+    supabase.from("profiles").select("full_name, account_type").eq("id", user.id).maybeSingle(),
     supabase.from("students").select("id, first_name, last_name, class_year, created_at").eq("school_id", user.id),
     supabase.from("student_simulation_grades").select("*").order("submitted_at", { ascending: false }),
     supabase.from("simulations").select("*").eq("is_published", true).order("number"),
     supabase.from("school_simulations").select("simulation_id, is_submitted").eq("school_id", user.id),
     getActivePackages(user.id),
+    getStudentCapacity(user.id),
   ]);
 
   const studentList = students ?? [];
@@ -96,8 +97,13 @@ export default async function AccountDashboard({
       }
     : null;
 
+  const studentsLabel = profile?.account_type === "parent" ? "Παιδιά" : "Μαθητές";
+  const studentsSub = capacity.limit > 0
+    ? `${capacity.current} / ${capacity.limit} όριο πακέτου`
+    : (studentList.length === 1 ? "καταχωρημένος" : "καταχωρημένοι");
+
   const kpis: Kpi[] = [
-    { label: "Μαθητές",      value: studentList.length, sub: studentList.length === 1 ? "καταχωρημένος" : "καταχωρημένοι" },
+    { label: studentsLabel,  value: studentList.length, sub: studentsSub },
     { label: "Μέσος βαθμός", value: avgScore || "—",    sub: eligibleGrades.length ? `${eligibleGrades.length} βαθμολογήσεις στα στατιστικά` : "καμία ακόμα" },
     { label: "Διαγωνίσματα", value: simsList.length,    sub: `${availableSims.length} διαθέσιμα` },
     { label: "Πακέτα",       value: active.length,      sub: active.length ? "ενεργά" : "κανένα" },
@@ -490,7 +496,7 @@ function TopStudentsSection({ students }: { students: TopStudent[] }) {
 function PackagesSection({ packages }: { packages: PackageItem[] }) {
   return (
     <section>
-      <SectionHeader title="Ενεργά πακέτα" href="/paketa" hrefLabel="Προσθήκη" />
+      <SectionHeader title="Ενεργά πακέτα" href="/paketa" hrefLabel={packages.length ? "Αλλαγή πακέτου" : "Προσθήκη"} />
       {packages.length === 0 ? (
         <div className="border border-ink/10 rounded-md px-4 py-6 flex items-center justify-between">
           <p className="text-sm text-ink/50">Δεν έχετε ενεργά πακέτα.</p>
@@ -499,14 +505,22 @@ function PackagesSection({ packages }: { packages: PackageItem[] }) {
           </Link>
         </div>
       ) : (
-        <ul className="border border-ink/10 rounded-md divide-y divide-ink/8">
-          {packages.map((p, i) => (
-            <li key={i} className="row-hover px-4 py-3 flex items-center justify-between">
-              <div className="text-sm text-ink">{p.name}</div>
-              <div className="text-xs text-ink/50">Λήγει {p.expires}</div>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="border border-ink/10 rounded-md divide-y divide-ink/8">
+            {packages.map((p, i) => (
+              <li key={i} className="row-hover px-4 py-3 flex items-center justify-between">
+                <div className="text-sm text-ink">{p.name}</div>
+                <div className="text-xs text-ink/50">Λήγει {p.expires}</div>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-ink/45">
+            Μπορείτε να αναβαθμίσετε ή να υποβιβάσετε το πακέτο σας ανά πάσα στιγμή —{" "}
+            <Link href="/paketa" className="font-bold text-[#056ef5] hover:text-[#0451b8]">
+              αλλαγή πακέτου →
+            </Link>
+          </p>
+        </>
       )}
     </section>
   );

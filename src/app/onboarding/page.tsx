@@ -1,20 +1,33 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { DOY_LIST } from "@/lib/doy-list";
 
-const STEPS = [
-  { number: 1, label: "Εσείς",             hint: "Στοιχεία υπευθύνου" },
-  { number: 2, label: "Το Φροντιστήριο",   hint: "Στοιχεία & διεύθυνση" },
-  { number: 3, label: "Φορολογικά",        hint: "ΑΦΜ, ΔΟΥ & μαθήματα" },
-  { number: 4, label: "Όροι χρήσης",       hint: "Αποδοχή & ολοκλήρωση" },
+type AccountType = "school" | "parent";
+
+// ─── Step lists per account type ─────────────────────────────────────────────
+const SCHOOL_STEPS = [
+  { number: 1, label: "Εσείς",           hint: "Στοιχεία υπευθύνου" },
+  { number: 2, label: "Το Φροντιστήριο", hint: "Στοιχεία & διεύθυνση" },
+  { number: 3, label: "Φορολογικά",      hint: "ΑΦΜ & ΔΟΥ" },
+  { number: 4, label: "Όροι χρήσης",     hint: "Αποδοχή & ολοκλήρωση" },
 ];
 
+const PARENT_STEPS = [
+  { number: 1, label: "Στοιχεία",     hint: "Τα στοιχεία σας" },
+  { number: 2, label: "Όροι χρήσης", hint: "Αποδοχή & ολοκλήρωση" },
+];
+
+// ─── Form shape (both flows share it; parent flow leaves school-only fields blank) ─
 type FormData = {
+  // Parent / contact person
+  first_name: string;       // parent flow only
+  last_name: string;        // parent flow only
   contact_person: string;
   mobile: string;
   contact_email: string;
+  // School
   trade_name: string;
   legal_name: string;
   address: string;
@@ -23,40 +36,53 @@ type FormData = {
   region: string;
   phone: string;
   school_email: string;
+  // Tax
   afm: string;
   doy: string;
-  subjects: string[];
+  // Legal
   terms: boolean;
   marketing_opt_in: boolean;
 };
 
 const EMPTY: FormData = {
+  first_name: "", last_name: "",
   contact_person: "", mobile: "", contact_email: "",
   trade_name: "", legal_name: "",
   address: "", postal_code: "", city: "", region: "",
   phone: "", school_email: "",
   afm: "", doy: "",
-  subjects: [],
   terms: false,
   marketing_opt_in: false,
 };
 
+// ─── Page ────────────────────────────────────────────────────────────────────
 export default function OnboardingPage() {
   const router = useRouter();
+  const [accountType, setAccountType] = useState<AccountType>("school");
+  const [bootstrapping, setBootstrapping] = useState(true);
+
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(EMPTY);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Read account_type from the user's profile so we know which flow to render.
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { router.push("/signin"); return; }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("account_type")
+        .eq("id", user.id)
+        .maybeSingle();
+      setAccountType((profile?.account_type as AccountType | undefined) ?? "school");
+      setBootstrapping(false);
+    });
+  }, [router]);
+
   function set<K extends keyof FormData>(key: K, val: FormData[K]) {
     setForm((prev) => ({ ...prev, [key]: val }));
-  }
-
-  function toggleSubject(s: string) {
-    set("subjects", form.subjects.includes(s)
-      ? form.subjects.filter((x) => x !== s)
-      : [...form.subjects, s]
-    );
   }
 
   async function finish() {
@@ -66,26 +92,45 @@ export default function OnboardingPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { router.push("/signin"); return; }
 
-    const { error: schoolErr } = await supabase.from("schools").upsert({
-      id: user.id,
-      legal_name: form.legal_name,
-      trade_name: form.trade_name,
-      address: form.address,
-      postal_code: form.postal_code,
-      city: form.city,
-      region: form.region,
-      phone: form.phone,
-      school_email: form.school_email,
-      contact_person: form.contact_person,
-      mobile: form.mobile,
-      contact_email: form.contact_email,
-      afm: form.afm,
-      doy: form.doy,
-      subjects: form.subjects,
-      terms_accepted_at: new Date().toISOString(),
-      marketing_opt_in: form.marketing_opt_in,
-    });
+    // For parents we store the combined name in contact_person / legal_name /
+    // trade_name so invoicing fields are populated. School-only fields stay null.
+    const isParent = accountType === "parent";
+    const combinedName = `${form.first_name} ${form.last_name}`.trim();
 
+    const payload = isParent
+      ? {
+          id: user.id,
+          contact_person: combinedName,
+          contact_email: form.contact_email,
+          mobile: form.mobile,
+          // Reuse for billing — sole-trader invoicing wants a name in legal_name.
+          legal_name: combinedName,
+          trade_name: combinedName,
+          address: form.address,
+          afm: form.afm,
+          terms_accepted_at: new Date().toISOString(),
+          marketing_opt_in: form.marketing_opt_in,
+        }
+      : {
+          id: user.id,
+          legal_name: form.legal_name,
+          trade_name: form.trade_name,
+          address: form.address,
+          postal_code: form.postal_code,
+          city: form.city,
+          region: form.region,
+          phone: form.phone,
+          school_email: form.school_email,
+          contact_person: form.contact_person,
+          mobile: form.mobile,
+          contact_email: form.contact_email,
+          afm: form.afm,
+          doy: form.doy,
+          terms_accepted_at: new Date().toISOString(),
+          marketing_opt_in: form.marketing_opt_in,
+        };
+
+    const { error: schoolErr } = await supabase.from("schools").upsert(payload);
     if (schoolErr) { setError(schoolErr.message); setSaving(false); return; }
 
     await supabase.from("profiles").update({ onboarding_complete: true }).eq("id", user.id);
@@ -93,8 +138,15 @@ export default function OnboardingPage() {
     router.refresh();
   }
 
-  const panelColors = ["#056ef5", "#7c00d0", "#056ef5", "#7c00d0"];
-  const panelColor = panelColors[step - 1];
+  if (bootstrapping) {
+    return <div className="min-h-screen grid place-items-center text-ink/40 text-sm">Φόρτωση…</div>;
+  }
+
+  const isParent = accountType === "parent";
+  const steps = isParent ? PARENT_STEPS : SCHOOL_STEPS;
+  const panelColor = isParent
+    ? (step === 1 ? "#7c00d0" : "#056ef5")
+    : ["#056ef5", "#7c00d0", "#056ef5", "#7c00d0"][step - 1];
 
   return (
     <div className="min-h-screen grid md:grid-cols-[1fr_1.2fr]">
@@ -106,7 +158,7 @@ export default function OnboardingPage() {
         <img src="/Logos/mainLogo.png" alt="Protupa" className="h-8 w-auto" />
 
         <div className="relative z-10 space-y-4">
-          {STEPS.map((s) => (
+          {steps.map((s) => (
             <div key={s.number} className="flex items-center gap-4">
               <div className={`
                 w-8 h-8 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 transition-all
@@ -134,31 +186,58 @@ export default function OnboardingPage() {
         <div className="w-full max-w-md">
           {/* Mobile progress bar */}
           <div className="md:hidden flex gap-1 mb-8">
-            {STEPS.map((s) => (
+            {steps.map((s) => (
               <div key={s.number} className={`h-1 flex-1 rounded-full transition-all ${step >= s.number ? "bg-[#056ef5]" : "bg-ink/10"}`} />
             ))}
           </div>
 
           <div className="mb-8">
             <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-ink/40 mb-2">
-              Βήμα {step} από {STEPS.length}
+              Βήμα {step} από {steps.length}
             </div>
             <h1 className="font-display text-3xl md:text-4xl text-ink">
-              {step === 1 && "Στοιχεία υπευθύνου"}
-              {step === 2 && "Στοιχεία φροντιστηρίου"}
-              {step === 3 && "Φορολογικά & μαθήματα"}
-              {step === 4 && "Όροι χρήσης"}
+              {isParent
+                ? (step === 1 ? "Τα στοιχεία σας" : "Όροι χρήσης")
+                : (step === 1 ? "Στοιχεία υπευθύνου"
+                  : step === 2 ? "Στοιχεία φροντιστηρίου"
+                  : step === 3 ? "Φορολογικά στοιχεία"
+                  : "Όροι χρήσης")}
             </h1>
             <p className="mt-2 text-sm text-ink/50">
-              {step === 1 && "Τα στοιχεία του ατόμου που θα διαχειρίζεται τον λογαριασμό."}
-              {step === 2 && "Το όνομα και η διεύθυνση του φροντιστηρίου σας."}
-              {step === 3 && "Τα φορολογικά στοιχεία και τα μαθήματα που διδάσκετε."}
-              {step === 4 && "Διαβάστε και αποδεχτείτε τους όρους για να ολοκληρώσετε."}
+              {isParent
+                ? (step === 1
+                    ? "Συμπληρώστε τα βασικά σας στοιχεία για έκδοση παραστατικών."
+                    : "Διαβάστε και αποδεχτείτε τους όρους για να ολοκληρώσετε.")
+                : (step === 1 ? "Τα στοιχεία του ατόμου που θα διαχειρίζεται τον λογαριασμό."
+                  : step === 2 ? "Το όνομα και η διεύθυνση του φροντιστηρίου σας."
+                  : step === 3 ? "ΑΦΜ και ΔΟΥ για έκδοση παραστατικών."
+                  : "Διαβάστε και αποδεχτείτε τους όρους για να ολοκληρώσετε.")}
             </p>
           </div>
 
-          {/* ── Step 1: You ── */}
-          {step === 1 && (
+          {/* ── PARENT — Step 1: All details ── */}
+          {isParent && step === 1 && (
+            <form className="space-y-7" onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
+              <div className="grid grid-cols-2 gap-5">
+                <Field label="Όνομα *" placeholder="π.χ. Μαρία"
+                  value={form.first_name} onChange={(v) => set("first_name", v)} required />
+                <Field label="Επώνυμο *" placeholder="π.χ. Παπαδοπούλου"
+                  value={form.last_name} onChange={(v) => set("last_name", v)} required />
+              </div>
+              <Field label="Email *" placeholder="you@example.com" type="email"
+                value={form.contact_email} onChange={(v) => set("contact_email", v)} required />
+              <Field label="Τηλέφωνο *" placeholder="π.χ. 6944525252" type="tel"
+                value={form.mobile} onChange={(v) => set("mobile", v)} required />
+              <Field label="Διεύθυνση *" placeholder="π.χ. Παπαδοπούλου 12, 71201 Ηράκλειο"
+                value={form.address} onChange={(v) => set("address", v)} required />
+              <Field label="ΑΦΜ *" placeholder="π.χ. 152998856"
+                value={form.afm} onChange={(v) => set("afm", v)} required />
+              <StepButtons onBack={null} />
+            </form>
+          )}
+
+          {/* ── SCHOOL — Step 1: You ── */}
+          {!isParent && step === 1 && (
             <form className="space-y-7" onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
               <Field label="Ονοματεπώνυμο *" placeholder="π.χ. Νίκος Παπαδόπουλος"
                 value={form.contact_person} onChange={(v) => set("contact_person", v)} required />
@@ -170,8 +249,8 @@ export default function OnboardingPage() {
             </form>
           )}
 
-          {/* ── Step 2: The School ── */}
-          {step === 2 && (
+          {/* ── SCHOOL — Step 2: The School ── */}
+          {!isParent && step === 2 && (
             <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(3); }}>
               <Field label="Διακριτικός τίτλος *" placeholder="π.χ. Φροντιστήριο Πεδίο"
                 value={form.trade_name} onChange={(v) => set("trade_name", v)} required />
@@ -195,59 +274,19 @@ export default function OnboardingPage() {
             </form>
           )}
 
-          {/* ── Step 3: Tax & Subjects ── */}
-          {step === 3 && (
-            <form className="space-y-7" onSubmit={(e) => {
-              e.preventDefault();
-              if (form.subjects.length === 0) { setError("Επιλέξτε τουλάχιστον ένα μάθημα."); return; }
-              setError(null);
-              setStep(4);
-            }}>
+          {/* ── SCHOOL — Step 3: Tax (no subjects anymore) ── */}
+          {!isParent && step === 3 && (
+            <form className="space-y-7" onSubmit={(e) => { e.preventDefault(); setStep(4); }}>
               <Field label="ΑΦΜ *" placeholder="π.χ. 152998856"
                 value={form.afm} onChange={(v) => set("afm", v)} required />
               <SelectField label="ΔΟΥ *" value={form.doy} onChange={(v) => set("doy", v)}
                 placeholder="Επιλέξτε ΔΟΥ" options={DOY_LIST as unknown as string[]} required />
-
-              <div>
-                <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-ink/40 mb-4">
-                  Μαθήματα που διδάσκετε *
-                </div>
-                <div className="space-y-3">
-                  {[
-                    { id: "greek", label: "Νέα Ελληνική Γλώσσα", icon: "✎", hint: "Ερωτήσεις Ε1–Ε20" },
-                    { id: "math",  label: "Μαθηματικά",           icon: "∑", hint: "Ερωτήσεις Ε21–Ε40" },
-                  ].map(({ id, label, icon, hint }) => (
-                    <button
-                      key={id} type="button"
-                      onClick={() => { toggleSubject(id); setError(null); }}
-                      className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all ${
-                        form.subjects.includes(id)
-                          ? "border-[#056ef5] bg-[#056ef5]/5"
-                          : "border-ink/10 hover:border-ink/30"
-                      }`}
-                    >
-                      <span className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl font-display flex-shrink-0 ${
-                        form.subjects.includes(id) ? "bg-[#056ef5] text-white" : "bg-ink/5 text-ink/40"
-                      }`}>{icon}</span>
-                      <div>
-                        <div className="font-bold text-ink text-sm">{label}</div>
-                        <div className="text-xs text-ink/40 mt-0.5">{hint}</div>
-                      </div>
-                      {form.subjects.includes(id) && (
-                        <span className="ml-auto w-5 h-5 rounded-full bg-[#056ef5] text-white text-xs grid place-items-center">✓</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-                {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-              </div>
-
               <StepButtons onBack={() => setStep(2)} />
             </form>
           )}
 
-          {/* ── Step 4: Terms ── */}
-          {step === 4 && (
+          {/* ── Terms step (last step in both flows) ── */}
+          {((isParent && step === 2) || (!isParent && step === 4)) && (
             <div className="space-y-6">
               <div className="h-64 overflow-y-auto rounded-2xl border border-ink/10 p-5 text-sm text-ink/70 leading-relaxed space-y-4 bg-[#fafaf8]">
                 <p className="font-bold text-ink">ΟΡΟΙ ΧΡΗΣΗΣ ΠΛΑΤΦΟΡΜΑΣ PROTUPA</p>
@@ -260,13 +299,12 @@ export default function OnboardingPage() {
                 <p>
                   Η Protupa παρέχει πρόσβαση σε θέματα διαγωνισμάτων εξετάσεων Πρότυπων
                   και Πειραματικών Σχολών, στατιστικά στοιχεία, καθώς και εργαλεία καταχώρησης
-                  και αξιολόγησης βαθμολογίας μαθητών για εγγεγραμμένα φροντιστήρια.
+                  και αξιολόγησης βαθμολογίας μαθητών.
                 </p>
                 <p className="font-bold text-ink">2. Εμπιστευτικότητα δεδομένων</p>
                 <p>
-                  Τα δεδομένα του φροντιστηρίου σας και των μαθητών σας αποθηκεύονται με
-                  ασφάλεια. Χωρίς ρητή γραπτή άδειά σας, δεν έχουμε πρόσβαση στα
-                  αναγνωριστικά δεδομένα των μαθητών σας.
+                  Τα δεδομένα σας και των μαθητών σας αποθηκεύονται με ασφάλεια. Χωρίς ρητή
+                  γραπτή άδειά σας, δεν έχουμε πρόσβαση στα αναγνωριστικά δεδομένα των μαθητών σας.
                 </p>
                 <p className="font-bold text-ink">3. Υποχρεώσεις χρήστη</p>
                 <p>
@@ -332,7 +370,7 @@ export default function OnboardingPage() {
               )}
 
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setStep(3)}
+                <button type="button" onClick={() => setStep(step - 1)}
                   className="px-5 py-3 rounded-full border-2 border-ink/15 text-ink/50 font-bold text-sm hover:border-ink/30 transition-colors cursor-pointer">
                   ← Πίσω
                 </button>

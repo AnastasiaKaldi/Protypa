@@ -25,7 +25,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, is_admin, onboarding_complete")
+    .select("full_name, is_admin, onboarding_complete, account_type")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -51,7 +51,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
               </Link>
             )}
           </div>
-          <AccountNav />
+          <AccountNav accountType={profile?.account_type === "parent" ? "parent" : "school"} />
         </div>
       </div>
 

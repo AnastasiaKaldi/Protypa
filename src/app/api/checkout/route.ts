@@ -27,6 +27,16 @@ export async function POST(req: Request) {
   if (!pkg) {
     return NextResponse.json({ error: "package not found" }, { status: 404 });
   }
+  // Stripe products / prices haven't been wired yet for this package.
+  if (!pkg.stripe_price_id) {
+    return NextResponse.json(
+      {
+        error:
+          "Το πακέτο δεν είναι ακόμα διαθέσιμο προς αγορά. Επικοινωνήστε μαζί μας στο info@protupa.gr.",
+      },
+      { status: 409 },
+    );
+  }
 
   const origin = req.headers.get("origin") ?? "http://localhost:3000";
   const stripe = getStripe();

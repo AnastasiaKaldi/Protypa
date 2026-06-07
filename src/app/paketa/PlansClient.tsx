@@ -1,20 +1,9 @@
 "use client";
-import { useState } from "react";
-import { BuyButton } from "./BuyButton";
-import { el } from "@/lib/i18n/el";
-import type { Package } from "@/lib/types";
+
+import { useMemo, useState } from "react";
+import type { Package, PackageFeature } from "@/lib/types";
 import { formatEuro } from "@/lib/format";
-import { PACKAGES } from "./packages-data";
-
-const SCHOOL_TYPES = [
-  "Πρότυπα Γυμνάσια",
-  "Πρότυπα Λύκεια",
-  "Ωνάσεια Γυμνάσια",
-  "Ωνάσεια Λύκεια",
-  "Εκκλησιαστικά Γυμνάσια",
-  "Εκκλησιαστικά Λύκεια",
-] as const;
-
+import { BuyButton } from "./BuyButton";
 
 export function PlansClient({
   packages,
@@ -23,123 +12,224 @@ export function PlansClient({
   packages: Package[];
   signedIn: boolean;
 }) {
-  const [activeTab, setActiveTab] = useState(0);
-  const pkgBySlug = Object.fromEntries(packages.map((p) => [p.slug, p]));
+  // Parent + school tier rows, ignoring legacy.
+  const parentPkg = packages.find((p) => p.package_type === "parent");
+  const schoolTiers = useMemo(
+    () =>
+      packages
+        .filter((p) => p.package_type === "school")
+        .sort((a, b) => (a.min_students ?? 0) - (b.min_students ?? 0)),
+    [packages],
+  );
+
+  const [selectedTierIdx, setSelectedTierIdx] = useState(0);
+  const selectedTier = schoolTiers[selectedTierIdx];
 
   return (
-    <section className="bg-white py-14 md:py-28">
+    <section className="bg-white py-14 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        {/* School-type tabs */}
-        <div className="mb-12">
-          <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand mb-4">
-            Επιλέξτε κατηγορία σχολείου
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {SCHOOL_TYPES.map((type, i) => (
-              <button
-                key={type}
-                onClick={() => setActiveTab(i)}
-                className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-                  activeTab === i
-                    ? "bg-[#FDFFFC] text-[#056ef5] border-2 border-[#056ef5]"
-                    : "text-ink/50 border border-ink/15 hover:border-[#056ef5] hover:text-[#056ef5]"
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-          <p className="mt-4 text-sm text-ink/40">
-            Για φροντιστήρια προετοιμασίας εξετάσεων{" "}
-            <span className="text-ink/70 font-bold">{SCHOOL_TYPES[activeTab]}</span>
-          </p>
+        <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-brand mb-3">
+          Πακέτα
+        </div>
+        <h2 className="font-display text-3xl md:text-5xl text-ink leading-tight">
+          Διαλέξτε το πακέτο σας
+        </h2>
+        <p className="mt-4 text-sm md:text-base text-ink/60 max-w-2xl leading-relaxed">
+          Δύο πακέτα. Ένα για γονείς που παρακολουθούν τα παιδιά τους, και ένα για φροντιστήρια
+          που προσαρμόζεται στον αριθμό των μαθητών τους.
+        </p>
+
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 mt-12">
+          {parentPkg && (
+            <ParentCard pkg={parentPkg} signedIn={signedIn} />
+          )}
+
+          {schoolTiers.length > 0 && selectedTier && (
+            <SchoolCard
+              tiers={schoolTiers}
+              selectedIdx={selectedTierIdx}
+              onSelect={setSelectedTierIdx}
+              signedIn={signedIn}
+            />
+          )}
+
+          {(!parentPkg || schoolTiers.length === 0) && (
+            <div className="lg:col-span-2 rounded-3xl border border-dashed border-ink/15 p-10 text-center text-sm text-ink/50">
+              Τα πακέτα δεν έχουν ρυθμιστεί ακόμα. Επικοινωνήστε μαζί μας στο{" "}
+              <a className="!text-[#056ef5] font-bold" href="mailto:info@protupa.gr">info@protupa.gr</a>.
+            </div>
+          )}
         </div>
 
-        {/* Package cards */}
-        <div className="grid md:grid-cols-3 gap-5 md:gap-6 items-stretch">
-          {PACKAGES.map((pkg) => {
-            const dbPkg = pkgBySlug[pkg.slug];
-            return (
-              <article
-                key={pkg.slug}
-                className={`group relative flex flex-col rounded-3xl ${pkg.surface} ${pkg.text} p-7 md:p-8 overflow-hidden transition-transform duration-300 hover:-translate-y-2`}
-              >
-                {/* Watermark */}
-                <div className="pointer-events-none absolute -bottom-10 -right-6 text-[10rem] leading-none select-none opacity-[0.07]">
-                  {pkg.icon}
-                </div>
-
-                {/* Popular badge */}
-                {pkg.popular && (
-                  <div className="absolute top-7 left-7">
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#7c00d0] text-paper text-[11px] font-black uppercase tracking-wider">
-                      ★ {el.packages.mostPopular}
-                    </span>
-                  </div>
-                )}
-
-                <div className="relative flex-1 flex flex-col">
-                  <p className={`text-xs font-bold tracking-[0.2em] uppercase opacity-60 ${pkg.popular ? "mt-10" : "mt-0"}`}>
-                    {pkg.label}
-                  </p>
-
-                  <h2 className="mt-3 font-display text-3xl md:text-4xl leading-none">
-                    {pkg.name}
-                  </h2>
-                  <p className="mt-1 text-sm opacity-70 leading-snug">{pkg.subtitle}</p>
-                  <p className="mt-0.5 text-[11px] opacity-40 italic">{pkg.note}</p>
-
-                  {dbPkg ? (
-                    <>
-                      <div className="mt-7 flex items-end gap-2 flex-wrap">
-                        <span className="font-display text-5xl md:text-6xl tabular-nums leading-none">
-                          {formatEuro(dbPkg.price_cents)}
-                        </span>
-                        {dbPkg.original_price_cents && (
-                          <span className="text-base opacity-40 line-through tabular-nums pb-1">
-                            {formatEuro(dbPkg.original_price_cents)}
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-2 text-[11px] opacity-50 font-bold uppercase tracking-wider">
-                        {el.packages.oneTime}
-                      </p>
-                    </>
-                  ) : (
-                    <div className="mt-7 font-display text-2xl opacity-40">—</div>
-                  )}
-
-                  <div className="mt-7 h-px bg-current opacity-15" />
-
-                  <ul className="mt-7 space-y-3 flex-1">
-                    {pkg.features.map((f, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm">
-                        <span
-                          className={`flex-shrink-0 mt-0.5 grid place-items-center w-5 h-5 rounded-full text-[10px] font-black leading-none ${pkg.checkBg} ${pkg.checkText}`}
-                        >
-                          ✓
-                        </span>
-                        <span className="leading-snug">{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-8">
-                    {dbPkg ? (
-                      <BuyButton packageId={dbPkg.id} signedIn={signedIn} buttonClass={pkg.button} />
-                    ) : (
-                      <span className="inline-flex px-6 py-3 rounded-full text-sm font-black uppercase tracking-wider opacity-30 ring-1 ring-current">
-                        {el.packages.buy}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+        <p className="mt-8 text-xs text-ink/50 text-center max-w-xl mx-auto leading-relaxed">
+          Ετήσια συνδρομή. Μπορείτε ανά πάσα στιγμή να αναβαθμίσετε ή να υποβιβάσετε το πακέτο σας
+          ανάλογα με τις ανάγκες σας.
+        </p>
       </div>
     </section>
   );
 }
 
+// ─── Parent card ─────────────────────────────────────────────────────────
+function ParentCard({ pkg, signedIn }: { pkg: Package; signedIn: boolean }) {
+  const purchasable = !!pkg.stripe_price_id && pkg.price_cents > 0;
+  return (
+    <article className="relative flex flex-col rounded-3xl bg-[#7c00d0] text-white p-7 md:p-9 overflow-hidden">
+      <div className="pointer-events-none absolute -bottom-12 -right-8 text-[10rem] leading-none select-none opacity-[0.07]">
+        ♡
+      </div>
+
+      <div className="relative flex flex-col flex-1">
+        <span className="text-xs font-bold tracking-[0.2em] uppercase opacity-70">Γονέας</span>
+        <h3 className="mt-2 font-display text-3xl md:text-4xl leading-tight">{pkg.name_el}</h3>
+        {pkg.description_el && (
+          <p className="mt-2 text-sm opacity-80 leading-relaxed">{pkg.description_el}</p>
+        )}
+
+        <PriceBlock priceCents={pkg.price_cents} purchasable={purchasable} />
+
+        <div className="mt-7 h-px bg-white/15" />
+
+        <FeatureList features={pkg.features} accent="bg-[#c8ff00] text-ink" />
+
+        <div className="mt-8">
+          <BuyButton
+            packageId={pkg.id}
+            signedIn={signedIn}
+            purchasable={purchasable}
+            buttonClass="bg-[#FDFFFC] !text-[#7c00d0] border-2 border-white hover:bg-white/95"
+          />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+// ─── School card with tier picker ────────────────────────────────────────
+function SchoolCard({
+  tiers,
+  selectedIdx,
+  onSelect,
+  signedIn,
+}: {
+  tiers: Package[];
+  selectedIdx: number;
+  onSelect: (i: number) => void;
+  signedIn: boolean;
+}) {
+  const tier = tiers[selectedIdx];
+  const purchasable = !!tier.stripe_price_id && tier.price_cents > 0;
+
+  return (
+    <article className="relative flex flex-col rounded-3xl bg-[#056ef5] text-white p-7 md:p-9 overflow-hidden">
+      <div className="pointer-events-none absolute -bottom-12 -right-8 text-[10rem] leading-none select-none opacity-[0.07]">
+        ★
+      </div>
+      <span className="absolute top-7 right-7 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#c8ff00] text-ink text-[10px] font-black uppercase tracking-wider">
+        Δημοφιλές
+      </span>
+
+      <div className="relative flex flex-col flex-1">
+        <span className="text-xs font-bold tracking-[0.2em] uppercase opacity-70">Φροντιστήριο</span>
+        <h3 className="mt-2 font-display text-3xl md:text-4xl leading-tight">
+          Πακέτο Φροντιστηρίου
+        </h3>
+        <p className="mt-2 text-sm opacity-80 leading-relaxed">
+          Για φροντιστήρια προετοιμασίας. Επιλέξτε εύρος μαθητών — το πακέτο προσαρμόζεται.
+        </p>
+
+        {/* Tier picker */}
+        <div className="mt-6">
+          <div className="text-[10px] font-bold tracking-[0.2em] uppercase opacity-70 mb-3">
+            Αριθμός μαθητών
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {tiers.map((t, i) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => onSelect(i)}
+                className={`px-3 py-2.5 rounded-lg text-xs font-bold tabular-nums transition-all cursor-pointer ${
+                  selectedIdx === i
+                    ? "bg-white !text-[#056ef5] shadow-md"
+                    : "bg-white/10 text-white/85 hover:bg-white/20"
+                }`}
+              >
+                {t.min_students}–{t.max_students}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <PriceBlock priceCents={tier.price_cents} purchasable={purchasable} />
+
+        <div className="mt-7 h-px bg-white/15" />
+
+        <FeatureList features={tier.features} accent="bg-[#c8ff00] text-ink" />
+
+        <div className="mt-8">
+          <BuyButton
+            packageId={tier.id}
+            signedIn={signedIn}
+            purchasable={purchasable}
+            buttonClass="bg-[#FDFFFC] !text-[#056ef5] border-2 border-[#c8ff00] hover:bg-[#c8ff00]/10"
+          />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+// ─── Shared bits ─────────────────────────────────────────────────────────
+function PriceBlock({
+  priceCents,
+  purchasable,
+}: {
+  priceCents: number;
+  purchasable: boolean;
+}) {
+  if (!purchasable) {
+    return (
+      <div className="mt-7">
+        <div className="font-display text-3xl opacity-70 leading-none">Σύντομα διαθέσιμο</div>
+        <div className="mt-2 text-[11px] opacity-60 font-bold uppercase tracking-wider">
+          Οι τιμές ανακοινώνονται σύντομα
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-7">
+      <div className="flex items-end gap-2">
+        <span className="font-display text-5xl md:text-6xl tabular-nums leading-none">
+          {formatEuro(priceCents)}
+        </span>
+        <span className="text-xs opacity-70 pb-2">/ έτος</span>
+      </div>
+      <div className="mt-2 text-[11px] opacity-60 font-bold uppercase tracking-wider">
+        Ετήσια χρέωση · αλλάζετε πακέτο όποτε θέλετε
+      </div>
+    </div>
+  );
+}
+
+function FeatureList({ features, accent }: { features: PackageFeature[]; accent: string }) {
+  return (
+    <ul className="mt-7 space-y-3 flex-1">
+      {features.map((f, i) => (
+        <li key={i} className="flex items-start gap-3 text-sm">
+          <span
+            className={`flex-shrink-0 mt-0.5 grid place-items-center w-5 h-5 rounded-full text-[10px] font-black leading-none ${
+              f.included ? accent : "bg-white/10 text-white/40"
+            }`}
+          >
+            {f.included ? "✓" : "—"}
+          </span>
+          <span className={`leading-snug ${f.included ? "" : "opacity-55 line-through"}`}>
+            {f.label}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}

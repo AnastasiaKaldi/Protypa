@@ -27,24 +27,10 @@ export default async function GradingDetailPage({ params }: { params: Promise<{ 
   const students = (studentsRow as Student[]) ?? [];
   const tags = (tagsRow as SimulationQuestionTag[]) ?? [];
 
-  // Enforce unlock gate
-  if (!simulation.unlocks_at || simulation.unlocks_at > now) {
-    return (
-      <div className="space-y-4">
-        <Link href="/account/grading" className="text-xs text-ink/40 hover:text-ink/60 transition-colors">← Πίσω</Link>
-        <div className="rounded-3xl border-2 border-dashed border-ink/10 p-12 text-center">
-          <div className="font-display text-5xl text-ink/10 mb-4">🔒</div>
-          <h2 className="font-display text-2xl text-ink">{simulation.title}</h2>
-          <p className="mt-3 text-sm text-ink/50">
-            Το Διαγώνισμα δεν έχει ξεκλειδωθεί ακόμα.
-            {simulation.unlocks_at && (
-              <> Ξεκλείδωμα: <strong>{new Date(simulation.unlocks_at).toLocaleDateString("el-GR", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}</strong></>
-            )}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // No unlock gate — grading (and re-grading) is always available.
+  // The exam PDF download is still gated on the listing page so future
+  // papers don't leak to students before exam day, but the grading sheet
+  // itself opens up regardless.
 
   // Load existing named student grades
   let existingGrades: StudentSimulationGrade[] = [];

@@ -6,15 +6,33 @@ import { el } from "@/lib/i18n/el";
 export function BuyButton({
   packageId,
   signedIn,
+  purchasable = true,
   buttonClass = "bg-accent-purple text-white hover:bg-[#6500b0]",
 }: {
   packageId: string;
   signedIn: boolean;
+  /** False when the package row has no stripe_price_id yet — show a disabled "coming soon" button. */
+  purchasable?: boolean;
   /** Tailwind classes that set the bg + text + hover colour for the card theme. */
   buttonClass?: string;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  // Not yet purchasable — Stripe products / prices haven't been created.
+  if (!purchasable) {
+    return (
+      <button
+        type="button"
+        disabled
+        aria-disabled="true"
+        title="Διαθέσιμο σύντομα"
+        className={`group w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full font-semibold cursor-not-allowed opacity-60 ${buttonClass}`}
+      >
+        Διαθέσιμο σύντομα
+      </button>
+    );
+  }
 
   if (!signedIn) {
     return (

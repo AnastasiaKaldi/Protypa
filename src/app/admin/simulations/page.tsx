@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Simulation } from "@/lib/types";
 
@@ -115,12 +116,20 @@ export default function AdminSimulationsPage() {
           <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/80 mb-2">Admin</div>
           <h1 className="font-display text-3xl text-white">Προσομοιώσεις</h1>
         </div>
-        <button
-          onClick={() => { setShowForm(true); setEditId(null); setForm(EMPTY_FORM); }}
-          className="px-5 py-2.5 rounded-full bg-[#056ef5] text-white font-black uppercase tracking-wider text-xs hover:bg-[#0451b8] transition-all cursor-pointer"
-        >
-          + Νέα Προσομοίωση
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/simulations/categorizations"
+            className="!text-white px-4 py-2.5 rounded-full border border-white/20 hover:border-white/40 font-bold uppercase tracking-wider text-xs hover:bg-white/5 transition-all"
+          >
+            ↑ Κατηγοριοποιήσεις
+          </Link>
+          <button
+            onClick={() => { setShowForm(true); setEditId(null); setForm(EMPTY_FORM); }}
+            className="px-5 py-2.5 rounded-full bg-[#056ef5] text-white font-black uppercase tracking-wider text-xs hover:bg-[#0451b8] transition-all cursor-pointer"
+          >
+            + Νέα Προσομοίωση
+          </button>
+        </div>
       </div>
 
       {/* Create / Edit form */}
