@@ -115,6 +115,15 @@ export interface School {
   updated_at: string;
 }
 
+// The four paper kinds each Προσομοίωση exposes to customers.
+// `kind` values are kebab-case for URL friendliness; column names are
+// snake_case for SQL convention.
+export type ExamPaperKind =
+  | "greek-questions"
+  | "math-questions"
+  | "greek-answers"
+  | "math-answers";
+
 export interface Simulation {
   id: string;
   number: number;
@@ -127,7 +136,15 @@ export interface Simulation {
   math_questions: number;
   is_published: boolean;
   material_url: string | null;
+  // Legacy single-PDF column. Kept for backward compat; new code uses the
+  // four kind-specific columns below instead.
   questions_url: string | null;
+  // New per-kind paper paths (v2). Each is a storage path in the private
+  // `exam-papers` bucket. Download routes go through the watermark API.
+  greek_questions_url: string | null;
+  math_questions_url: string | null;
+  greek_answers_url: string | null;
+  math_answers_url: string | null;
   created_at: string;
 }
 
@@ -171,6 +188,9 @@ export interface SimulationQuestionTag {
   question_number: number;
   subject: "greek" | "math";
   category: string;
+  // Optional metadata uploaded by admins (migration 0018):
+  correct_answer: string | null;     // e.g. "A" | "B" | "Γ" | "Δ" | "Ε"
+  difficulty: 1 | 2 | 3 | null;       // 1 easy, 2 medium, 3 hard
 }
 
 export interface Post {

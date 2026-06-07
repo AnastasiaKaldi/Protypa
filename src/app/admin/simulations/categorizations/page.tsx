@@ -63,14 +63,23 @@ export default function CategorizationsUploadPage() {
         <h1 className="font-display text-3xl text-white">Κατηγοριοποιήσεις ερωτήσεων</h1>
         <p className="text-sm text-white max-w-2xl leading-relaxed mt-3">
           Φορτώστε ένα αρχείο Excel <code className="text-[#c8ff00]">.xlsx</code> με ένα φύλλο
-          ανά διαγώνισμα. Το όνομα κάθε φύλλου πρέπει να είναι ο αριθμός του διαγωνίσματος (π.χ.
+          ανά διαγώνισμα. Το όνομα κάθε φύλλου πρέπει να περιέχει τον αριθμό του διαγωνίσματος (π.χ.
           <code className="text-[#c8ff00]"> 1</code>,
-          <code className="text-[#c8ff00]"> 2</code>, …
-          <code className="text-[#c8ff00]"> 10</code>). Κάθε φύλλο πρέπει να έχει 40 ερωτήσεις (Γλώσσα 1–20,
-          Μαθηματικά 21–40) με στήλες:{" "}
-          <strong className="text-white">Ερώτηση</strong>,{" "}
-          <strong className="text-white">Μάθημα</strong>,{" "}
-          <strong className="text-white">Κατηγορία</strong>.
+          <code className="text-[#c8ff00]"> ΚΡΙΤΗΡΙΟ 1</code>,
+          <code className="text-[#c8ff00]"> Διαγώνισμα 10</code>). Κάθε φύλλο πρέπει να έχει έως 40 ερωτήσεις
+          (Γλώσσα 1–20, Μαθηματικά 21–40).
+        </p>
+        <p className="text-sm text-white max-w-2xl leading-relaxed mt-3">
+          Απαιτούμενες στήλες:{" "}
+          <strong className="text-white">Ερώτηση</strong> ή{" "}
+          <strong className="text-white">ΕΡΩΤΗΣΗ</strong> +{" "}
+          <strong className="text-white">Κατηγορία</strong> ή{" "}
+          <strong className="text-white">ΧΑΡΑΚΤΗΡΙΣΜΟΣ</strong>.
+        </p>
+        <p className="text-sm text-white/85 max-w-2xl leading-relaxed mt-2">
+          Προαιρετικές στήλες:{" "}
+          <strong className="text-white">ΑΠΑΝΤΗΣΗ</strong> (Α/Β/Γ/Δ/Ε) και{" "}
+          <strong className="text-white">ΔΥΣΚΟΛΙΑ</strong> (1, 2 ή 3).
         </p>
         <p className="text-xs text-white/80 mt-3">
           Επαναφόρτωση του ίδιου αρχείου είναι ασφαλής — οι παλιές κατηγοριοποιήσεις

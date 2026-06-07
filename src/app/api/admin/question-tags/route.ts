@@ -6,14 +6,20 @@ import {
 } from "@/lib/supabase/server";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-// Every Προσομοίωση has 20 Γλώσσα questions (1-20) followed by 20 Μαθηματικά (21-40).
+// Every Προσομοίωση has 20 Γλώσσα questions (1-20) followed by 20 Μαθηματικά
+// (21-40). The 20+20 layout is shared between our previous "question
+// number" template and the boss's "ΚΡΙΤΗΡΙΟ N" workbook.
 const GREEK_QUESTIONS = 20;
 const MATH_QUESTIONS = 20;
 const TOTAL_QUESTIONS = GREEK_QUESTIONS + MATH_QUESTIONS;
 
-// Expected header names in each sheet (row 1).
-const HEADER_QUESTION = "Ερώτηση";
-const HEADER_CATEGORY = "Κατηγορία";
+// Accept either the original lowercase or the boss's all-caps header.
+const HEADER_ALIASES = {
+  question: ["Ερώτηση", "ΕΡΩΤΗΣΗ"],
+  category: ["Κατηγορία", "ΧΑΡΑΚΤΗΡΙΣΜΟΣ"],
+  answer:   ["Απάντηση", "ΑΠΑΝΤΗΣΗ"],
+  difficulty: ["Δυσκολία", "ΔΥΣΚΟΛΙΑ"],
+} as const;
 
 type Subject = "greek" | "math";
 type TagRow = {
@@ -21,6 +27,8 @@ type TagRow = {
   question_number: number;
   subject: Subject;
   category: string;
+  correct_answer: string | null;
+  difficulty: number | null;
 };
 type SheetReport = {
   sheet: string;
@@ -29,11 +37,68 @@ type SheetReport = {
   count: number;
 };
 
+// Pull a digit from a sheet name. Accepts plain numbers ("1", "10")
+// and labelled forms like "ΚΡΙΤΗΡΙΟ 1", "Διαγώνισμα 02", "Sim 3 - draft".
+function extractSheetNumber(sheetName: string): number | null {
+  const match = sheetName.match(/\d+/);
+  if (!match) return null;
+  const n = Number(match[0]);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+// The boss's workbook puts a title row above the header. Find the row that
+// actually contains the column headers and treat everything below it as data.
+// Returns { header: string[], data: unknown[][] }.
+function splitHeaderAndData(sheet: XLSX.WorkSheet): {
+  header: string[];
+  data: unknown[][];
+} {
+  const matrix = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
+    defval: "",
+    header: 1,
+  });
+
+  const wantedHeaders = new Set<string>([
+    ...HEADER_ALIASES.question,
+    ...HEADER_ALIASES.category,
+    ...HEADER_ALIASES.answer,
+    ...HEADER_ALIASES.difficulty,
+  ]);
+
+  for (let i = 0; i < Math.min(matrix.length, 10); i++) {
+    const row = matrix[i].map((c) => String(c ?? "").trim());
+    const hits = row.filter((c) => wantedHeaders.has(c)).length;
+    if (hits >= 2) {
+      return { header: row, data: matrix.slice(i + 1) };
+    }
+  }
+  // No recognisable header — return everything as data with empty header so
+  // the caller can choose to skip.
+  return { header: [], data: matrix };
+}
+
+// Find which column index holds each field. Returns -1 if not present.
+function locateColumns(header: string[]) {
+  function find(aliases: readonly string[]): number {
+    for (let i = 0; i < header.length; i++) {
+      if (aliases.includes(header[i])) return i;
+    }
+    return -1;
+  }
+  return {
+    question:   find(HEADER_ALIASES.question),
+    category:   find(HEADER_ALIASES.category),
+    answer:     find(HEADER_ALIASES.answer),
+    difficulty: find(HEADER_ALIASES.difficulty),
+  };
+}
+
 // ─── Handler ─────────────────────────────────────────────────────────────────
 // POST /api/admin/question-tags
 //   multipart/form-data with `file=<xlsx>`
 // Parses each sheet, validates, and bulk-upserts into simulation_question_tags.
-// Sheets are matched to simulations by sheet-name === simulations.number.
+// Sheets are matched to simulations by extracting a number from the sheet
+// name (so "ΚΡΙΤΗΡΙΟ 1" maps to simulations.number === 1, etc.).
 export async function POST(req: Request) {
   // 1. Auth gate — must be an admin profile.
   const supabase = await createSupabaseServerClient();
@@ -96,12 +161,12 @@ export async function POST(req: Request) {
   const sheetReports: SheetReport[] = [];
 
   for (const sheetName of workbook.SheetNames) {
-    const sheetNumber = Number(sheetName.trim());
-    if (!Number.isInteger(sheetNumber)) {
+    const sheetNumber = extractSheetNumber(sheetName);
+    if (sheetNumber === null) {
       sheetReports.push({
         sheet: sheetName,
         status: "skipped",
-        message: "Το όνομα του φύλλου δεν είναι αριθμός — παραλείπεται.",
+        message: "Το όνομα του φύλλου δεν περιέχει αριθμό — παραλείπεται.",
         count: 0,
       });
       continue;
@@ -118,17 +183,35 @@ export async function POST(req: Request) {
     }
 
     const sheet = workbook.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
-      defval: "",
-    });
+    const { header, data } = splitHeaderAndData(sheet);
+    const cols = locateColumns(header);
+
+    if (cols.question < 0 || cols.category < 0) {
+      sheetReports.push({
+        sheet: sheetName,
+        status: "skipped",
+        message:
+          "Δεν εντοπίστηκαν οι απαιτούμενες στήλες ('Ερώτηση' και 'Κατηγορία' ή 'ΧΑΡΑΚΤΗΡΙΣΜΟΣ').",
+        count: 0,
+      });
+      continue;
+    }
 
     const seen = new Set<number>();
     let validCount = 0;
-    for (const row of rows) {
-      const qRaw = row[HEADER_QUESTION];
-      const catRaw = row[HEADER_CATEGORY];
+    for (const row of data) {
+      const qRaw = row[cols.question];
+      const catRaw = row[cols.category];
+      const ansRaw = cols.answer >= 0 ? row[cols.answer] : "";
+      const diffRaw = cols.difficulty >= 0 ? row[cols.difficulty] : "";
+
       const q = Number(qRaw);
       const category = String(catRaw ?? "").trim();
+      const correct_answer = String(ansRaw ?? "").trim().toUpperCase() || null;
+      const diffNum = Number(diffRaw);
+      const difficulty =
+        Number.isInteger(diffNum) && diffNum >= 1 && diffNum <= 3 ? diffNum : null;
+
       if (
         !Number.isInteger(q) ||
         q < 1 ||
@@ -145,17 +228,25 @@ export async function POST(req: Request) {
         question_number: q,
         subject,
         category,
+        correct_answer,
+        difficulty,
       });
       validCount++;
     }
 
     sheetReports.push({
       sheet: sheetName,
-      status: validCount === TOTAL_QUESTIONS ? "ok" : "warning",
+      status: validCount === 0
+        ? "skipped"
+        : validCount === TOTAL_QUESTIONS
+          ? "ok"
+          : "warning",
       message:
-        validCount === TOTAL_QUESTIONS
-          ? `${sim.title} — ${validCount} ερωτήσεις κατηγοριοποιήθηκαν.`
-          : `${sim.title} — βρέθηκαν ${validCount} έγκυρες ερωτήσεις (αναμένονταν ${TOTAL_QUESTIONS}). Έλεγχος μορφής.`,
+        validCount === 0
+          ? `${sim.title} — δεν βρέθηκαν συμπληρωμένες ερωτήσεις στο φύλλο.`
+          : validCount === TOTAL_QUESTIONS
+            ? `${sim.title} — ${validCount} ερωτήσεις κατηγοριοποιήθηκαν.`
+            : `${sim.title} — βρέθηκαν ${validCount} έγκυρες ερωτήσεις (αναμένονταν ${TOTAL_QUESTIONS}).`,
       count: validCount,
     });
   }
@@ -164,7 +255,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         error:
-          "Δεν βρέθηκαν έγκυρες κατηγοριοποιήσεις. Βεβαιωθείτε ότι οι στήλες είναι 'Ερώτηση' και 'Κατηγορία' και ότι τα ονόματα φύλλων είναι αριθμοί.",
+          "Δεν βρέθηκαν έγκυρες κατηγοριοποιήσεις. Ελέγξτε τα ονόματα φύλλων (πρέπει να περιέχουν αριθμό) και τις στήλες (Ερώτηση/ΕΡΩΤΗΣΗ + Κατηγορία/ΧΑΡΑΚΤΗΡΙΣΜΟΣ).",
         sheets: sheetReports,
       },
       { status: 400 },

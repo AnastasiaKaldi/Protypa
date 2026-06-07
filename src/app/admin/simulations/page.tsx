@@ -8,7 +8,14 @@ type FormState = {
   number: string; title: string; subject: string;
   exam_date: string; unlocks_at: string; grading_closes_at: string;
   greek_questions: string; math_questions: string; is_published: boolean;
-  material_url: string; questions_url: string;
+  material_url: string;
+  // Legacy single combined PDF — still saved for backward compat, no UI for it
+  questions_url: string;
+  // Per-kind PDFs (v2)
+  greek_questions_url: string;
+  math_questions_url: string;
+  greek_answers_url: string;
+  math_answers_url: string;
 };
 
 const EMPTY_FORM: FormState = {
@@ -16,6 +23,8 @@ const EMPTY_FORM: FormState = {
   exam_date: "", unlocks_at: "", grading_closes_at: "",
   greek_questions: "20", math_questions: "20", is_published: false,
   material_url: "", questions_url: "",
+  greek_questions_url: "", math_questions_url: "",
+  greek_answers_url: "", math_answers_url: "",
 };
 
 export default function AdminSimulationsPage() {
@@ -54,6 +63,10 @@ export default function AdminSimulationsPage() {
       is_published: sim.is_published,
       material_url: sim.material_url ?? "",
       questions_url: sim.questions_url ?? "",
+      greek_questions_url: sim.greek_questions_url ?? "",
+      math_questions_url: sim.math_questions_url ?? "",
+      greek_answers_url: sim.greek_answers_url ?? "",
+      math_answers_url: sim.math_answers_url ?? "",
     });
     setShowForm(true);
   }
@@ -81,6 +94,10 @@ export default function AdminSimulationsPage() {
       is_published: form.is_published,
       material_url: form.material_url || null,
       questions_url: form.questions_url || null,
+      greek_questions_url: form.greek_questions_url || null,
+      math_questions_url:  form.math_questions_url  || null,
+      greek_answers_url:   form.greek_answers_url   || null,
+      math_answers_url:    form.math_answers_url    || null,
     };
     const { error: err } = editId
       ? await supabase.from("simulations").update(payload).eq("id", editId)
@@ -147,14 +164,32 @@ export default function AdminSimulationsPage() {
               <EUDateField label="Κλείσιμο βαθμολόγησης" value={form.grading_closes_at} onChange={(v) => set("grading_closes_at", v)} withTime />
             </div>
             <div className="pt-2 border-t border-white/10">
-              <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white mb-4">Αρχείο διαγωνίσματος</div>
-              <PdfUpload
-                label="Θέματα διαγωνίσματος (PDF)"
-                url={form.questions_url}
-                onChange={(v) => set("questions_url", v)}
-              />
+              <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-white mb-4">Αρχεία διαγωνίσματος</div>
+              <div className="grid md:grid-cols-2 gap-5">
+                <PdfUpload
+                  label="Θέματα Γλώσσας (PDF)"
+                  url={form.greek_questions_url}
+                  onChange={(v) => set("greek_questions_url", v)}
+                />
+                <PdfUpload
+                  label="Θέματα Μαθηματικών (PDF)"
+                  url={form.math_questions_url}
+                  onChange={(v) => set("math_questions_url", v)}
+                />
+                <PdfUpload
+                  label="Απαντήσεις Γλώσσας (PDF)"
+                  url={form.greek_answers_url}
+                  onChange={(v) => set("greek_answers_url", v)}
+                />
+                <PdfUpload
+                  label="Απαντήσεις Μαθηματικών (PDF)"
+                  url={form.math_answers_url}
+                  onChange={(v) => set("math_answers_url", v)}
+                />
+              </div>
               <p className="text-xs font-medium text-white/75 mt-3">
-                Μεταφορτώστε PDF αρχεία. Θα είναι διαθέσιμα στους χρήστες που έχουν αγοράσει το αντίστοιχο πακέτο.
+                Κάθε PDF κατεβαίνει από τους χρήστες με υδατογράφημα του φροντιστηρίου τους.
+                Δεν χρειάζεται να μεταφορτώσετε και τα τέσσερα — άδεια πεδία απλά κρύβονται από το dropdown.
               </p>
             </div>
             <label className="flex items-center gap-3 cursor-pointer">
@@ -250,8 +285,10 @@ function PdfUpload({ label, url, onChange }: { label: string; url: string; onCha
       upsert: false,
     });
     if (upErr) { setError(upErr.message); setUploading(false); return; }
-    const { data: pub } = supabase.storage.from("exam-papers").getPublicUrl(path);
-    onChange(pub.publicUrl);
+    // Store only the storage path. Downloads route through
+    // /api/account/exam-paper/[sim_id] which fetches via service role,
+    // applies a watermark with the school's trade_name, and returns the PDF.
+    onChange(path);
     setUploading(false);
   }
 
@@ -271,9 +308,26 @@ function PdfUpload({ label, url, onChange }: { label: string; url: string; onCha
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs text-white truncate" title={filename ?? ""}>{filename}</div>
-            <a href={url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#c8ff00] hover:underline">
+            <button
+              type="button"
+              onClick={async () => {
+                // Bucket is private — generate a short-lived signed URL on
+                // demand for admin preview. Customers go through the
+                // watermark route at /api/account/exam-paper/[id].
+                const supabase = createSupabaseBrowserClient();
+                const { data, error: signErr } = await supabase.storage
+                  .from("exam-papers")
+                  .createSignedUrl(url, 60);
+                if (signErr || !data?.signedUrl) {
+                  alert(`Δεν ήταν δυνατή η προβολή: ${signErr?.message ?? "άγνωστο σφάλμα"}`);
+                  return;
+                }
+                window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+              }}
+              className="text-[10px] text-[#c8ff00] hover:underline cursor-pointer"
+            >
               Άνοιγμα PDF →
-            </a>
+            </button>
           </div>
           <label className="cursor-pointer text-[10px] font-bold uppercase tracking-wider text-white/60 hover:text-white border border-white/15 hover:border-white/40 px-2.5 py-1.5 rounded transition-colors">
             <input type="file" accept="application/pdf" className="hidden"

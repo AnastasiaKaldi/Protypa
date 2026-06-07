@@ -15,6 +15,10 @@ const MOCK_SIM: Simulation = {
   is_published: true,
   material_url: null,
   questions_url: null,
+  greek_questions_url: null,
+  math_questions_url: null,
+  greek_answers_url: null,
+  math_answers_url: null,
   created_at: "2024-10-01T00:00:00Z",
 };
 

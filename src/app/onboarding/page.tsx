@@ -252,8 +252,21 @@ export default function OnboardingPage() {
           {/* ── SCHOOL — Step 2: The School ── */}
           {!isParent && step === 2 && (
             <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(3); }}>
-              <Field label="Διακριτικός τίτλος *" placeholder="π.χ. Φροντιστήριο Πεδίο"
-                value={form.trade_name} onChange={(v) => set("trade_name", v)} required />
+              <div>
+                <Field label="Διακριτικός τίτλος *" placeholder="π.χ. Φροντιστήριο Πεδίο"
+                  value={form.trade_name} onChange={(v) => set("trade_name", v)} required />
+                <div className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-700 flex-shrink-0 mt-0.5" aria-hidden="true">
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <p className="text-xs text-amber-900 leading-relaxed">
+                    <strong className="font-bold">Προσοχή:</strong> Αυτό το όνομα θα εμφανίζεται ως
+                    υδατογράφημα σε κάθε διαγώνισμα PDF που κατεβάζετε.
+                  </p>
+                </div>
+              </div>
               <Field label="Επωνυμία (νομικό όνομα) *" placeholder="π.χ. Βασιλειάδης & ΣΙΑ ΟΕ"
                 value={form.legal_name} onChange={(v) => set("legal_name", v)} required />
               <Field label="Διεύθυνση *" placeholder="π.χ. Παπαδοπούλου 12"

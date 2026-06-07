@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getActivePackages } from "@/lib/entitlements";
-import type { Simulation, SchoolSimulation } from "@/lib/types";
+import type { Simulation, SchoolSimulation, ExamPaperKind } from "@/lib/types";
 
 export default async function GradingListPage() {
   const supabase = await createSupabaseServerClient();
@@ -251,7 +251,9 @@ function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }:
             <tr className="border-b border-ink/10 bg-[#fafaf8]">
               <th className="text-left px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 w-12">#</th>
               <th className="text-left px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55">Διαγώνισμα</th>
-              <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-right hidden sm:table-cell">Συμμετοχή</th>
+              <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-center min-w-[150px]">Θέματα</th>
+              <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-center min-w-[150px] hidden sm:table-cell">Απαντήσεις</th>
+              <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-right hidden md:table-cell">Συμμετοχή</th>
               <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-right hidden md:table-cell">Στατιστικά</th>
               <th className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-ink/55 text-right">Κατάσταση</th>
             </tr>
@@ -259,7 +261,6 @@ function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }:
           <tbody className="divide-y divide-ink/8">
             {sims.map((sim) => {
               const p = participationMap.get(sim.id);
-              const unlocked = sim.unlocks_at && sim.unlocks_at <= now;
               const closed = sim.grading_closes_at && sim.grading_closes_at <= now;
               const submitted = p?.is_submitted;
 
@@ -274,7 +275,27 @@ function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }:
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-3 text-right hidden sm:table-cell">
+                  <td className="px-3 py-3 text-center">
+                    <PaperPair
+                      simId={sim.id}
+                      kind="questions"
+                      greekUrl={sim.greek_questions_url}
+                      mathUrl={sim.math_questions_url}
+                      legacyUrl={sim.questions_url}
+                      canAccess={hasAccess(sim.subject)}
+                    />
+                  </td>
+                  <td className="px-3 py-3 text-center hidden sm:table-cell">
+                    <PaperPair
+                      simId={sim.id}
+                      kind="answers"
+                      greekUrl={sim.greek_answers_url}
+                      mathUrl={sim.math_answers_url}
+                      legacyUrl={null}
+                      canAccess={hasAccess(sim.subject)}
+                    />
+                  </td>
+                  <td className="px-3 py-3 text-right hidden md:table-cell">
                     {p?.student_count != null ? (
                       <span className="text-sm tabular">{p.student_count}</span>
                     ) : <span className="text-xs text-ink/30">—</span>}
@@ -284,7 +305,6 @@ function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }:
                   </td>
                   <td className="px-3 py-3 text-right">
                     <div className="inline-flex items-center justify-end gap-3">
-                      <ExamDownload url={sim.questions_url} canAccess={hasAccess(sim.subject)} unlocked={!!unlocked} />
                       <StatusCell
                         sim={sim}
                         submitted={!!submitted}
@@ -301,6 +321,131 @@ function SimulationsTable({ sims, participationMap, now, isPreview, hasAccess }:
         </table>
       </div>
     </div>
+  );
+}
+
+// ─── Download chips ──────────────────────────────────────────────────────────
+// Two small subject-colored chips (Γ / Μ) per column — one column for Θέματα,
+// one for Απαντήσεις. Each chip downloads the watermarked PDF for that paper.
+
+function PaperPair({ simId, kind, greekUrl, mathUrl, legacyUrl, canAccess }: {
+  simId: string;
+  kind: "questions" | "answers";
+  greekUrl: string | null;
+  mathUrl: string | null;
+  // Only set for the "questions" column — surfaces the pre-0017 combined PDF
+  // if no Greek / Math questions have been uploaded yet.
+  legacyUrl: string | null;
+  canAccess: boolean;
+}) {
+  // Nothing uploaded for either subject + no legacy fallback either.
+  if (!greekUrl && !mathUrl && !legacyUrl) {
+    return <span className="text-xs text-ink/25" title="Δεν έχει αναρτηθεί">—</span>;
+  }
+
+  // No active package → both chips show as locked (single lock icon to keep
+  // the cell compact).
+  if (!canAccess) {
+    return (
+      <span
+        title="Απαιτείται αγορά του αντίστοιχου πακέτου"
+        className="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs text-ink/35 cursor-not-allowed"
+        aria-label="Locked"
+      >
+        🔒
+      </span>
+    );
+  }
+
+  // Legacy fallback: pre-0017 simulations only have `questions_url`. Show one
+  // generic chip in the questions column.
+  if (kind === "questions" && !greekUrl && !mathUrl && legacyUrl) {
+    return (
+      <PaperChip
+        simId={simId}
+        kind={null}
+        label="Διαγώνισμα"
+        title="Θέματα διαγωνίσματος (legacy)"
+        subject="legacy"
+        available
+      />
+    );
+  }
+
+  const greekKind: ExamPaperKind = kind === "questions" ? "greek-questions" : "greek-answers";
+  const mathKind: ExamPaperKind  = kind === "questions" ? "math-questions"  : "math-answers";
+
+  return (
+    <div className="inline-flex flex-col sm:flex-row items-center justify-center gap-1.5">
+      <PaperChip
+        simId={simId}
+        kind={greekKind}
+        label="Γλώσσα"
+        title={`${kind === "questions" ? "Θέματα" : "Απαντήσεις"} Γλώσσας`}
+        subject="greek"
+        available={!!greekUrl}
+      />
+      <PaperChip
+        simId={simId}
+        kind={mathKind}
+        label="Μαθηματικά"
+        title={`${kind === "questions" ? "Θέματα" : "Απαντήσεις"} Μαθηματικών`}
+        subject="math"
+        available={!!mathUrl}
+      />
+    </div>
+  );
+}
+
+function PaperChip({ simId, kind, label, title, subject, available }: {
+  simId: string;
+  // null kind → use the legacy `questions_url` (no query param on the URL).
+  kind: ExamPaperKind | null;
+  label: string;
+  title: string;
+  subject: "greek" | "math" | "legacy";
+  available: boolean;
+}) {
+  // Pill button — short text label, color-coded by subject. Includes a small
+  // download arrow so it visually reads as a downloadable file.
+  const base = "inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider whitespace-nowrap border transition-colors";
+
+  if (!available) {
+    return (
+      <span
+        title="Δεν έχει αναρτηθεί ακόμα"
+        className={`${base} border-ink/10 text-ink/25 bg-ink/[0.02] cursor-not-allowed`}
+        aria-label="Not available"
+      >
+        {label}
+      </span>
+    );
+  }
+
+  const palette = subject === "greek"
+    ? "border-[#7c00d0]/40 text-[#7c00d0] hover:bg-[#7c00d0] hover:text-white hover:border-[#7c00d0]"
+    : subject === "math"
+    ? "border-[#056ef5]/40 text-[#056ef5] hover:bg-[#056ef5] hover:text-white hover:border-[#056ef5]"
+    : "border-ink/30 text-ink/70 hover:bg-ink hover:text-white hover:border-ink";
+
+  const href = kind
+    ? `/api/account/exam-paper/${simId}?kind=${kind}`
+    : `/api/account/exam-paper/${simId}`;
+
+  return (
+    <a
+      href={href}
+      title={`${title} — με υδατογράφημα του φροντιστηρίου σας`}
+      className={`${base} ${palette}`}
+      aria-label={title}
+    >
+      {label}
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+    </a>
   );
 }
 
@@ -349,36 +494,6 @@ function StatusCell({ sim, submitted, closed, p, isPreview }: {
   );
 }
 
-function ExamDownload({ url, canAccess, unlocked }: { url: string | null; canAccess: boolean; unlocked: boolean }) {
-  if (!unlocked || !url) return null;
-  if (!canAccess) {
-    return (
-      <span
-        title="Απαιτείται αγορά του αντίστοιχου πακέτου"
-        className="inline-flex items-center gap-1 text-xs text-ink/35 cursor-not-allowed"
-        aria-label="Locked"
-      >
-        🔒
-      </span>
-    );
-  }
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      title="Κατέβασμα διαγωνίσματος (PDF)"
-      className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#7c00d0] hover:text-white hover:bg-[#7c00d0] border border-[#7c00d0]/40 hover:border-[#7c00d0] px-2.5 py-1.5 rounded-full transition-colors"
-    >
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" y1="15" x2="12" y2="3" />
-      </svg>
-      PDF
-    </a>
-  );
-}
 
 function StatsWindowCell({ closesAt, now }: { closesAt: string | null; now: string }) {
   // No deadline configured → stats stay open forever.
@@ -427,10 +542,10 @@ function StatusDot({ color, label }: { color: string; label: string }) {
 // ─── Preview ────────────────────────────────────────────────────────────────
 
 const PREVIEW_SIMS: Simulation[] = [
-  { id: "p1", number: 1, title: "Διαγώνισμα 1 · Νοέμβριος 2024", subject: "bundle", exam_date: "2024-11-16", unlocks_at: "2024-11-16T09:00:00Z", grading_closes_at: "2024-12-01T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
-  { id: "p2", number: 2, title: "Διαγώνισμα 2 · Δεκέμβριος 2024", subject: "bundle", exam_date: "2024-12-14", unlocks_at: "2024-12-14T09:00:00Z", grading_closes_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
-  { id: "p3", number: 3, title: "Διαγώνισμα 3 · Φεβρουάριος 2025", subject: "bundle", exam_date: "2025-02-08", unlocks_at: "2099-02-08T09:00:00Z", grading_closes_at: null, greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
-  { id: "p4", number: 4, title: "Διαγώνισμα 4 · Μάρτιος 2025", subject: "bundle", exam_date: "2025-03-15", unlocks_at: "2099-03-15T09:00:00Z", grading_closes_at: null, greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, created_at: "" },
+  { id: "p1", number: 1, title: "Διαγώνισμα 1 · Νοέμβριος 2024", subject: "bundle", exam_date: "2024-11-16", unlocks_at: "2024-11-16T09:00:00Z", grading_closes_at: "2024-12-01T23:59:00Z", greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, greek_questions_url: null, math_questions_url: null, greek_answers_url: null, math_answers_url: null, created_at: "" },
+  { id: "p2", number: 2, title: "Διαγώνισμα 2 · Δεκέμβριος 2024", subject: "bundle", exam_date: "2024-12-14", unlocks_at: "2024-12-14T09:00:00Z", grading_closes_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, greek_questions_url: null, math_questions_url: null, greek_answers_url: null, math_answers_url: null, created_at: "" },
+  { id: "p3", number: 3, title: "Διαγώνισμα 3 · Φεβρουάριος 2025", subject: "bundle", exam_date: "2025-02-08", unlocks_at: "2099-02-08T09:00:00Z", grading_closes_at: null, greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, greek_questions_url: null, math_questions_url: null, greek_answers_url: null, math_answers_url: null, created_at: "" },
+  { id: "p4", number: 4, title: "Διαγώνισμα 4 · Μάρτιος 2025", subject: "bundle", exam_date: "2025-03-15", unlocks_at: "2099-03-15T09:00:00Z", grading_closes_at: null, greek_questions: 20, math_questions: 20, is_published: true, material_url: null, questions_url: null, greek_questions_url: null, math_questions_url: null, greek_answers_url: null, math_answers_url: null, created_at: "" },
 ];
 
 const PREVIEW_PARTICIPATIONS: SchoolSimulation[] = [
